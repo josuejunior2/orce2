@@ -84,7 +84,7 @@ Route::middleware(['auth:admin'])->group(function () {
 
     Route::post('site/download/modelo/planilha', 'App\Http\Controllers\SiteController@downloadModeloPlanilha')->name('site.download.modelo.planilha');
     Route::get('site/create/+1Site/{orcamento}/{botao?}', 'App\Http\Controllers\SiteController@create')->name('site.create.+1');
-    Route::get('site/create/{orcamento}/{botao}', 'App\Http\Controllers\SiteController@create')->name('site.create');
+    Route::get('site/create/{orcamento}/', 'App\Http\Controllers\SiteController@create')->name('site.create');
     Route::get('site/create/L2L/{orcamento}/{botao?}/{isPontaA?}', 'App\Http\Controllers\SiteController@createl2l')->name('site.create.l2l');
     Route::get('site/create/+1PontaA/{orcamento}/{isPontaA}', 'App\Http\Controllers\SiteController@createMais1PontaA')->name('site.create.+1.PontaA');
     Route::post('site/create/sheet/{orcamento}', 'App\Http\Controllers\SiteController@store_sheet')->name('site.store.sheet');
@@ -108,6 +108,8 @@ Route::middleware(['auth:admin'])->group(function () {
     Route::post('orcamento/recalculate/{orcamento}', [App\Http\Controllers\OrcamentoController::class, 'recalculate'])->name('orcamento.recalculate');
     
     Route::get('export/orcamento/{orcamento}', [App\Http\Controllers\OrcamentoController::class, 'export_orcamento'])->name('export.orcamento');
+
+    Route::get('/sites/getSites', [App\Http\Controllers\SiteController::class, 'getSites']);
 });
 
 // Route::resource('empresa', App\Http\Controllers\EmpresaController::class); // por enquanto não vou implementar, somente quando for prestar serviço para outro cliente.

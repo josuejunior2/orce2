@@ -16,17 +16,39 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
 
 class SiteController extends Controller
 {
     /**
      * Show the form for creating a new resource.
      */
-    public function create(Orcamento $orcamento, $botao = null)
+    public function create(Orcamento $orcamento)
     {
         $cidades = Cidade::all();
+        $servicos = Servico::all();
+        $sites = Site::all();
+        $orcamento->load('Cliente');
+        
+        return Inertia::render('SiteForm', [
+            'cidades' => $cidades,
+            'servicos' => $servicos,
+            'sites' => $sites,
+            'orcamento' => $orcamento
+        ]);
+        // return view('site.create', ['orcamento' => $orcamento, 'cidades' => $cidades, 'botao' => $botao, 'servicos' => Servico::all()]);
+    }
+    
+    public function getSites(Request $request)
+    {
+        $nome = $request->input('nome');
 
-        return view('site.create', ['orcamento' => $orcamento, 'cidades' => $cidades, 'botao' => $botao, 'servicos' => Servico::all()]);
+        $sites = Site::where('nome', 'like', '%' . $nome . '%')
+            ->select('id', 'nome')
+            ->limit(10)
+            ->get();
+
+        return response()->json($sites);
     }
     /**
      * Store a newly created resource in storage.
