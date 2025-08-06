@@ -26,7 +26,7 @@
         <v-card-text>
           <v-form @submit.prevent="submitForm" ref="form">
             <v-row>
-              <v-col cols="12" md="6">
+              <v-col cols="4" md="4">
                 <v-autocomplete
                     v-model="siteSelecionado"
                     :items="sites"
@@ -40,11 +40,35 @@
                     <template #no-data>
                         <v-list-item
                         @click="selecionarCriarNovoSite"
-                        title="Criar novo site: '{{ termoBusca }}'"
+                        title="Criar novo site"
                         />
                     </template>
                 </v-autocomplete>
               </v-col>
+              <v-col v-if="criandoNovoSite" cols="4" md="4">
+                  <v-text-field
+                    v-model="novoSite.latitude"
+                    label="Latitude do novo site"
+                  />
+              </v-col>
+              <v-col v-if="criandoNovoSite" cols="4" md="4">
+                  <v-text-field
+                    v-model="novoSite.longitude"
+                    label="Longitude do novo site"
+                  />
+              </v-col>
+              <v-col v-if="criandoNovoSite" cols="4" md="4">
+                <v-autocomplete
+                  v-model="cidadeSelecionada"
+                  :items="props.cidades"
+                  item-title="nome"
+                  item-value="id"
+                  label="Pesquisar cidade"
+                  clearable
+                  return-object="false"
+                />
+              </v-col>
+              
             </v-row>
           </v-form>
         </v-card-text>
@@ -67,9 +91,17 @@ import { useForm } from '@inertiajs/vue3'
 import axios from 'axios'
 
 const siteSelecionado = ref(null)
+const cidadeSelecionada = ref(null)
 const sites = ref([])
 const loading = ref(false)
 const criandoNovoSite = ref(false)
+const termoBusca = ref('')
+
+const novoSite = ref({
+  nome: '',
+  lagitude: '',
+  longitude: null,
+})
 
 const buscarSites = async (nome) => {
     if (!nome || nome.length < 2) {
@@ -90,11 +122,17 @@ const buscarSites = async (nome) => {
     }
 }
 
+const selecionarCriarNovoSite = () => {
+  criandoNovoSite.value = true
+  novoSite.value.nome = termoBusca.value
+  siteSelecionado.value = null
+}
+
 const props = defineProps({
   orcamento: Object,
+  cidades: Array,
 });
 
-const { orcamento } = props;
 
 const form = useForm({
   nome: '',

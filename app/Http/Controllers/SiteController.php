@@ -25,7 +25,12 @@ class SiteController extends Controller
      */
     public function create(Orcamento $orcamento)
     {
-        $cidades = Cidade::all();
+        $cidades = Cidade::all()->map(function ($c) {
+            return [
+                'id' => $c->cidade_id,
+                'nome' => $c->nome,
+            ];
+        })->toArray();
         $servicos = Servico::all();
         $sites = Site::all();
         $orcamento->load('Cliente');
