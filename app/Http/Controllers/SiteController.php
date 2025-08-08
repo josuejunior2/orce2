@@ -31,7 +31,12 @@ class SiteController extends Controller
                 'nome' => $c->nome,
             ];
         })->toArray();
-        $servicos = Servico::all();
+        $servicos = Servico::all()->map(function ($s) {
+            return [
+                'id' => $s->id,
+                'nome' => $s->nome,
+            ];
+        })->toArray();
         $sites = Site::all();
         $orcamento->load('Cliente');
         

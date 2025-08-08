@@ -36,6 +36,9 @@
                     :loading="loading"
                     @update:search-input="buscarSites"
                     clearable
+                      variant="outlined"
+                      density="comfortable"
+                      class="no-border-radius-right"
                 >
                     <template #no-data>
                         <v-list-item
@@ -45,16 +48,24 @@
                     </template>
                 </v-autocomplete>
               </v-col>
-              <v-col v-if="criandoNovoSite" cols="4" md="4">
+              <v-col v-if="criandoNovoSite" cols="2" md="2">
                   <v-text-field
                     v-model="novoSite.latitude"
                     label="Latitude do novo site"
+                      variant="outlined"
+                      density="comfortable"
+                      hide-details
+                      class="no-border-radius-right"
                   />
               </v-col>
-              <v-col v-if="criandoNovoSite" cols="4" md="4">
+              <v-col v-if="criandoNovoSite" cols="2" md="2">
                   <v-text-field
                     v-model="novoSite.longitude"
                     label="Longitude do novo site"
+                      variant="outlined"
+                      density="comfortable"
+                      hide-details
+                      class="no-border-radius-right"
                   />
               </v-col>
               <v-col v-if="criandoNovoSite" cols="4" md="4">
@@ -66,8 +77,80 @@
                   label="Pesquisar cidade"
                   clearable
                   return-object="false"
+                      variant="outlined"
+                      density="comfortable"
+                      hide-details
+                      class="no-border-radius-right"
                 />
               </v-col>
+              <v-col v-if="criandoNovoSite" cols="4" md="4">
+                  <v-text-field
+                    v-model="novoSite.endereco"
+                    label="Endereço"
+                      variant="outlined"
+                      density="comfortable"
+                      hide-details
+                      class="no-border-radius-right"
+                  />
+              </v-col>
+              <v-col v-if="criandoNovoSite" cols="4" md="4">
+                <v-autocomplete
+                  v-model="servicoSelecionado"
+                  :items="props.servicos"
+                  item-title="nome"
+                  item-value="id"
+                  label="Pesquisar serviço"
+                  clearable
+                  return-object="false"
+                  multiple
+                  chips
+                  closable-chips
+                      variant="outlined"
+                      density="comfortable"
+                      hide-details
+                      class="no-border-radius-right"
+                />
+              </v-col>
+              <v-col v-if="criandoNovoSite" cols="12" sm="4">
+                  <div class="d-flex">
+                    <v-text-field
+                      v-model="velDown"
+                      type="number"
+                      min="0"
+                      placeholder="Mbps"
+                      label="Down"
+                      variant="outlined"
+                      density="comfortable"
+                      hide-details
+                      class="no-border-radius-right"
+                    />
+
+                    <v-text-field
+                      v-model="velUp"
+                      type="number"
+                      min="0"
+                      placeholder="Mbps"
+                      label="Up"
+                      variant="outlined"
+                      density="comfortable"
+                      hide-details
+                      class="no-border-radius"
+                    />
+
+                    <v-text-field
+                      v-model="barra"
+                      type="number"
+                      min="0"
+                      max="32"
+                      label="/"
+                      variant="outlined"
+                      density="comfortable"
+                      hide-details
+                      class="no-border-radius-left"
+                    />
+                  </div>
+              </v-col>
+
               
             </v-row>
           </v-form>
@@ -92,6 +175,7 @@ import axios from 'axios'
 
 const siteSelecionado = ref(null)
 const cidadeSelecionada = ref(null)
+const servicoSelecionado = ref(null)
 const sites = ref([])
 const loading = ref(false)
 const criandoNovoSite = ref(false)
@@ -101,6 +185,7 @@ const novoSite = ref({
   nome: '',
   lagitude: '',
   longitude: null,
+  endereco: null,
 })
 
 const buscarSites = async (nome) => {
@@ -131,6 +216,7 @@ const selecionarCriarNovoSite = () => {
 const props = defineProps({
   orcamento: Object,
   cidades: Array,
+  servicos: Array,
 });
 
 
