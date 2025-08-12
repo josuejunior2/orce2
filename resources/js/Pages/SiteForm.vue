@@ -20,7 +20,7 @@
 
     <v-col cols="12">
       <v-card class="ma-3" elevation="0" rounded="lg" border>
-        <v-card-item class="border-b">
+        <v-card-item class="border-b mb-4">
           <v-card-title class="text-h6">Cadastro de Site</v-card-title>
         </v-card-item>
         <v-card-text>
@@ -41,7 +41,7 @@
                     density="comfortable"
                     class="no-border-radius-right"
                     id="selectSites"
-                    return-object="false"
+                    :return-object="false"
                 >
                     <template #no-data>
                         <v-list-item
@@ -59,43 +59,33 @@
                     density="comfortable"
                     hide-details
                     class="no-border-radius-right"
+                    required
                   />
               </v-col>
               <v-col v-if="criandoNovoSite" cols="2" md="2">
-                  <v-number-input 
-                      v-model="novoSite.latitude"
-                      label="Latitude do novo site"
-                      :min="-90"
-                      :max="90"
-                      variant="outlined"
-                      density="comfortable"
-                      hide-details
-                      class="no-border-radius-right"
-                      control-variant="hidden"
-                      precision=15
-                      decimal-separator=","
-                      inset="false"
-                      @update:model-value="novoSite.latitude = $event"
-                      @paste="$event.preventDefault(); $event.target.value = ($event.clipboardData.getData('text')).replace('.', ',')"
-                  />
+                <v-text-field
+                  v-model="novoSite.latitude"
+                  label="Latitude do novo site"
+                  variant="outlined"
+                  density="comfortable"
+                  hide-details="auto"
+                  class="no-border-radius-right"
+                  :rules="[v => validateCoords(v, 'lat') || 'Formato inválido']"
+                  :messages="latConverted"
+                />
               </v-col>
+
               <v-col v-if="criandoNovoSite" cols="2" md="2">
-                  <v-number-input 
-                      v-model="novoSite.longitude"
-                      label="Longitude do novo site"
-                      :min="-180"
-                      :max="180"
-                      variant="outlined"
-                      density="comfortable"
-                      hide-details
-                      class="no-border-radius-right"
-                      control-variant="hidden"
-                      precision=15
-                      decimal-separator=","
-                      inset="false"
-                      @update:model-value="novoSite.longitude = $event"
-                      @paste="$event.preventDefault(); $event.target.value = ($event.clipboardData.getData('text')).replace('.', ',')"
-                  />
+                <v-text-field
+                  v-model="novoSite.longitude"
+                  label="Longitude do novo site"
+                  variant="outlined"
+                  density="comfortable"
+                  hide-details="auto"
+                  class="no-border-radius-right"
+                  :rules="[v => validateCoords(v, 'lon') || 'Formato inválido']"
+                  :messages="lonConverted"
+                />
               </v-col>
               <v-col v-if="criandoNovoSite" cols="4" md="4">
                 <v-autocomplete
@@ -105,11 +95,12 @@
                   item-value="id"
                   label="Pesquisar cidade"
                   clearable
-                  return-object="false"
+                  :return-object="false"
                   variant="outlined"
                   density="comfortable"
                   hide-details
                   class="no-border-radius-right"
+                  required
                 />
               </v-col>
               <v-col v-if="criandoNovoSite" cols="4" md="4">
@@ -130,7 +121,7 @@
                   item-value="id"
                   label="Pesquisar serviço"
                   clearable
-                  return-object="false"
+                  :return-object="false"
                   multiple
                   chips
                   closable-chips
@@ -144,7 +135,7 @@
                   <div class="d-flex">
                     <v-number-input
                       v-model="novoSite.vel_solicitada_down"
-                      min="0"
+                      :min="0"
                       placeholder="Mbps"
                       label="Down"
                       variant="outlined"
@@ -156,7 +147,7 @@
 
                     <v-number-input
                       v-model="novoSite.vel_solicitada_up"
-                      min="0"
+                      :min="0"
                       placeholder="Mbps"
                       label="Up"
                       variant="outlined"
@@ -168,8 +159,8 @@
 
                     <v-number-input
                       v-model="novoSite.barra"
-                      min="0"
-                      max="32"
+                      :min="0"
+                      :max="32"
                       label="/"
                       variant="outlined"
                       density="comfortable"
@@ -196,8 +187,8 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
-import { useForm } from '@inertiajs/vue3'
+import { ref, reactive } from 'vue'
+import { router } from '@inertiajs/vue3'
 import axios from 'axios'
 
 const siteSelecionado = ref(null)
@@ -207,8 +198,10 @@ const sites = ref([])
 const loading = ref(false)
 const criandoNovoSite = ref(false)
 const searchInput = ref('')
+const latConverted = ref('')
+const lonConverted = ref('')
 
-const novoSite = ref({
+const novoSite = reactive({
   nome: '',
   lagitude: '',
   longitude: null,
@@ -236,10 +229,46 @@ const buscarSites = async (nome) => {
         loading.value = false
     }
 }
+const validateCoords = (valor, tipo) => {
+  const decimalRegex = /^-?\d+(\.\d+)?$/;
+  if (!valor || typeof valor !== 'string' || valor.trim().match(decimalRegex)) return true  
+
+  const dmsRegexLat = /^(\d{1,3})\s*°\s*(\d{1,2})\s*'\s*(\d{1,2}(?:\.\d+)?)\s*"\s*([NS])$/i
+  const dmsRegexLon = /^(\d{1,3})\s*°\s*(\d{1,2})\s*'\s*(\d{1,2}(?:\.\d+)?)\s*"\s*([OWE])$/i
+
+  const regex = tipo === 'lat' ? dmsRegexLat : dmsRegexLon
+  const match = valor.trim().match(regex)
+
+  if (match) {
+    const deg = parseFloat(match[1])
+    const min = parseFloat(match[2])
+    const sec = parseFloat(match[3])
+    const dir = match[4].toUpperCase()
+
+    let decimal = deg + min / 60 + sec / 3600
+    if ((tipo === 'lat' && dir === 'S') || (tipo === 'lon' && (dir === 'W' || dir === 'O'))) {
+      decimal *= -1
+    }
+
+    const decimalFix = decimal
+
+    if (tipo === 'lat') {
+      novoSite.latitude = decimalFix
+      valor = decimalFix
+      latConverted.value = "Convertido em decimal."
+      console.log(novoSite.latitude)
+      return true
+    } else {
+      novoSite.longitude = decimalFix
+      lonConverted.value = "Convertido em decimal."
+      return true
+    }
+  }
+}
 
 const selecionarCriarNovoSite = () => {
   criandoNovoSite.value = true
-  novoSite.value.nome = searchInput.value
+  novoSite.nome = searchInput.value
   siteSelecionado.value = null
 }
 
@@ -255,7 +284,27 @@ const rules = {
 }
 
 const submitForm = () => {
-  novoSite.post('/site/post') // ajuste conforme sua rota
+  
+  // if (form.value.validate() && textoLimpo && algumSelecionado) {
+  //   router.post('/orientador/email/submit', {
+  //     academicos: selectedAcad.value,
+  //     supervisores: selectedSup.value,
+  //     conteudo: html,
+  //     titulo: titulo.value
+  //   }, {
+  //     onSuccess: (page) => {
+  //       showSuccess.value = true;
+  //     },
+  //     onError: (error) => {
+  //       console.log(page)
+  //       if (error) {
+  //         errorMessage.value = error[0];
+  //         showError.value = true;
+  //       }
+  //     }
+  //   });
+  // }
+  router.post('/site/post', novoSite)
 }
 </script>
 
