@@ -26,19 +26,22 @@
         <v-card-text>
           <v-form @submit.prevent="submitForm" ref="form">
             <v-row>
-              <v-col cols="4" md="4">
+              <v-col v-if="!criandoNovoSite" cols="12" md="12">
                 <v-autocomplete
                     v-model="siteSelecionado"
+                    v-model:search="searchInput"
                     :items="sites"
                     item-title="nome"
                     item-value="id"
                     label="Pesquisar site"
                     :loading="loading"
-                    @update:search-input="buscarSites"
+                    @update:search="buscarSites"
                     clearable
-                      variant="outlined"
-                      density="comfortable"
-                      class="no-border-radius-right"
+                    variant="outlined"
+                    density="comfortable"
+                    class="no-border-radius-right"
+                    id="selectSites"
+                    return-object="false"
                 >
                     <template #no-data>
                         <v-list-item
@@ -48,24 +51,50 @@
                     </template>
                 </v-autocomplete>
               </v-col>
-              <v-col v-if="criandoNovoSite" cols="2" md="2">
+              <v-col v-if="criandoNovoSite" cols="4" md="4">
                   <v-text-field
-                    v-model="novoSite.latitude"
-                    label="Latitude do novo site"
-                      variant="outlined"
-                      density="comfortable"
-                      hide-details
-                      class="no-border-radius-right"
+                    v-model="novoSite.nome"
+                    label="Nome do novo site"
+                    variant="outlined"
+                    density="comfortable"
+                    hide-details
+                    class="no-border-radius-right"
                   />
               </v-col>
               <v-col v-if="criandoNovoSite" cols="2" md="2">
-                  <v-text-field
-                    v-model="novoSite.longitude"
-                    label="Longitude do novo site"
+                  <v-number-input 
+                      v-model="novoSite.latitude"
+                      label="Latitude do novo site"
+                      :min="-90"
+                      :max="90"
                       variant="outlined"
                       density="comfortable"
                       hide-details
                       class="no-border-radius-right"
+                      control-variant="hidden"
+                      precision=15
+                      decimal-separator=","
+                      inset="false"
+                      @update:model-value="novoSite.latitude = $event"
+                      @paste="$event.preventDefault(); $event.target.value = ($event.clipboardData.getData('text')).replace('.', ',')"
+                  />
+              </v-col>
+              <v-col v-if="criandoNovoSite" cols="2" md="2">
+                  <v-number-input 
+                      v-model="novoSite.longitude"
+                      label="Longitude do novo site"
+                      :min="-180"
+                      :max="180"
+                      variant="outlined"
+                      density="comfortable"
+                      hide-details
+                      class="no-border-radius-right"
+                      control-variant="hidden"
+                      precision=15
+                      decimal-separator=","
+                      inset="false"
+                      @update:model-value="novoSite.longitude = $event"
+                      @paste="$event.preventDefault(); $event.target.value = ($event.clipboardData.getData('text')).replace('.', ',')"
                   />
               </v-col>
               <v-col v-if="criandoNovoSite" cols="4" md="4">
@@ -77,10 +106,10 @@
                   label="Pesquisar cidade"
                   clearable
                   return-object="false"
-                      variant="outlined"
-                      density="comfortable"
-                      hide-details
-                      class="no-border-radius-right"
+                  variant="outlined"
+                  density="comfortable"
+                  hide-details
+                  class="no-border-radius-right"
                 />
               </v-col>
               <v-col v-if="criandoNovoSite" cols="4" md="4">
@@ -105,41 +134,40 @@
                   multiple
                   chips
                   closable-chips
-                      variant="outlined"
-                      density="comfortable"
-                      hide-details
-                      class="no-border-radius-right"
+                  variant="outlined"
+                  density="comfortable"
+                  hide-details
+                  class="no-border-radius-right"
                 />
               </v-col>
               <v-col v-if="criandoNovoSite" cols="12" sm="4">
                   <div class="d-flex">
-                    <v-text-field
-                      v-model="velDown"
-                      type="number"
+                    <v-number-input
+                      v-model="novoSite.vel_solicitada_down"
                       min="0"
                       placeholder="Mbps"
                       label="Down"
                       variant="outlined"
                       density="comfortable"
                       hide-details
+                      control-variant="hidden"
                       class="no-border-radius-right"
                     />
 
-                    <v-text-field
-                      v-model="velUp"
-                      type="number"
+                    <v-number-input
+                      v-model="novoSite.vel_solicitada_up"
                       min="0"
                       placeholder="Mbps"
                       label="Up"
                       variant="outlined"
                       density="comfortable"
                       hide-details
+                      control-variant="hidden"
                       class="no-border-radius"
                     />
 
-                    <v-text-field
-                      v-model="barra"
-                      type="number"
+                    <v-number-input
+                      v-model="novoSite.barra"
                       min="0"
                       max="32"
                       label="/"
@@ -147,11 +175,10 @@
                       density="comfortable"
                       hide-details
                       class="no-border-radius-left"
+                      control-variant="hidden"
                     />
                   </div>
               </v-col>
-
-              
             </v-row>
           </v-form>
         </v-card-text>
@@ -169,7 +196,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useForm } from '@inertiajs/vue3'
 import axios from 'axios'
 
@@ -179,13 +206,16 @@ const servicoSelecionado = ref(null)
 const sites = ref([])
 const loading = ref(false)
 const criandoNovoSite = ref(false)
-const termoBusca = ref('')
+const searchInput = ref('')
 
 const novoSite = ref({
   nome: '',
   lagitude: '',
   longitude: null,
   endereco: null,
+  vel_solicitada_down: null,
+  vel_solicitada_up: null,
+  barra: null,
 })
 
 const buscarSites = async (nome) => {
@@ -209,7 +239,7 @@ const buscarSites = async (nome) => {
 
 const selecionarCriarNovoSite = () => {
   criandoNovoSite.value = true
-  novoSite.value.nome = termoBusca.value
+  novoSite.value.nome = searchInput.value
   siteSelecionado.value = null
 }
 
@@ -220,18 +250,12 @@ const props = defineProps({
 });
 
 
-const form = useForm({
-  nome: '',
-  descricao: '',
-  valor: '',
-})
-
 const rules = {
   required: v => !!v || 'Campo obrigatório',
 }
 
 const submitForm = () => {
-  form.post('/orcamentos') // ajuste conforme sua rota
+  novoSite.post('/site/post') // ajuste conforme sua rota
 }
 </script>
 
