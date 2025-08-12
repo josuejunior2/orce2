@@ -6,7 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use App\Models\Fornecedor;
 use Illuminate\Validation\Rule;
 
-class SiteRequest extends FormRequest
+class SiteOrcamentoRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -29,7 +29,7 @@ class SiteRequest extends FormRequest
         return [
             'orcamento_id' => 'required',
             'cidade_id' => 'required',
-            'nome' => 'required|max:60',
+            'nome' => 'required',
             'endereco' => 'nullable',
             'latitude' => ['nullable', 'regex:/^(-?\d{1,3}°\d{1,2}\'\d{1,2}(\.\d+)?\"[NS])|(\'?-?\d{1,2}[.,]\d{1,30})$/', Rule::unique('sites')->withoutTrashed()],
             'longitude' => ['nullable', 'regex:/^(-?\d{1,3}°\d{1,2}\'\d{1,2}(\.\d+)?\"[EO])|(\'?-?\d{1,3}[.,]\d{1,30})$/', Rule::unique('sites')->withoutTrashed()],

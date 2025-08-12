@@ -7,7 +7,7 @@ use App\Models\Servico;
 use App\Models\Orcamento;
 use App\Models\Cidade;
 use Illuminate\Http\Request;
-use App\Http\Requests\SiteRequest;
+use App\Http\Requests\SiteOrcamentoRequest;
 use App\Http\Requests\SiteSheetRequest;
 use App\Imports\SiteImport;
 use App\Models\SiteOrcamentoServico;
@@ -28,7 +28,7 @@ class SiteController extends Controller
         $cidades = Cidade::all()->map(function ($c) {
             return [
                 'id' => $c->cidade_id,
-                'nome' => $c->nome,
+                'nome' => $c->nome . " - " . $c->Estado->uf,
             ];
         })->toArray();
         $servicos = Servico::all()->map(function ($s) {
@@ -63,10 +63,10 @@ class SiteController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(SiteRequest $request)
+    public function store(SiteOrcamentoRequest $request)
     {
         $dados = $request->validated();
-        
+        dd($dados);
         DB::transaction(function() use($dados, &$qtdeRestante, &$site, &$botao){
             $site = Site::create($dados);
             if(!empty($dados['servicos'])) {
@@ -130,7 +130,7 @@ class SiteController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function storel2l(SiteRequest $request)
+    public function storel2l(SiteOrcamentoRequest $request)
     {
         $dados = $request->validated();
         $site = Site::create($dados);
@@ -193,7 +193,7 @@ class SiteController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(SiteRequest $request, Site $site)
+    public function update(SiteOrcamentoRequest $request, Site $site)
     {
         $dados = $request->validated();
         DB::transaction(function() use($dados, &$site){

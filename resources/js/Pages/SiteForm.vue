@@ -1,4 +1,12 @@
 <template>
+  <v-snackbar v-model="showSuccess" color="success" timeout="7000">
+    Site criado com sucesso!
+  </v-snackbar>
+
+  <v-snackbar v-model="showError" color="error" timeout="7000">
+    {{ errorMessage }}
+  </v-snackbar>
+  
   <v-row no-gutters>
     <v-col cols="12">
       <v-card class="ma-3" elevation="0" rounded="lg" border>
@@ -42,6 +50,7 @@
                     class="no-border-radius-right"
                     id="selectSites"
                     :return-object="false"
+                    autocomplete="off"
                 >
                     <template #no-data>
                         <v-list-item
@@ -57,9 +66,11 @@
                     label="Nome do novo site"
                     variant="outlined"
                     density="comfortable"
-                    hide-details
                     class="no-border-radius-right"
+                    :rules="[v => !!v || 'Nome é obrigatório']"
                     required
+                    autocomplete="off"
+                    :error-messages="novoSite.errors.nome"
                   />
               </v-col>
               <v-col v-if="criandoNovoSite" cols="2" md="2">
@@ -71,7 +82,9 @@
                   hide-details="auto"
                   class="no-border-radius-right"
                   :rules="[v => validateCoords(v, 'lat') || 'Formato inválido']"
-                  :messages="latConverted"
+                  :hint="latConverted"
+                  autocomplete="off"
+                  :error-messages="novoSite.errors.latitude"
                 />
               </v-col>
 
@@ -84,12 +97,14 @@
                   hide-details="auto"
                   class="no-border-radius-right"
                   :rules="[v => validateCoords(v, 'lon') || 'Formato inválido']"
-                  :messages="lonConverted"
+                  :hint="lonConverted"
+                  autocomplete="off"
+                  :error-messages="novoSite.errors.longitude"
                 />
               </v-col>
               <v-col v-if="criandoNovoSite" cols="4" md="4">
                 <v-autocomplete
-                  v-model="cidadeSelecionada"
+                  v-model="novoSite.cidade_id"
                   :items="props.cidades"
                   item-title="nome"
                   item-value="id"
@@ -98,19 +113,22 @@
                   :return-object="false"
                   variant="outlined"
                   density="comfortable"
-                  hide-details
                   class="no-border-radius-right"
+                  :rules="[v => !!v || 'Cidade é obrigatório']"
                   required
+                  :error-messages="novoSite.errors.cidade_id"
                 />
               </v-col>
               <v-col v-if="criandoNovoSite" cols="4" md="4">
                   <v-text-field
                     v-model="novoSite.endereco"
                     label="Endereço"
-                      variant="outlined"
-                      density="comfortable"
-                      hide-details
-                      class="no-border-radius-right"
+                    variant="outlined"
+                    density="comfortable"
+                    hide-details
+                    class="no-border-radius-right"
+                    autocomplete="off"
+                  :error-messages="novoSite.errors.endereco"
                   />
               </v-col>
               <v-col v-if="criandoNovoSite" cols="4" md="4">
@@ -129,6 +147,8 @@
                   density="comfortable"
                   hide-details
                   class="no-border-radius-right"
+                  autocomplete="off"
+                  :error-messages="novoSite.errors.servicos"
                 />
               </v-col>
               <v-col v-if="criandoNovoSite" cols="12" sm="4">
@@ -143,6 +163,8 @@
                       hide-details
                       control-variant="hidden"
                       class="no-border-radius-right"
+                      autocomplete="off"
+                  :error-messages="novoSite.errors.vel_solicitada_down"
                     />
 
                     <v-number-input
@@ -155,6 +177,8 @@
                       hide-details
                       control-variant="hidden"
                       class="no-border-radius"
+                      autocomplete="off"
+                  :error-messages="novoSite.errors.vel_solicitada_up"
                     />
 
                     <v-number-input
@@ -167,6 +191,8 @@
                       hide-details
                       class="no-border-radius-left"
                       control-variant="hidden"
+                      autocomplete="off"
+                  :error-messages="novoSite.errors.barra"
                     />
                   </div>
               </v-col>
@@ -188,11 +214,13 @@
 
 <script setup>
 import { ref, reactive } from 'vue'
-import { router } from '@inertiajs/vue3'
+import { useForm } from '@inertiajs/vue3'
 import axios from 'axios'
 
+const showSuccess = ref(false);
+const showError = ref(false);
+const errorMessage = ref('');
 const siteSelecionado = ref(null)
-const cidadeSelecionada = ref(null)
 const servicoSelecionado = ref(null)
 const sites = ref([])
 const loading = ref(false)
@@ -200,12 +228,14 @@ const criandoNovoSite = ref(false)
 const searchInput = ref('')
 const latConverted = ref('')
 const lonConverted = ref('')
+const form = ref(null);
 
-const novoSite = reactive({
+const novoSite = useForm({
   nome: '',
-  lagitude: '',
+  latitude: '',
   longitude: null,
   endereco: null,
+  cidade_id: null,
   vel_solicitada_down: null,
   vel_solicitada_up: null,
   barra: null,
@@ -230,11 +260,19 @@ const buscarSites = async (nome) => {
     }
 }
 const validateCoords = (valor, tipo) => {
-  const decimalRegex = /^-?\d+(\.\d+)?$/;
-  if (!valor || typeof valor !== 'string' || valor.trim().match(decimalRegex)) return true  
+  if (!valor || typeof valor !== 'string') return true;
 
-  const dmsRegexLat = /^(\d{1,3})\s*°\s*(\d{1,2})\s*'\s*(\d{1,2}(?:\.\d+)?)\s*"\s*([NS])$/i
-  const dmsRegexLon = /^(\d{1,3})\s*°\s*(\d{1,2})\s*'\s*(\d{1,2}(?:\.\d+)?)\s*"\s*([OWE])$/i
+  const decimalRegex = /^-?\d+(?:\.\d+)?$/;
+
+  if (decimalRegex.test(valor.trim())) {
+    const num = parseFloat(valor);
+    if (tipo === 'lat') return num >= -90 && num <= 90;
+    if (tipo === 'lon') return num >= -180 && num <= 180;
+    return false;
+  }
+
+  const dmsRegexLat = /^(\d{1,3})\s*[°º]\s*(\d{1,2})\s*'\s*(\d{1,2}(?:\.\d+)?)\s*"\s*([NS])$/i;
+  const dmsRegexLon = /^(\d{1,3})\s*[°º]\s*(\d{1,2})\s*'\s*(\d{1,2}(?:\.\d+)?)\s*"\s*([OWE])$/i;
 
   const regex = tipo === 'lat' ? dmsRegexLat : dmsRegexLon
   const match = valor.trim().match(regex)
@@ -256,7 +294,6 @@ const validateCoords = (valor, tipo) => {
       novoSite.latitude = decimalFix
       valor = decimalFix
       latConverted.value = "Convertido em decimal."
-      console.log(novoSite.latitude)
       return true
     } else {
       novoSite.longitude = decimalFix
@@ -278,33 +315,27 @@ const props = defineProps({
   servicos: Array,
 });
 
+const submitForm = async () => {
+  novoSite.orcamento_id = props.orcamento.id
+  novoSite.servicos = servicoSelecionado.value
+  console.log(novoSite);
+  const valid = await form.value.validate()
 
-const rules = {
-  required: v => !!v || 'Campo obrigatório',
-}
-
-const submitForm = () => {
-  
-  // if (form.value.validate() && textoLimpo && algumSelecionado) {
-  //   router.post('/orientador/email/submit', {
-  //     academicos: selectedAcad.value,
-  //     supervisores: selectedSup.value,
-  //     conteudo: html,
-  //     titulo: titulo.value
-  //   }, {
-  //     onSuccess: (page) => {
-  //       showSuccess.value = true;
-  //     },
-  //     onError: (error) => {
-  //       console.log(page)
-  //       if (error) {
-  //         errorMessage.value = error[0];
-  //         showError.value = true;
-  //       }
-  //     }
-  //   });
-  // }
-  router.post('/site/post', novoSite)
+  if (valid.valid) {
+    novoSite.post('/site', {
+      onSuccess: (page) => {
+        showSuccess.value = true;
+      },
+      onError: (error) => {
+        console.log(page)
+        if (Object.keys(errors).length > 0) {
+          const firstError = Object.values(errors)[0]
+          errorMessage.value = Array.isArray(firstError) ? firstError[0] : firstError
+          showError.value = true
+        }
+      }
+    });
+  }
 }
 </script>
 
