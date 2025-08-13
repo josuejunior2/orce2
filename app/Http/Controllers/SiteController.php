@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Site;
+use App\Models\SiteOrcamento;
 use App\Models\Servico;
 use App\Models\Orcamento;
 use App\Models\Cidade;
@@ -66,22 +67,26 @@ class SiteController extends Controller
     public function store(SiteOrcamentoRequest $request)
     {
         $dados = $request->validated();
-        dd($dados);
-        DB::transaction(function() use($dados, &$qtdeRestante, &$site, &$botao){
+        
+        DB::transaction(function() use($dados, &$siteOrcamento){
             $site = Site::create($dados);
+
+            $dados['site_id'] = $site->id;
+            $siteOrcamento = SiteOrcamento::create($dados);
+
             if(!empty($dados['servicos'])) {
-                foreach(explode(",", $dados['servicos']) as $servico){
-                    SiteOrcamentoServico::create(['site_id' => $site->id, 'servico_id' => $servico]);
+                foreach($dados['servicos'] as $servico){
+                    SiteOrcamentoServico::create(['site_orcamento_id' => $siteOrcamento->id, 'servico_id' => $servico]);
                 }
             }
-            dd($dados, $site);
-            Log::channel('main')->info('Novo site cadastrado.', [ 'cliente' => $site->Orcamento->Cliente, 'orcamento' => $site->Orcamento, 'site' => $site, 'user' => auth()->user()->nome]);
+            
+            Log::channel('main')->info('Novo site cadastrado.', [ 'cliente' => $siteOrcamento->Orcamento->Cliente, 'orcamento' => $siteOrcamento->Orcamento, 'site' => $site, 'user' => auth()->user()->nome]);
         });
 
-        if($dados['cadastrar_mais']) {
-            return redirect()->route('site.create', ['orcamento' => $site->Orcamento]);
-        }
-        return redirect()->route('orcamento.show', $site->Orcamento);
+        // if($dados['cadastrar_mais']) {
+        //     return redirect()->route('site.create', ['orcamento' => $site->Orcamento]);
+        // }
+        return Inertia::location(route('orcamento.show', $siteOrcamento->Orcamento));
 
     }
 

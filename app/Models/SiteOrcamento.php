@@ -32,7 +32,7 @@ class SiteOrcamento extends Model
     
     public function servicosSolicitados()
     {
-        return $this->belongsToMany('App\Models\Servico', 'site_servico', 'site_orcamento_id', 'servico_id');
+        return $this->belongsToMany('App\Models\Servico', 'site_orcamento_servico', 'site_orcamento_id', 'servico_id');
     }
 
     public function pontas()

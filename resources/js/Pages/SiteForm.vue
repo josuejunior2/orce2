@@ -9,7 +9,7 @@
   
   <v-row no-gutters>
     <v-col cols="12">
-      <v-card class="ma-3" elevation="0" rounded="lg" border>
+      <v-card class="ma-3 mt-4" elevation="0" rounded="lg" border>
         <!-- Cabeçalho -->
         <v-card-item class="border-b">
           <v-card-title class="text-h6">{{ orcamento.titulo }}</v-card-title>
@@ -17,7 +17,7 @@
 
         <!-- Corpo com data-grid -->
         <v-card-text>
-          <v-row dense class="tabler-datagrid">
+          <v-row dense class="tabler-datagrid mt-2">
             <v-col cols="12" md="4">
               <strong>Cliente</strong> {{ orcamento.cliente.nome }}
             </v-col>
@@ -202,7 +202,7 @@
 
         <!-- card-footer -->
         <v-card-actions class="bg-grey-lighten-4 justify-end border-t">
-          <v-btn type="submit" color="primary" @click="submitForm">
+          <v-btn type="submit" variant="flat" class="ms-2" color="primary" @click="submitForm">
             <v-icon start>mdi-plus</v-icon>
             Cadastrar
           </v-btn>
@@ -273,8 +273,8 @@ const validateCoords = (valor, tipo) => {
     return false;
   }
 
-  const dmsRegexLat = /^(\d{1,3})\s*[°º]\s*(\d{1,2})\s*'\s*(\d{1,2}(?:\.\d+)?)\s*"\s*([NS])$/i;
-  const dmsRegexLon = /^(\d{1,3})\s*[°º]\s*(\d{1,2})\s*'\s*(\d{1,2}(?:\.\d+)?)\s*"\s*([OWE])$/i;
+  const dmsRegexLat = /^(\d{1,3})\s*[°º]\s*(\d{1,2})\s*'\s*(\d{1,2}(?:\.\d+)?)\s*["”]\s*([NS])$/i;
+  const dmsRegexLon = /^(\d{1,3})\s*[°º]\s*(\d{1,2})\s*'\s*(\d{1,2}(?:\.\d+)?)\s*["”]\s*([OWE])$/i;
 
   const regex = tipo === 'lat' ? dmsRegexLat : dmsRegexLon
   const match = valor.trim().match(regex)
@@ -336,6 +336,10 @@ const submitForm = async () => {
         servicoSelecionado.value = null
         latConverted.value = ''
         lonConverted.value = ''
+        console.log(response.data.redirect_url, response.data, response)
+        if (response.data.redirect_url) {
+            window.location.href = response.data.redirect_url;
+        }
       },
       onError: (errors) => {
         if (Object.keys(errors).length > 0) {
