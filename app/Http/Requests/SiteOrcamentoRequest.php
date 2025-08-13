@@ -31,8 +31,8 @@ class SiteOrcamentoRequest extends FormRequest
             'cidade_id' => 'required',
             'nome' => 'required',
             'endereco' => 'nullable',
-            'latitude' => ['nullable', 'regex:/^(-?\d{1,3}°\d{1,2}\'\d{1,2}(\.\d+)?\"[NS])|(\'?-?\d{1,2}[.,]\d{1,30})$/', Rule::unique('sites')->withoutTrashed()],
-            'longitude' => ['nullable', 'regex:/^(-?\d{1,3}°\d{1,2}\'\d{1,2}(\.\d+)?\"[EO])|(\'?-?\d{1,3}[.,]\d{1,30})$/', Rule::unique('sites')->withoutTrashed()],
+            'latitude' => ['nullable', 'regex:/^-?\d+(?:\.\d+)?$/'],
+            'longitude' => ['nullable', 'regex:/^-?\d+(?:\.\d+)?$/'],
             'vel_solicitada_down' => ['nullable', 'numeric'],
             'vel_solicitada_up' => ['nullable', 'numeric'],
             'servicos' => ['nullable', 'exists:servicos,id'],
@@ -55,37 +55,4 @@ class SiteOrcamentoRequest extends FormRequest
             'longitude.unique' => 'Não é permitido cadastrar sites com a mesma longitude.',
         ];
     }
-
-    // public function withValidator($validator){
-    //     $validator->after(function ($validator) {
-
-    //     $cidadeId = $this->input('cidade_id');
-    //     $fornecedorId = $this->input('fornecedor_id');
-
-    //     $fornecedor = Fornecedor::find($fornecedorId);
-    //     $cidades = [];
-    //     foreach ($fornecedor->cidades as $fc) {
-    //         $cidades[] = $fc->nome; // Adiciona o nome da cidade ao array
-    //     }
-    //     $stringCidade = implode(', ', $cidades);
-    //     // dd($stringCidade);
-
-    //     $achou = false;
-    //     foreach($fornecedor->cidades as $f){
-    //         if ($f->id == $cidadeId) {
-    //             // Fornecedor atende à cidade, continuar com a validação
-    //             $achou = true;
-    //             break;
-    //         }
-    //     }
-    //     if(!$achou){
-    //         $validator->errors()->add('cidade_id', 'O fornecedor selecionado não atende a cidade fornecida. '.$fornecedor->nome.' atende na(s) cidade(s): '.$stringCidade );
-    //     }
-    //     });
-    // }
-
-    // public function failedValidation(\Illuminate\Contracts\Validation\Validator $validator)
-    // {
-    //     dd($validator->errors());
-    // }
 }

@@ -239,6 +239,8 @@ const novoSite = useForm({
   vel_solicitada_down: null,
   vel_solicitada_up: null,
   barra: null,
+  orcamento_id: null,
+  servicos: null,
 })
 
 const buscarSites = async (nome) => {
@@ -313,28 +315,38 @@ const props = defineProps({
   orcamento: Object,
   cidades: Array,
   servicos: Array,
+  errors: Object
 });
 
 const submitForm = async () => {
   novoSite.orcamento_id = props.orcamento.id
   novoSite.servicos = servicoSelecionado.value
-  console.log(novoSite);
+    
   const valid = await form.value.validate()
 
   if (valid.valid) {
-    novoSite.post('/site', {
+    novoSite.post(route('site.store'), {
       onSuccess: (page) => {
-        showSuccess.value = true;
+        showSuccess.value = true
+        
+        novoSite.reset()
+        
+        criandoNovoSite.value = false
+        siteSelecionado.value = null
+        servicoSelecionado.value = null
+        latConverted.value = ''
+        lonConverted.value = ''
       },
-      onError: (error) => {
-        console.log(page)
+      onError: (errors) => {
         if (Object.keys(errors).length > 0) {
           const firstError = Object.values(errors)[0]
           errorMessage.value = Array.isArray(firstError) ? firstError[0] : firstError
           showError.value = true
         }
       }
-    });
+    })
+  } else {
+    console.log('Validação do frontend falhou')
   }
 }
 </script>
