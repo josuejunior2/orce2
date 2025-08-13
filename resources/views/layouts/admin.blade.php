@@ -29,10 +29,8 @@
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/css/tom-select.css" rel="stylesheet">
     @if(isset($page))
         @vite('resources/js/app.js')
-    @endif
-    
-    @if(isset($page))
         @inertiaHead
+        @routes
     @endif
     <style>
         @import url('https://rsms.me/inter/inter.css');
