@@ -9,6 +9,7 @@ import * as directives from 'vuetify/directives'
 import '@mdi/font/css/materialdesignicons.css';
 import { pt } from 'vuetify/locale'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import { ZiggyVue } from 'ziggy-js';
 
 const vuetify = createVuetify({
   components,
@@ -31,6 +32,7 @@ createInertiaApp({
     createApp({ render: () => h(App, props) })
       .use(plugin)
       .use(vuetify)
+      .use(ZiggyVue)
       .mount(el)
   },
 })
