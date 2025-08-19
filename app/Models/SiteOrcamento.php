@@ -18,10 +18,6 @@ class SiteOrcamento extends Model
         return $this->belongsTo('App\Models\Site');
     }
 
-    public function Cidade(){
-        return $this->belongsTo('App\Models\Cidade');
-    }
-
     public function Orcamento(){
         return $this->belongsTo('App\Models\Orcamento', 'orcamento_id');
     }

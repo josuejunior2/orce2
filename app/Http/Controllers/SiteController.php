@@ -38,13 +38,11 @@ class SiteController extends Controller
                 'nome' => $s->nome,
             ];
         })->toArray();
-        $sites = Site::all();
         $orcamento->load('Cliente');
         
         return Inertia::render('SiteForm', [
             'cidades' => $cidades,
             'servicos' => $servicos,
-            'sites' => $sites,
             'orcamento' => $orcamento
         ]);
         // return view('site.create', ['orcamento' => $orcamento, 'cidades' => $cidades, 'botao' => $botao, 'servicos' => Servico::all()]);
@@ -55,9 +53,14 @@ class SiteController extends Controller
         $nome = $request->input('nome');
 
         $sites = Site::where('nome', 'like', '%' . $nome . '%')
-            ->select('id', 'nome')
+            ->select('id', 'nome', 'cidade_id', 'endereco')
             ->limit(10)
-            ->get();
+            ->get()->map(function ($s) {
+            return [
+                'id' => $s->id,
+                'nome' => $s->nome . (!empty($s->endereco) ? " | " . $s->endereco : "") . " | " . $s->Cidade->nome . " - " . $s->Cidade->Estado->uf,
+            ];
+        })->toArray();
 
         return response()->json($sites);
     }

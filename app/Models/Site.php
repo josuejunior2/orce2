@@ -15,4 +15,8 @@ class Site extends Model
     public function sitesOrcamento(){
         return $this->hasMany('App\Models\SiteOrcamento', 'site_id');
     }
+    
+    public function Cidade(){
+        return $this->belongsTo('App\Models\Cidade');
+    }
 }

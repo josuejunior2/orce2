@@ -54,8 +54,13 @@
                 >
                     <template #no-data>
                         <v-list-item
-                        @click="selecionarCriarNovoSite"
-                        title="Criar novo site"
+                          v-if="searchInput && searchInput.length >= 2"
+                          @click="selecionarCriarNovoSite"
+                          title="Criar novo site"
+                        />
+                        <v-list-item
+                          v-else
+                          title="Digite pelo menos 2 caracteres para pesquisar"
                         />
                     </template>
                 </v-autocomplete>
