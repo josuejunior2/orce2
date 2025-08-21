@@ -60,7 +60,7 @@
                         />
                         <v-list-item
                           v-else
-                          title="Digite pelo menos 2 caracteres para pesquisar"
+                          title="Digite pelo menos 2 caracteres para pesquisar pelo nome"
                         />
                     </template>
                 </v-autocomplete>
@@ -255,6 +255,7 @@ const novoSite = useForm({
 const buscarSites = async (nome) => {
     if (!nome || nome.length < 2) {
         sites.value = []
+        exibeCampos.value = false
         return
     }
 
@@ -331,8 +332,7 @@ const selecionarCriarNovoSite = () => {
   novoSite.endereco = null
   novoSite.cidade_id = null
   exibeCampos.value = true
-  // eu quero que quando for criar de cara um novo, mantem com oq pesquisei, mas se pesquisei e for criar um novo, apaga
-  novoSite.nome = siteSelecionado != null ? null : searchInput.value
+  novoSite.nome = siteSelecionado.value == null ? searchInput.value : null
   siteSelecionado.value = null
 }
 
