@@ -53,12 +53,17 @@ class SiteController extends Controller
         $nome = $request->input('nome');
 
         $sites = Site::where('nome', 'like', '%' . $nome . '%')
-            ->select('id', 'nome', 'cidade_id', 'endereco')
+            ->select('id', 'nome', 'cidade_id', 'endereco', 'latitude', 'longitude')
             ->limit(10)
             ->get()->map(function ($s) {
             return [
                 'id' => $s->id,
-                'nome' => $s->nome . (!empty($s->endereco) ? " | " . $s->endereco : "") . " | " . $s->Cidade->nome . " - " . $s->Cidade->Estado->uf,
+                'nomeDisplay' => $s->nome . (!empty($s->endereco) ? " | " . $s->endereco : "") . " | " . $s->Cidade->nome . " - " . $s->Cidade->Estado->uf,
+                'nome' => $s->nome,
+                'endereco' => $s->endereco,
+                'latitude' => $s->latitude,
+                'longitude' => $s->longitude,
+                'cidade_id' => $s->cidade_id,
             ];
         })->toArray();
 

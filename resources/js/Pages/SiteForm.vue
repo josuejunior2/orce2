@@ -34,22 +34,22 @@
         <v-card-text>
           <v-form @submit.prevent="submitForm" ref="form">
             <v-row>
-              <v-col v-if="!criandoNovoSite" cols="12" md="12">
+              <v-col v-if="!exibeCampos || siteSelecionado != null" :cols="siteSelecionado != null ? '4' : '12'" :md="siteSelecionado != null ? '4' : '12'">
                 <v-autocomplete
                     v-model="siteSelecionado"
                     v-model:search="searchInput"
                     :items="sites"
-                    item-title="nome"
+                    item-title="nomeDisplay"
                     item-value="id"
                     label="Pesquisar site"
                     :loading="loading"
                     @update:search="buscarSites"
-                    clearable
+                    @update:modelValue="selecionaSite"
                     variant="outlined"
                     density="comfortable"
                     class="no-border-radius-right"
                     id="selectSites"
-                    :return-object="false"
+                    :return-object="true"
                     autocomplete="off"
                 >
                     <template #no-data>
@@ -65,7 +65,7 @@
                     </template>
                 </v-autocomplete>
               </v-col>
-              <v-col v-if="criandoNovoSite" cols="4" md="4">
+              <v-col v-if="exibeCampos && siteSelecionado == null" cols="4" md="4">
                   <v-text-field
                     v-model="novoSite.nome"
                     label="Nome do novo site"
@@ -78,7 +78,7 @@
                     :error-messages="novoSite.errors.nome"
                   />
               </v-col>
-              <v-col v-if="criandoNovoSite" cols="2" md="2">
+              <v-col v-if="exibeCampos" cols="2" md="2">
                 <v-text-field
                   v-model="novoSite.latitude"
                   label="Latitude do novo site"
@@ -90,10 +90,11 @@
                   :hint="latConverted"
                   autocomplete="off"
                   :error-messages="novoSite.errors.latitude"
+                  :readonly="siteSelecionado != null"
                 />
               </v-col>
 
-              <v-col v-if="criandoNovoSite" cols="2" md="2">
+              <v-col v-if="exibeCampos" cols="2" md="2">
                 <v-text-field
                   v-model="novoSite.longitude"
                   label="Longitude do novo site"
@@ -105,16 +106,17 @@
                   :hint="lonConverted"
                   autocomplete="off"
                   :error-messages="novoSite.errors.longitude"
+                  :readonly="siteSelecionado != null"
                 />
               </v-col>
-              <v-col v-if="criandoNovoSite" cols="4" md="4">
+              <v-col v-if="exibeCampos" cols="4" md="4">
                 <v-autocomplete
                   v-model="novoSite.cidade_id"
                   :items="props.cidades"
                   item-title="nome"
                   item-value="id"
                   label="Pesquisar cidade"
-                  clearable
+                  :clearable="siteSelecionado == null"
                   :return-object="false"
                   variant="outlined"
                   density="comfortable"
@@ -122,9 +124,10 @@
                   :rules="[v => !!v || 'Cidade é obrigatório']"
                   required
                   :error-messages="novoSite.errors.cidade_id"
+                  :readonly="siteSelecionado != null"
                 />
               </v-col>
-              <v-col v-if="criandoNovoSite" cols="4" md="4">
+              <v-col v-if="exibeCampos" cols="4" md="4">
                   <v-text-field
                     v-model="novoSite.endereco"
                     label="Endereço"
@@ -133,10 +136,11 @@
                     hide-details
                     class="no-border-radius-right"
                     autocomplete="off"
-                  :error-messages="novoSite.errors.endereco"
+                    :error-messages="novoSite.errors.endereco"
+                    :readonly="siteSelecionado != null"
                   />
               </v-col>
-              <v-col v-if="criandoNovoSite" cols="4" md="4">
+              <v-col v-if="exibeCampos" cols="4" md="4">
                 <v-autocomplete
                   v-model="servicoSelecionado"
                   :items="props.servicos"
@@ -156,7 +160,7 @@
                   :error-messages="novoSite.errors.servicos"
                 />
               </v-col>
-              <v-col v-if="criandoNovoSite" cols="12" sm="4">
+              <v-col v-if="exibeCampos" cols="12" sm="4">
                   <div class="d-flex">
                     <v-number-input
                       v-model="novoSite.vel_solicitada_down"
@@ -229,7 +233,7 @@ const siteSelecionado = ref(null)
 const servicoSelecionado = ref(null)
 const sites = ref([])
 const loading = ref(false)
-const criandoNovoSite = ref(false)
+const exibeCampos = ref(false)
 const searchInput = ref('')
 const latConverted = ref('')
 const lonConverted = ref('')
@@ -266,6 +270,17 @@ const buscarSites = async (nome) => {
         loading.value = false
     }
 }
+
+const selecionaSite = (site) => {
+  if (site) {
+    novoSite.latitude = site.latitude
+    novoSite.longitude = site.longitude
+    novoSite.endereco = site.endereco
+    novoSite.cidade_id = site.cidade_id
+    exibeCampos.value = true
+  }
+}
+
 const validateCoords = (valor, tipo) => {
   if (!valor || typeof valor !== 'string') return true;
 
@@ -311,8 +326,13 @@ const validateCoords = (valor, tipo) => {
 }
 
 const selecionarCriarNovoSite = () => {
-  criandoNovoSite.value = true
-  novoSite.nome = searchInput.value
+  novoSite.latitude = null
+  novoSite.longitude = null
+  novoSite.endereco = null
+  novoSite.cidade_id = null
+  exibeCampos.value = true
+  // eu quero que quando for criar de cara um novo, mantem com oq pesquisei, mas se pesquisei e for criar um novo, apaga
+  novoSite.nome = siteSelecionado != null ? null : searchInput.value
   siteSelecionado.value = null
 }
 
@@ -336,7 +356,7 @@ const submitForm = async () => {
         
         novoSite.reset()
         
-        criandoNovoSite.value = false
+        exibeCampos.value = false
         siteSelecionado.value = null
         servicoSelecionado.value = null
         latConverted.value = ''
