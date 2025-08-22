@@ -77,7 +77,7 @@ class SiteController extends Controller
         $dados = $request->validated();
         
         DB::transaction(function() use($dados, &$siteOrcamento){
-            $site = Site::create($dados);
+            $site = !empty($dados['site_id']) ? Site::find($dados['site_id']) : Site::create($dados);
 
             $dados['site_id'] = $site->id;
             $siteOrcamento = SiteOrcamento::create($dados);

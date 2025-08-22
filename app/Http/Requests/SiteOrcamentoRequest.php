@@ -37,6 +37,7 @@ class SiteOrcamentoRequest extends FormRequest
             'vel_solicitada_up' => ['nullable', 'numeric'],
             'servicos' => ['nullable', 'exists:servicos,id'],
             'barra' => ['nullable'],
+            'site_id' => ['nullable', 'exists:sites,id'],
         ];
     }
     /**

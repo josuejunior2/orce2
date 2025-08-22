@@ -250,6 +250,7 @@ const novoSite = useForm({
   barra: null,
   orcamento_id: null,
   servicos: null,
+  site_id: false,
 })
 
 const buscarSites = async (nome) => {
@@ -274,6 +275,7 @@ const buscarSites = async (nome) => {
 
 const selecionaSite = (site) => {
   if (site) {
+    novoSite.nome = site.nome
     novoSite.latitude = site.latitude
     novoSite.longitude = site.longitude
     novoSite.endereco = site.endereco
@@ -346,7 +348,7 @@ const props = defineProps({
 const submitForm = async () => {
   novoSite.orcamento_id = props.orcamento.id
   novoSite.servicos = servicoSelecionado.value
-    
+  novoSite.site_id = siteSelecionado.value != null ? siteSelecionado.value.id : null
   const valid = await form.value.validate()
 
   if (valid.valid) {
