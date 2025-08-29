@@ -63,6 +63,15 @@
                           title="Digite pelo menos 2 caracteres para pesquisar pelo nome"
                         />
                     </template>
+                    <template #item="{ props, item }">
+                      <v-list-item v-bind="props" :disabled="item.raw.orcado">
+                        <template #append>
+                          <span v-if="item.raw.orcado" class="text-red-500 text-xs">
+                            (Já foi incluído no orçamento)
+                          </span>
+                        </template>
+                      </v-list-item>
+                    </template>
                 </v-autocomplete>
               </v-col>
               <v-col v-if="exibeCampos && siteSelecionado == null" cols="4" md="4">
@@ -76,7 +85,16 @@
                     required
                     autocomplete="off"
                     :error-messages="novoSite.errors.nome"
-                  />
+                  >
+                    <template #append>
+                      <v-checkbox
+                        v-model="novoSite.subestacao"
+                        label="Subestação"
+                        density="compact"
+                        hide-details
+                      />
+                    </template>                  
+                  </v-text-field>
               </v-col>
               <v-col v-if="exibeCampos" cols="2" md="2">
                 <v-text-field
@@ -86,7 +104,7 @@
                   density="comfortable"
                   hide-details="auto"
                   class="no-border-radius-right"
-                  :rules="[v => validateCoords(v, 'lat') || 'Formato inválido']"
+                  :rules="[v => validateCoords(v, 'lat', novoSite.latitude) || 'Formato inválido']"
                   :hint="latConverted"
                   autocomplete="off"
                   :error-messages="novoSite.errors.latitude"
@@ -102,7 +120,7 @@
                   density="comfortable"
                   hide-details="auto"
                   class="no-border-radius-right"
-                  :rules="[v => validateCoords(v, 'lon') || 'Formato inválido']"
+                  :rules="[v => validateCoords(v, 'lon', novoSite.longitude) || 'Formato inválido']"
                   :hint="lonConverted"
                   autocomplete="off"
                   :error-messages="novoSite.errors.longitude"
@@ -206,6 +224,179 @@
                   </div>
               </v-col>
             </v-row>
+
+            <v-col v-if="novoSite.subestacao" cols="12">
+              <v-card
+                v-for="(ponta, index) in pontas"
+                :key="index"
+                class="mb-3"
+                elevation="0"
+                rounded="lg"
+                border
+              >
+                <v-card-title class="d-flex justify-space-between align-center">
+                  <span>Ponta {{ index + 1 }}</span>
+                  <v-btn
+                    icon="mdi-close"
+                    size="small"
+                    color="red"
+                    variant="text"
+                    @click="removerPonta(index)"
+                  />
+                </v-card-title>
+
+                <v-card-text>
+                  <v-row dense>
+                    <!-- Nome + Subestação -->
+                    <v-col cols="12" md="3">
+                      <v-text-field
+                        v-model="ponta.nome"
+                        label="Nome"
+                        density="compact"
+                        variant="outlined"
+                      />
+                    </v-col>
+
+                    <!-- Latitude + Longitude -->
+                    <v-col cols="12" md="2">
+                      <v-text-field
+                        v-model="ponta.latitude"
+                        label="Latitude da ponta"
+                        variant="outlined"
+                        density="compact"
+                        hide-details="auto"
+                        class="no-border-radius-right"
+                        :rules="[v => validateCoords(v, 'lat', ponta.latitude) || 'Formato inválido']"
+                        :hint="latConverted"
+                        autocomplete="off"
+                        :error-messages="novoSite.errors.latitude"
+                        :readonly="siteSelecionado != null"
+                      />
+                    </v-col>
+
+                    <v-col cols="12" md="2">
+                      <v-text-field
+                        v-model="ponta.longitude"
+                        label="Longitude da ponta"
+                        variant="outlined"
+                        density="compact"
+                        hide-details="auto"
+                        class="no-border-radius-right"
+                        :rules="[v => validateCoords(v, 'lon', ponta.longitude) || 'Formato inválido']"
+                        :hint="lonConverted"
+                        autocomplete="off"
+                        :error-messages="novoSite.errors.longitude"
+                        :readonly="siteSelecionado != null"
+                      />
+                    </v-col>
+
+                    <!-- Cidade + Endereço -->
+                    <v-col cols="12" md="4">
+                        <v-autocomplete
+                          v-model="ponta.cidade_id"
+                          :items="props.cidades"
+                          item-title="nome"
+                          item-value="id"
+                          label="Pesquisar cidade"
+                          :clearable="siteSelecionado == null"
+                          :return-object="false"
+                          variant="outlined"
+                          density="compact"
+                          class="no-border-radius-right"
+                          :rules="[v => !!v || 'Cidade é obrigatório']"
+                          required
+                          :error-messages="novoSite.errors.cidade_id"
+                          :readonly="siteSelecionado != null"
+                        />
+                    </v-col>
+
+                    <v-col cols="12" md="3">
+                      <v-text-field
+                        v-model="ponta.endereco"
+                        label="Endereço"
+                        density="compact"
+                        variant="outlined"
+                      />
+                    </v-col>
+
+                    <v-col cols="4" md="4">
+                        <v-autocomplete
+                          v-model="ponta.servicos"
+                          :items="props.servicos"
+                          item-title="nome"
+                          item-value="id"
+                          label="Pesquisar serviço"
+                          clearable
+                          :return-object="false"
+                          multiple
+                          chips
+                          closable-chips
+                          variant="outlined"
+                          density="compact"
+                          hide-details
+                          class="no-border-radius-right"
+                          autocomplete="off"
+                          :error-messages="novoSite.errors.servicos"
+                        />
+                    </v-col>
+
+                    <v-col cols="12" md="4">
+                      <div class="d-flex">
+                        <v-text-field
+                          v-model="ponta.velocidade_up"
+                          :min="0"
+                          placeholder="Mbps"
+                          label="Down"
+                          variant="outlined"
+                          density="compact"
+                          hide-details
+                          control-variant="hidden"
+                          class="no-border-radius-right"
+                          autocomplete="off"
+                          :error-messages="novoSite.errors.vel_solicitada_down"
+                        />
+                        <v-text-field
+                          v-model="ponta.velocidade_down"
+                          :min="0"
+                          placeholder="Mbps"
+                          label="Up"
+                          variant="outlined"
+                          density="compact"
+                          hide-details
+                          control-variant="hidden"
+                          class="no-border-radius"
+                          autocomplete="off"
+                          :error-messages="novoSite.errors.vel_solicitada_up"
+                        />
+                        <v-text-field
+                          v-model="ponta.barra"
+                          :min="0"
+                          :max="32"
+                          label="/"
+                          variant="outlined"
+                          density="compact"
+                          hide-details
+                          class="no-border-radius-left"
+                          control-variant="hidden"
+                          autocomplete="off"
+                          :error-messages="novoSite.errors.barra"
+                        />
+                      </div>
+                    </v-col>
+                  </v-row>
+                </v-card-text>
+              </v-card>
+
+              <!-- Botão para adicionar mais subestações -->
+              <v-btn
+                variant="outlined"
+                color="primary"
+                prepend-icon="mdi-plus"
+                @click="adicionarPonta"
+              >
+                Adicionar Ponta
+              </v-btn>
+            </v-col>
           </v-form>
         </v-card-text>
 
@@ -251,7 +442,28 @@ const novoSite = useForm({
   orcamento_id: null,
   servicos: null,
   site_id: false,
+  subestacao: false,
 })
+
+const pontas = ref([]);
+
+const adicionarPonta = () => {
+  pontas.value.push({
+    nome: "",
+    latitude: "",
+    longitude: "",
+    cidade_id: "",
+    endereco: "",
+    velocidade_up: null,
+    velocidade_down: null,
+    barra: "",
+    servicos: [],
+  });
+};
+
+const removerPonta = (index) => {
+  pontas.value.splice(index, 1);
+};
 
 const buscarSites = async (nome) => {
     if (!nome || nome.length < 2) {
@@ -259,11 +471,11 @@ const buscarSites = async (nome) => {
         exibeCampos.value = false
         return
     }
-
+    var orcamento_id = props.orcamento.id
     loading.value = true
     try {
         const response = await axios.get('/sites/getSites', {
-            params: { nome },
+            params: { nome, orcamento_id },
         })
         sites.value = response.data
     } catch (error) {
@@ -284,7 +496,7 @@ const selecionaSite = (site) => {
   }
 }
 
-const validateCoords = (valor, tipo) => {
+const validateCoords = (valor, tipo, model) => {
   if (!valor || typeof valor !== 'string') return true;
 
   const decimalRegex = /^-?\d+(?:\.\d+)?$/;
@@ -316,12 +528,12 @@ const validateCoords = (valor, tipo) => {
     const decimalFix = decimal
 
     if (tipo === 'lat') {
-      novoSite.latitude = decimalFix
+      model = decimalFix
       valor = decimalFix
       latConverted.value = "Convertido em decimal."
       return true
     } else {
-      novoSite.longitude = decimalFix
+      model = decimalFix
       lonConverted.value = "Convertido em decimal."
       return true
     }

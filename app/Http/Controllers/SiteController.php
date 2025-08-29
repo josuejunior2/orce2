@@ -51,11 +51,12 @@ class SiteController extends Controller
     public function getSites(Request $request)
     {
         $nome = $request->input('nome');
+        $idOrcamento = $request->input('orcamento_id');
 
         $sites = Site::where('nome', 'like', '%' . $nome . '%')
             ->select('id', 'nome', 'cidade_id', 'endereco', 'latitude', 'longitude')
             ->limit(10)
-            ->get()->map(function ($s) {
+            ->get()->map(function ($s) use($idOrcamento) {
             return [
                 'id' => $s->id,
                 'nomeDisplay' => $s->nome . (!empty($s->endereco) ? " | " . $s->endereco : "") . " | " . $s->Cidade->nome . " - " . $s->Cidade->Estado->uf,
@@ -64,6 +65,7 @@ class SiteController extends Controller
                 'latitude' => $s->latitude,
                 'longitude' => $s->longitude,
                 'cidade_id' => $s->cidade_id,
+                'orcado'    => $s->sitesOrcamento()->where('orcamento_id', $idOrcamento)->exists()
             ];
         })->toArray();
 
