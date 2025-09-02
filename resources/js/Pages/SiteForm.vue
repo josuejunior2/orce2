@@ -104,7 +104,7 @@
                   density="comfortable"
                   hide-details="auto"
                   class="no-border-radius-right"
-                  :rules="[v => validateCoords(v, 'lat', novoSite.latitude) || 'Formato inválido']"
+                  :rules="[v => validateCoords(v, 'lat', novoSite) || 'Formato inválido']"
                   :hint="latConverted"
                   autocomplete="off"
                   :error-messages="novoSite.errors.latitude"
@@ -120,7 +120,7 @@
                   density="comfortable"
                   hide-details="auto"
                   class="no-border-radius-right"
-                  :rules="[v => validateCoords(v, 'lon', novoSite.longitude) || 'Formato inválido']"
+                  :rules="[v => validateCoords(v, 'lon', novoSite) || 'Formato inválido']"
                   :hint="lonConverted"
                   autocomplete="off"
                   :error-messages="novoSite.errors.longitude"
@@ -266,7 +266,7 @@
                         density="compact"
                         hide-details="auto"
                         class="no-border-radius-right"
-                        :rules="[v => validateCoords(v, 'lat', ponta.latitude) || 'Formato inválido']"
+                        :rules="[v => validateCoords(v, 'lat', ponta) || 'Formato inválido']"
                         :hint="latConverted"
                         autocomplete="off"
                         :error-messages="novoSite.errors.latitude"
@@ -282,7 +282,7 @@
                         density="compact"
                         hide-details="auto"
                         class="no-border-radius-right"
-                        :rules="[v => validateCoords(v, 'lon', ponta.longitude) || 'Formato inválido']"
+                        :rules="[v => validateCoords(v, 'lon', ponta) || 'Formato inválido']"
                         :hint="lonConverted"
                         autocomplete="off"
                         :error-messages="novoSite.errors.longitude"
@@ -528,12 +528,12 @@ const validateCoords = (valor, tipo, model) => {
     const decimalFix = decimal
 
     if (tipo === 'lat') {
-      model = decimalFix
-      valor = decimalFix
+      model.latitude = decimalFix
       latConverted.value = "Convertido em decimal."
       return true
     } else {
-      model = decimalFix
+      model.longitude = decimalFix
+      console.log(decimalFix)
       lonConverted.value = "Convertido em decimal."
       return true
     }
