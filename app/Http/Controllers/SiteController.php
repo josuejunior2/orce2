@@ -77,7 +77,7 @@ class SiteController extends Controller
     public function store(SiteOrcamentoRequest $request)
     {
         $dados = $request->validated();
-        
+        // dd($dados);
         DB::transaction(function() use($dados, &$siteOrcamento){
             $site = !empty($dados['site_id']) ? Site::find($dados['site_id']) : Site::create($dados);
 
@@ -90,6 +90,21 @@ class SiteController extends Controller
                 }
             }
             
+            if(!empty($dados['pontas'])) {
+                foreach($dados['pontas'] as $ponta) {
+                    $sitePonta = Site::create($ponta);
+                    $ponta['site_id'] = $sitePonta->id;
+                    $ponta['site_orcamento_id'] = $siteOrcamento->id;
+                    $ponta['orcamento_id'] = $dados['orcamento_id'];
+                    $siteOrcamentoPonta = SiteOrcamento::create($ponta);
+                    if(!empty($ponta['servicos'])) {
+                        foreach($ponta['servicos'] as $servico){
+                            SiteOrcamentoServico::create(['site_orcamento_id' => $siteOrcamentoPonta->id, 'servico_id' => $servico]);
+                        }
+                    }
+                }
+            }
+
             Log::channel('main')->info('Novo site cadastrado.', [ 'cliente' => $siteOrcamento->Orcamento->Cliente, 'orcamento' => $siteOrcamento->Orcamento, 'site' => $site, 'user' => auth()->user()->nome]);
         });
 

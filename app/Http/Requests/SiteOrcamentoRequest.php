@@ -38,22 +38,17 @@ class SiteOrcamentoRequest extends FormRequest
             'servicos' => ['nullable', 'exists:servicos,id'],
             'barra' => ['nullable'],
             'site_id' => ['nullable', 'exists:sites,id'],
-        ];
-    }
-    /**
-     * Get the messages array.
-     *
-     */
-    public function messages(): array
-    {
-        return [
-            'required' => 'O campo :attribute deve ser preenchido.',
-            'latitude.max' => 'O valor máximo para latitude é 99.',
-            'longitude.max' => 'O valor máximo para longitude é 99.',
-            'latitude.regex' => 'O formato da latitude deve ser válido, como 36°23\'08.3"S ou -30.046750555651297.',
-            'longitude.regex' => 'O formato da longitude deve ser válido, como 36°23\'08.3"W ou -30.046750555651297.',
-            'latitude.unique' => 'Não é permitido cadastrar sites com a mesma latitude.',
-            'longitude.unique' => 'Não é permitido cadastrar sites com a mesma longitude.',
+            
+            // 'pontas' => ['nullable', 'array'],
+            'pontas.*.nome' => ['required'],
+            'pontas.*.latitude' => ['nullable', 'regex:/^-?\d+(?:\.\d+)?$/'],
+            'pontas.*.longitude' => ['nullable', 'regex:/^-?\d+(?:\.\d+)?$/'],
+            'pontas.*.cidade_id' => ['required'],
+            'pontas.*.endereco' => ['nullable', 'string'],
+            'pontas.*.vel_solicitada_up' => ['nullable', 'numeric'],
+            'pontas.*.vel_solicitada_down' => ['nullable', 'numeric'],
+            'pontas.*.barra' => ['nullable'],
+            'pontas.*.servicos' => ['nullable', 'exists:servicos,id'],
         ];
     }
 }

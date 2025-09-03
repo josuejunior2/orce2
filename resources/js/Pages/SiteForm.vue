@@ -254,6 +254,7 @@
                         label="Nome"
                         density="compact"
                         variant="outlined"
+                        :rules="[v => !!v || 'Nome é obrigatório']"
                       />
                     </v-col>
 
@@ -343,7 +344,7 @@
                     <v-col cols="12" md="4">
                       <div class="d-flex">
                         <v-text-field
-                          v-model="ponta.velocidade_up"
+                          v-model="ponta.vel_solicitada_up"
                           :min="0"
                           placeholder="Mbps"
                           label="Down"
@@ -356,7 +357,7 @@
                           :error-messages="novoSite.errors.vel_solicitada_down"
                         />
                         <v-text-field
-                          v-model="ponta.velocidade_down"
+                          v-model="ponta.vel_solicitada_down"
                           :min="0"
                           placeholder="Mbps"
                           label="Up"
@@ -443,6 +444,7 @@ const novoSite = useForm({
   servicos: null,
   site_id: false,
   subestacao: false,
+  pontas: []
 })
 
 const pontas = ref([]);
@@ -454,8 +456,8 @@ const adicionarPonta = () => {
     longitude: "",
     cidade_id: "",
     endereco: "",
-    velocidade_up: null,
-    velocidade_down: null,
+    vel_solicitada_up: null,
+    vel_solicitada_down: null,
     barra: "",
     servicos: [],
   });
@@ -561,6 +563,7 @@ const submitForm = async () => {
   novoSite.orcamento_id = props.orcamento.id
   novoSite.servicos = servicoSelecionado.value
   novoSite.site_id = siteSelecionado.value != null ? siteSelecionado.value.id : null
+  novoSite.pontas = pontas
   const valid = await form.value.validate()
 
   if (valid.valid) {
@@ -575,7 +578,6 @@ const submitForm = async () => {
         servicoSelecionado.value = null
         latConverted.value = ''
         lonConverted.value = ''
-        console.log(response.data.redirect_url, response.data, response)
         if (response.data.redirect_url) {
             window.location.href = response.data.redirect_url;
         }
