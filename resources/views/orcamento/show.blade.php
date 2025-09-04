@@ -183,7 +183,7 @@
                     <div class="form-control-plaintext m-3">Esse Orçamento não tem nenhum site.</div>
                 @else
                 <div class="accordion accordion-tabs" id="accordion-tabs">
-                    @foreach ($orcamento->sitesOrcamento->sortBy('nome') as $key => $site) {{-- pq aí os que forem (Ponta A) vem primeiro --}}
+                    @foreach ($sitesOrcamento as $key => $site) {{-- pq aí os que forem (Ponta A) vem primeiro --}}
                     @include('orcamento.modal.alert-destroy-site', ['site' => $site])
                     {{-- @include('orcamento.modal.create-cotacao-sheet', ['site' => $site]) --}}
                     <div class="accordion-item m-3 mb-0">
@@ -199,7 +199,7 @@
                                         Adicionar cotações via planilha
                                     </a>
                                 </div> --}}
-                                <div class="btn-group pb-2 pe-2" role="group">
+                                <div class="btn-group pb-2 pe-2">
                                     <a href="{{ route('cotacao.create', ['site' => $site]) }}" class="btn btn-outline-primary">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                             stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-plus">
@@ -217,7 +217,7 @@
                                         </svg>
                                     </a>
                                     @can('excluir site')
-                                    <a href="#" class="btn btn-outline-danger w-100" data-bs-toggle="modal" data-bs-target="#modal-destroy-site-{{ $site->id }}">
+                                    <a href="#" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modal-destroy-site-{{ $site->id }}">
                                         <form id="form_{{ $site->id }}" method="post" action="{{ route('site.destroy', ['site' => $site->id]) }}" class="m-0">
                                             @method('DELETE')
                                             @csrf
@@ -295,7 +295,7 @@
                                                             </div>
                                                     </button>
                                                     <div class="d-flex justify-content-between col-auto">
-                                                        <div class="btn-group" role="group">
+                                                        <div class="btn-group">
                                                             <a class="btn btn-outline-primary" href="{{ route('cotacao.edit', ['cotacao' => $cotacao->id]) }}">
                                                                 <svg  xmlns="http://www.w3.org/2000/svg"  width="18"  height="18"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-edit m-0"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg>
                                                             </a>
@@ -453,6 +453,62 @@
                                                                             </tbody>
                                                                         @endcan
                                                                     </table>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                @endif
+                                
+                                @if ($site->pontas->isNotEmpty())
+                                    @foreach ($site->pontas as $ponta)
+                                        <div class="accordion accordion-tabs" id="accordion-{{ $ponta->id }}">
+                                            <div class="accordion-item m-3">
+                                                <div class="accordion-header d-flex justify-content-between" id="heading-1">
+                                                    <button class="accordion-button collapsed p-2" type="button" data-bs-toggle="collapse" data-bs-target="#accordion-collapse-{{ $ponta->id }}" aria-expanded="false">
+                                                        {{ $ponta->Site->nome }}
+                                                    </button>
+                                                </div>
+                                                <div id="accordion-collapse-{{ $ponta->id }}" class="accordion-collapse collapse" data-bs-parent="#accordion-{{ $ponta->id }}">
+                                                    <div class="accordion-body pt-1">
+                                                        <div class="datagrid">
+                                                            <div class="datagrid-item">
+                                                                <div class="datagrid-title">Endereço detalhado</div>
+                                                                <div class="datagrid-content">{{ $ponta->Site->endereco }}</div>
+                                                            </div>
+                                                            @if(!empty($ponta->Site->cidade_id))
+                                                                <div class="datagrid-item">
+                                                                    <div class="datagrid-title">Cidade</div>
+                                                                    <div class="datagrid-content">{{ $ponta->Site->Cidade->nome }} - {{ $ponta->Site->Cidade->Estado->uf }}</div>
+                                                                </div>
+                                                            @endif
+                                                            <div class="datagrid-item">
+                                                                <div class="datagrid-title">Latitude</div>
+                                                                <div class="datagrid-content">{{ $ponta->Site->latitude }}</div>
+                                                            </div>
+                                                            <div class="datagrid-item">
+                                                                <div class="datagrid-title">Longitude</div>
+                                                                <div class="datagrid-content">{{ $ponta->Site->longitude }}</div>
+                                                            </div>
+                                                            <div class="datagrid-item">
+                                                                <div class="datagrid-title">Velocidade solicitada</div>
+                                                                <div class="datagrid-content">
+                                                                    <div class="btn p-1 pe-none user-select-all">{{ intval($ponta->vel_solicitada_down) }} <small class="form-hint">Mbps</small><span class="badge bg-blue ms-2 text-white user-select-all">Down</span></div>
+                                                                    <div class="btn p-1 pe-none user-select-all">{{ intval($ponta->vel_solicitada_up) }} <small class="form-hint">Mbps</small><span class="badge bg-red ms-2 text-white user-select-all">Up</span></div>
+                                                                    <div class="btn p-1 pe-none user-select-all">/{{ intval($ponta->barra) }}</div>
+                                                                    {{-- Down: {{ intval($site->vel_solicitada_down) }} Mbps up: </div> --}}
+                                                                </div>
+                                                            </div>
+                                                            <div class="datagrid-item">
+                                                                <div class="datagrid-title">Serviços solicitados</div>                                
+                                                                <div class="datagrid-content">
+                                                                    @foreach($ponta->servicosSolicitados as $servico) 
+                                                                        <span class="badge badge-outline" title="{{ $servico->descricao }}" role='button'
+                                                                        data-bs-toggle="tooltip" data-bs-placement="bottom" data-site="{{ $ponta->site_id }}" data-servico="{{ $servico->id }}" data-nome-servico="{{ $servico->nome }}" data-nome-site="{{ $ponta->Site->nome }}" onclick="confirmaDetachServico(this)" onmouseover="$(this).addClass('text-danger')" onmouseout="$(this).removeClass('text-danger')">{{$servico->nome}}</span> 
+                                                                    @endforeach
                                                                 </div>
                                                             </div>
                                                         </div>
