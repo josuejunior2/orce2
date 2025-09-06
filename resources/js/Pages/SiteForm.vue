@@ -34,7 +34,7 @@
         <v-card-text>
           <v-form @submit.prevent="submitForm" ref="form">
             <v-row>
-              <v-col v-if="!exibeCampos || siteSelecionado != null" :cols="siteSelecionado != null ? '4' : '12'" :md="siteSelecionado != null ? '4' : '12'">
+              <v-col v-if="!exibeCampos || siteSelecionado != null" :cols="siteSelecionado != null ? '3' : '12'" :md="siteSelecionado != null ? '3' : '12'">
                 <v-autocomplete
                     v-model="siteSelecionado"
                     v-model:search="searchInput"
@@ -85,16 +85,15 @@
                     required
                     autocomplete="off"
                     :error-messages="novoSite.errors.nome"
-                  >
-                    <template #append>
-                      <v-checkbox
-                        v-model="novoSite.subestacao"
-                        label="Subestação"
-                        density="compact"
-                        hide-details
-                      />
-                    </template>                  
-                  </v-text-field>
+                  />
+              </v-col>
+              <v-col v-if="exibeCampos" cols="1" md="1">
+                <v-checkbox
+                  v-model="novoSite.subestacao"
+                  label="Subestação"
+                  density="compact"
+                  hide-details
+                />
               </v-col>
               <v-col v-if="exibeCampos" cols="2" md="2">
                 <v-text-field
@@ -271,7 +270,6 @@
                         :hint="latConverted"
                         autocomplete="off"
                         :error-messages="novoSite.errors.latitude"
-                        :readonly="siteSelecionado != null"
                       />
                     </v-col>
 
@@ -287,7 +285,6 @@
                         :hint="lonConverted"
                         autocomplete="off"
                         :error-messages="novoSite.errors.longitude"
-                        :readonly="siteSelecionado != null"
                       />
                     </v-col>
 
@@ -307,7 +304,6 @@
                           :rules="[v => !!v || 'Cidade é obrigatório']"
                           required
                           :error-messages="novoSite.errors.cidade_id"
-                          :readonly="siteSelecionado != null"
                         />
                     </v-col>
 
@@ -495,6 +491,10 @@ const selecionaSite = (site) => {
     novoSite.endereco = site.endereco
     novoSite.cidade_id = site.cidade_id
     exibeCampos.value = true
+    servicoSelecionado.value = null
+    novoSite.vel_solicitada_down = null
+    novoSite.vel_solicitada_up = null
+    novoSite.barra = null
   }
 }
 
