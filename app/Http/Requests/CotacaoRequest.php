@@ -3,7 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-
+use Illuminate\Validation\Rule;
+use App\Models\Cotacao;
 class CotacaoRequest extends FormRequest
 {
     /**
@@ -26,7 +27,7 @@ class CotacaoRequest extends FormRequest
     {
         return [
             'fornecedor_id' => 'required',
-            'site_id' => 'required',
+            'site_orcamento_id' => 'required|exists:site_orcamento,id',
             'vel_down' => 'nullable|numeric',
             'vel_up' => 'nullable|numeric',
             'tecnologia' => 'required|string|max:255',
@@ -42,7 +43,7 @@ class CotacaoRequest extends FormRequest
             'imposto_adesao' => 'nullable|numeric',
             'lucro_adesao' => 'nullable|numeric',
             'lucro_liquido' => 'nullable|numeric',
-            'status' => 'required|in:Em aberto,Fechado',
+            'status' => ['required', Rule::in(Cotacao::getStatus())],
             'barra' => 'nullable|numeric|min:0|max:32',
             'servicos.*.servico_id' => 'required|exists:servicos,id',
             'servicos.*.vel_down' => 'nullable|numeric|min:0',

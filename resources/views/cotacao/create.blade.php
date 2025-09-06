@@ -3,34 +3,34 @@
 @section('content')
     <div class="card m-3">
         <div class="card-header">
-            <h3 class="card-title">Orcamento de {{ $site->Orcamento->Cliente->nome }}</h3>
+            <h3 class="card-title">Orcamento de {{ $siteOrcamento->Orcamento->Cliente->nome }}</h3>
         </div>
         {{-- CADASTRO DO Orçamento --}}
         <div class="card-body">
             <div class="datagrid">
                 <div class="datagrid-item">
                     <div class="datagrid-title">Tempo do contrato</div>
-                    <div class="datagrid-content">{{ $site->Orcamento->tempo_contrato }}</div>
+                    <div class="datagrid-content">{{ $siteOrcamento->Orcamento->tempo_contrato }}</div>
                 </div>
                 <div class="datagrid-item">
                     <div class="datagrid-title">Tipo de link</div>
                     <div class="datagrid-content">
-                        @if ($site->Orcamento->tipo_link == 'l2l')
+                        @if ($siteOrcamento->Orcamento->tipo_link == 'l2l')
                             LAN to LAN (L2L)
-                        @elseif ($site->Orcamento->tipo_link == 'ld')
+                        @elseif ($siteOrcamento->Orcamento->tipo_link == 'ld')
                             Link Dedicado
                         @endif
                     </div>
                 </div>
                 <div class="datagrid-item">
                     <div class="datagrid-title">Imposto</div>
-                    <div class="datagrid-content">{{ $site->Orcamento->imposto }}%</div>
+                    <div class="datagrid-content">{{ $siteOrcamento->Orcamento->imposto }}%</div>
                 </div>
             </div>
         </div>
     </div>
     {{-- CADASTRO DO SITE --}}
-    @include('site.partials.card-site', ['site' => $site])
+    @include('site.partials.card-site', ['site' => $siteOrcamento->Site])
 
     <div class="card m-3">
         <div class="card-header">
@@ -39,9 +39,9 @@
         <div class="card-body">
             <form method="POST" action="{{ route('cotacao.store') }}" enctype="multipart/form-data" id="formCotacao">
                 @csrf
-                <input type="hidden" name="site_id" id="site_id" value="{{ $site->id }}">
+                <input type="hidden" name="site_orcamento_id" id="site_orcamento" value="{{ $siteOrcamento->id }}">
                 <div class="row g-3 mb-4">
-                    <div class="col-md">
+                    <div class="col-md-2">
                         <div class="mb-3">
                             <label class="col-form-label required">Fornecedor</label>
                             <select class="form-select" name="fornecedor_id" id="fornecedor_id">
@@ -67,14 +67,14 @@
                                 <span class="input-group-text">
                                     Down
                                 </span>
-                                <input type="number" min="0" name="vel_down" id="vel_down" placeholder="Mbps" class="form-control" autocomplete="off" value="{{ intval($site->vel_solicitada_down) }}" />
+                                <input type="number" min="0" name="vel_down" id="vel_down" placeholder="Mbps" class="form-control" autocomplete="off" value="{{ intval($siteOrcamento->vel_solicitada_down) }}" />
                                 <span class="text-danger" id="vel_down-error"></span>
                                 <span class="input-group-text">
                                     Up
                                 </span>
-                                <input type="number" min="0" name="vel_up" id="vel_up" placeholder="Mbps" class="form-control" autocomplete="off" value="{{ intval($site->vel_solicitada_up) }}" />
+                                <input type="number" min="0" name="vel_up" id="vel_up" placeholder="Mbps" class="form-control" autocomplete="off" value="{{ intval($siteOrcamento->vel_solicitada_up) }}" />
                                 <span class="input-group-text">/</span>
-                                <input type="number" min="00" max="32" name="barra" id="barra" class="form-control" autocomplete="off" value="{{ old('barra', $site->barra) }}"/>
+                                <input type="number" min="00" max="32" name="barra" id="barra" class="form-control" autocomplete="off" value="{{ old('barra', $siteOrcamento->barra) }}"/>
                                 <span class="text-danger" id="vel_up-error"></span>
                             </div>
                         </div>
@@ -83,18 +83,12 @@
                         <div class="mb-3">
                             <label class="col-form-label required">Tecnologia</label>
                             <div>
-                                <label class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="tecnologia" value="fibra">
-                                    <span class="form-check-label">Fibra óptica</span>
-                                </label>
-                                <label class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="tecnologia" value="radio">
-                                    <span class="form-check-label">Rádio</span>
-                                </label>
-                                <label class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="tecnologia" value="satelital">
-                                    <span class="form-check-label">Satelital</span>
-                                </label>
+                                @foreach(\App\Models\Cotacao::getTecnologia() as $tecnologia)
+                                    <label class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="tecnologia" value="{{$tecnologia}}">
+                                        <span class="form-check-label">{{\App\Models\Cotacao::getTecnologiaTexto($tecnologia)}}</span>
+                                    </label>
+                                @endforeach
                             </div>
                         </div>
                     </div>
@@ -171,8 +165,9 @@
                             <label class="col-form-label required">Status da cotação</label>
                             <select class="form-select" name="status" id="status" value="">
                                 <option value=""></option>
-                                <option class="badge bg-yellow text-white" value="Em aberto">Em aberto</option>
-                                <option class="badge bg-green text-white" value="Fechado">Fechado</option>
+                                @foreach(\App\Models\Cotacao::getStatus() as $status)
+                                    <option value="{{$status}}">{{\App\Models\Cotacao::getStatusTexto($status)}}</option>
+                                @endforeach
                             </select>
                             <span class="text-danger" id="status-error"></span>
                         </div>
@@ -328,7 +323,7 @@
                             <option value=""></option>
                             @foreach($servicos as $s)
                                 <option value="{{ $s->id }}">
-                                    {{ $s->nome }} @if(in_array($s->id, $site->servicosSolicitados->pluck('id')->toArray())) (Solicitado) @endif
+                                    {{ $s->nome }} @if(in_array($s->id, $siteOrcamento->servicosSolicitados->pluck('id')->toArray())) (Solicitado) @endif
                                 </option>
                             @endforeach
                         </select>
@@ -382,8 +377,8 @@
 
     <script>
         $(document).ready(function() {
-            var gear_noc = "{{ $site->Orcamento->gear_noc ?? auth()->user()->Empresa->gear_noc }}";
-            var custo_fixo_percent = "{{ $site->Orcamento->custo_fixo_percent ?? auth()->user()->Empresa->custo_fixo_percent }}";
+            var gear_noc = "{{ $siteOrcamento->Orcamento->gear_noc ?? auth()->user()->Empresa->gear_noc }}";
+            var custo_fixo_percent = "{{ $siteOrcamento->Orcamento->custo_fixo_percent ?? auth()->user()->Empresa->custo_fixo_percent }}";
             $('#lucro_liquido').prop('readonly', true);
             $('#imposto_mensal').prop('readonly', true);
             $('#imposto_adesao').prop('readonly', true);
@@ -395,7 +390,7 @@
                     var adesao_forn = $('#adesao_fornecedor').val();
                     var custo_operacional = $('#custo_operacional').val();
                     var mensal_imp = $('#mensal_imp').val();
-                    var porcent = "{{ $site->Orcamento->imposto }}";
+                    var porcent = "{{ $siteOrcamento->Orcamento->imposto }}";
                     var imposto_mensal = mensal_imp * (porcent / 100);
                     var custo_inst_imp = $('#custo_instalacao_imp').val();
                     var custo_ativacao = $('#custo_ativacao').val();

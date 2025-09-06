@@ -200,7 +200,7 @@
                                     </a>
                                 </div> --}}
                                 <div class="btn-group pb-2 pe-2">
-                                    <a href="{{ route('cotacao.create', ['site' => $site]) }}" class="btn btn-outline-primary">
+                                    <a href="{{ route('cotacao.create', ['siteOrcamento' => $site]) }}" class="btn btn-outline-primary">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                             stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-plus">
                                             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -240,21 +240,21 @@
                                 <div class="datagrid">
                                     <div class="datagrid-item">
                                         <div class="datagrid-title">Endereço detalhado</div>
-                                        <div class="datagrid-content">{{ $site->endereco }}</div>
+                                        <div class="datagrid-content">{{ $site->Site->endereco }}</div>
                                     </div>
-                                    @if(!empty($site->cidade_id))
+                                    @if(!empty($site->Site->cidade_id))
                                         <div class="datagrid-item">
                                             <div class="datagrid-title">Cidade</div>
-                                            <div class="datagrid-content">{{ $site->Cidade->nome }} - {{ $site->Cidade->Estado->uf }}</div>
+                                            <div class="datagrid-content">{{ $site->Site->Cidade->nome }} - {{ $site->Site->Cidade->Estado->uf }}</div>
                                         </div>
                                     @endif
                                     <div class="datagrid-item">
                                         <div class="datagrid-title">Latitude</div>
-                                        <div class="datagrid-content">{{ $site->latitude }}</div>
+                                        <div class="datagrid-content">{{ $site->Site->latitude }}</div>
                                     </div>
                                     <div class="datagrid-item">
                                         <div class="datagrid-title">Longitude</div>
-                                        <div class="datagrid-content">{{ $site->longitude }}</div>
+                                        <div class="datagrid-content">{{ $site->Site->longitude }}</div>
                                     </div>
                                     <div class="datagrid-item">
                                         <div class="datagrid-title">Velocidade solicitada</div>

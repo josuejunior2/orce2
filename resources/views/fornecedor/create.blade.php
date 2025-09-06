@@ -7,7 +7,7 @@
     </div>
 
     <div class="card-body">
-    <form method="POST" action="{{ route('fornecedor.store', ['site' => $site]) }}" enctype="multipart/form-data">
+    <form method="POST" action="{{ route('fornecedor.store', ['siteOrcamento' => $siteOrcamento]) }}" enctype="multipart/form-data">
         @csrf
         <div class="mb-3">
             <label class="col-3 col-form-label required">Nome</label>
@@ -91,7 +91,7 @@
                 @endforeach
             ],
             @php
-                $oldCidades = old('cidades') ?? (isset($site) && isset($site->Cidade) ? [$site->Cidade->id] : []);
+                $oldCidades = old('cidades') ?? (isset($siteOrcamento) && isset($siteOrcamento->Site->Cidade) ? [$siteOrcamento->Site->cidade_id] : []);
                 if (is_string($oldCidades)) {
                     $oldCidades = explode(',', $oldCidades);
                 }

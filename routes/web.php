@@ -73,8 +73,8 @@ Route::middleware(['auth:admin'])->group(function () {
     Route::post('fornecedor/detach', [App\Http\Controllers\FornecedorCidadeController::class, 'detach_cidade'])->name('fornecedor.detach.cidade');
     Route::post('fornecedor/attach/cidade/{fornecedor}', [App\Http\Controllers\FornecedorCidadeController::class, 'attach_cidade'])->name('fornecedor.attach.cidade');
     Route::post('fornecedor/adicionar/cidades/{fornecedor}', [App\Http\Controllers\FornecedorCidadeController::class, 'update_cidades'])->name('fornecedor.update.cidades');
-    Route::post('fornecedor/{site?}', [App\Http\Controllers\FornecedorController::class, 'store'])->name('fornecedor.store');
-    Route::get('fornecedor/create/{site?}', 'App\Http\Controllers\FornecedorController@create')->name('fornecedor.create');
+    Route::post('fornecedor/{siteOrcamento?}', [App\Http\Controllers\FornecedorController::class, 'store'])->name('fornecedor.store');
+    Route::get('fornecedor/create/{siteOrcamento?}', 'App\Http\Controllers\FornecedorController@create')->name('fornecedor.create');
     Route::resource('fornecedor', App\Http\Controllers\FornecedorController::class)->except(['store', 'create']);
 
     Route::post('orcamento/status/{orcamento}', [App\Http\Controllers\OrcamentoController::class, 'altera_status'])->name('orcamento.altera.status');
@@ -92,7 +92,7 @@ Route::middleware(['auth:admin'])->group(function () {
     Route::resource('site', App\Http\Controllers\SiteController::class)->except(['create', 'show', 'index']);
 
     Route::post('cotacao/status/{cotacao}', [App\Http\Controllers\CotacaoController::class, 'altera_status'])->name('cotacao.altera.status');
-    Route::get('cotacao/create/{site}', 'App\Http\Controllers\CotacaoController@create')->name('cotacao.create');
+    Route::get('cotacao/create/{siteOrcamento}', 'App\Http\Controllers\CotacaoController@create')->name('cotacao.create');
     Route::resource('cotacao', App\Http\Controllers\CotacaoController::class)->except(['create', 'show']);
 
     Route::resource('cliente', App\Http\Controllers\ClienteController::class);

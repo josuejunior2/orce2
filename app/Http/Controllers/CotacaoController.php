@@ -6,6 +6,7 @@ use App\Models\Cotacao;
 use App\Models\CotacaoServico;
 use App\Models\Fornecedor;
 use App\Models\Site;
+use App\Models\SiteOrcamento;
 use App\Models\Servico;
 use Illuminate\Http\Request;
 use App\Http\Requests\CotacaoRequest;
@@ -37,22 +38,22 @@ class CotacaoController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(Site $site, Fornecedor $fornecedor = null)
+    public function create(SiteOrcamento $siteOrcamento, Fornecedor $fornecedor = null)
     {
         $empresa = auth()->user()->Empresa;
         if(empty($empresa->gear_noc) || empty($empresa->custo_fixo_percent)){
             return redirect()->route('empresa.show', ['empresa' =>$empresa])->with('error', 'Parametrize o GearNoc e a % do Custo fixo!');
         }
-        if (Fornecedor::whereHas('cidades', function (Builder $query) use ($site) {
-            $query->where('fornecedor_cidade.cidade_id', $site->cidade_id);
+        
+        if (Fornecedor::whereHas('cidades', function (Builder $query) use ($siteOrcamento) {
+            $query->where('fornecedor_cidade.cidade_id', $siteOrcamento->Site->cidade_id);
         })->exists()){
-            $fornecedores = Fornecedor::whereHas('cidades', function (Builder $query) use ($site) {
-                $query->where('fornecedor_cidade.cidade_id', $site->cidade_id);
+            $fornecedores = Fornecedor::whereHas('cidades', function (Builder $query) use ($siteOrcamento) {
+                $query->where('fornecedor_cidade.cidade_id', $siteOrcamento->Site->cidade_id);
             })->get();
-            // dd($fornecedores);
-            return view('cotacao.create', ['site' => $site, 'fornecedores' => $fornecedores, 'fornecedor' => $fornecedor, 'servicos' => Servico::all()]);
+            return view('cotacao.create', ['siteOrcamento' => $siteOrcamento, 'fornecedores' => $fornecedores, 'fornecedor' => $fornecedor, 'servicos' => Servico::all()]);
         } else{
-            return redirect()->route('fornecedor.create', ['site' => $site, 'fornecedor' => $fornecedor]);
+            return redirect()->route('fornecedor.create', ['siteOrcamento' => $siteOrcamento]);
         }
     }
 
@@ -62,6 +63,7 @@ class CotacaoController extends Controller
     public function store(CotacaoRequest $request)
     {
         $dados = $request->validated();
+        // dd($dados);
         DB::transaction(function() use($dados, &$cotacao){
             $cotacao = Cotacao::create($dados);
             if(!empty($dados['servicos'])){
@@ -70,20 +72,20 @@ class CotacaoController extends Controller
                     CotacaoServico::create($servico);
                 }
             }
-            if(empty($cotacao->Site->Orcamento->gear_noc)){
-                $cotacao->Site->Orcamento->update(['gear_noc' => auth()->user()->Empresa->gear_noc]);
+            if(empty($cotacao->SiteOrcamento->Orcamento->gear_noc)){
+                $cotacao->SiteOrcamento->Orcamento->update(['gear_noc' => auth()->user()->Empresa->gear_noc]);
             }
-            if(empty($cotacao->Site->Orcamento->custo_fixo_percent)){
-                $cotacao->Site->Orcamento->update(['custo_fixo_percent' => auth()->user()->Empresa->custo_fixo_percent]);
+            if(empty($cotacao->SiteOrcamento->Orcamento->custo_fixo_percent)){
+                $cotacao->SiteOrcamento->Orcamento->update(['custo_fixo_percent' => auth()->user()->Empresa->custo_fixo_percent]);
             }
-            $this->orcamentoController->atualizaValoresTotais($cotacao->Site->Orcamento);
+            $this->orcamentoController->atualizaValoresTotais($cotacao->SiteOrcamento->Orcamento);
             Log::channel('main')->info('Nova cotação cadastrada', ['cotacao' => $cotacao, 'user' => auth()->user()->nome]);
             
             session()->flash('success', 'Cotação cadastrada com sucesso!');
         });
         return response()->json([
             'success' => true,
-            'redirect_url' => route('orcamento.show', ['orcamento' => $cotacao->Site->Orcamento]),
+            'redirect_url' => route('orcamento.show', ['orcamento' => $cotacao->SiteOrcamento->Orcamento]),
         ]);
     }
 

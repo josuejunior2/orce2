@@ -28,7 +28,7 @@ class SiteController extends Controller
     {
         $cidades = Cidade::all()->map(function ($c) {
             return [
-                'id' => $c->cidade_id,
+                'id' => $c->id,
                 'nome' => $c->nome . " - " . $c->Estado->uf,
             ];
         })->toArray();

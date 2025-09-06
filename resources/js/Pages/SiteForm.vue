@@ -74,7 +74,7 @@
                     </template>
                 </v-autocomplete>
               </v-col>
-              <v-col v-if="exibeCampos && siteSelecionado == null" cols="4" md="4">
+              <v-col v-if="exibeCampos && siteSelecionado == null" cols="3" md="3">
                   <v-text-field
                     v-model="novoSite.nome"
                     label="Nome do novo site"
@@ -501,45 +501,76 @@ const selecionaSite = (site) => {
 const validateCoords = (valor, tipo, model) => {
   if (!valor || typeof valor !== 'string') return true;
 
-  const decimalRegex = /^-?\d+(?:\.\d+)?$/;
+  const decimalRegex = /^-?\d+(?:\.\d+)?$/; // decimal simples
+  const decimalWithDirRegex = /^(\d{1,3}(?:\.\d+)?)\s*[°º]?\s*([NSEWO])$/i; // decimal + direção
+  const dmsRegexLat = /^(\d{1,3})\s*[°º]\s*(\d{1,2})\s*'\s*(\d{1,2}(?:\.\d+)?)\s*["”]?\s*([NS])$/i;
+  const dmsRegexLon = /^(\d{1,3})\s*[°º]\s*(\d{1,2})\s*'\s*(\d{1,2}(?:\.\d+)?)\s*["”]?\s*([OWE])$/i;
 
+  // Caso 1: decimal simples
   if (decimalRegex.test(valor.trim())) {
     const num = parseFloat(valor);
-    if (tipo === 'lat') return num >= -90 && num <= 90;
-    if (tipo === 'lon') return num >= -180 && num <= 180;
+    if (tipo === 'lat' && num >= -90 && num <= 90) {
+      model.latitude = num;
+      latConverted.value = "Convertido em decimal.";
+      return true;
+    }
+    if (tipo === 'lon' && num >= -180 && num <= 180) {
+      model.longitude = num;
+      lonConverted.value = "Convertido em decimal.";
+      return true;
+    }
     return false;
   }
 
-  const dmsRegexLat = /^(\d{1,3})\s*[°º]\s*(\d{1,2})\s*'\s*(\d{1,2}(?:\.\d+)?)\s*["”]\s*([NS])$/i;
-  const dmsRegexLon = /^(\d{1,3})\s*[°º]\s*(\d{1,2})\s*'\s*(\d{1,2}(?:\.\d+)?)\s*["”]\s*([OWE])$/i;
+  // Caso 2: decimal com direção (ex: 15.8009° S)
+  const matchDecDir = valor.trim().match(decimalWithDirRegex);
+  if (matchDecDir) {
+    let num = parseFloat(matchDecDir[1]);
+    const dir = matchDecDir[2].toUpperCase();
 
-  const regex = tipo === 'lat' ? dmsRegexLat : dmsRegexLon
-  const match = valor.trim().match(regex)
-
-  if (match) {
-    const deg = parseFloat(match[1])
-    const min = parseFloat(match[2])
-    const sec = parseFloat(match[3])
-    const dir = match[4].toUpperCase()
-
-    let decimal = deg + min / 60 + sec / 3600
     if ((tipo === 'lat' && dir === 'S') || (tipo === 'lon' && (dir === 'W' || dir === 'O'))) {
-      decimal *= -1
+      num *= -1;
     }
 
-    const decimalFix = decimal
-
-    if (tipo === 'lat') {
-      model.latitude = decimalFix
-      latConverted.value = "Convertido em decimal."
-      return true
-    } else {
-      model.longitude = decimalFix
-      console.log(decimalFix)
-      lonConverted.value = "Convertido em decimal."
-      return true
+    if (tipo === 'lat' && num >= -90 && num <= 90) {
+      model.latitude = num;
+      latConverted.value = "Convertido em decimal.";
+      return true;
+    }
+    if (tipo === 'lon' && num >= -180 && num <= 180) {
+      model.longitude = num;
+      lonConverted.value = "Convertido em decimal.";
+      return true;
     }
   }
+
+  // Caso 3: DMS (graus, minutos, segundos)
+  const regex = tipo === 'lat' ? dmsRegexLat : dmsRegexLon;
+  const match = valor.trim().match(regex);
+
+  if (match) {
+    const deg = parseFloat(match[1]);
+    const min = parseFloat(match[2]);
+    const sec = parseFloat(match[3]);
+    const dir = match[4].toUpperCase();
+
+    let decimal = deg + min / 60 + sec / 3600;
+    if ((tipo === 'lat' && dir === 'S') || (tipo === 'lon' && (dir === 'W' || dir === 'O'))) {
+      decimal *= -1;
+    }
+
+    if (tipo === 'lat') {
+      model.latitude = decimal;
+      latConverted.value = "Convertido em decimal.";
+      return true;
+    } else {
+      model.longitude = decimal;
+      lonConverted.value = "Convertido em decimal.";
+      return true;
+    }
+  }
+
+  return false;
 }
 
 const selecionarCriarNovoSite = () => {

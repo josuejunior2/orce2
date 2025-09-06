@@ -37,20 +37,23 @@ class Cotacao extends Model
 
     const fibra = 1;
     const radio = 2;
+    const satelital = 2;
 
     public static function getTecnologia(): array
     {
         return [
             self::fibra,
             self::radio,
+            self::satelital,
         ];
     }
 
     public static function getTecnologiaTexto(int $tipo): string
     {
         $dados = [
-            self::fibra => 'Fibra',
+            self::fibra => 'Fibra Óptica',
             self::radio => 'Rádio',
+            self::satelital => 'Satelital',
         ];
         return $dados[$tipo];
     }

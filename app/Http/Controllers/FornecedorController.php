@@ -7,6 +7,7 @@ use App\Models\FornecedorCidade;
 use App\Models\Cidade;
 use App\Models\Orcamento;
 use App\Models\Cotacao;
+use App\Models\SiteOrcamento;
 use App\Models\Site;
 use Illuminate\Http\Request;
 use App\Http\Requests\FornecedorRequest;
@@ -28,11 +29,12 @@ class FornecedorController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(Site $site)
+    public function create(SiteOrcamento $siteOrcamento)
     {
         $cidades = Cidade::all();
-        if($site){
-            return view('fornecedor.create', ['cidades' => $cidades, 'site' => $site]);
+        // dd($siteOrcamento);
+        if($siteOrcamento){
+            return view('fornecedor.create', ['cidades' => $cidades, 'siteOrcamento' => $siteOrcamento]);
         } else{
             return view('fornecedor.create', ['cidades' => $cidades]);
         }
@@ -41,7 +43,7 @@ class FornecedorController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(FornecedorRequest $request, Site $site = null)
+    public function store(FornecedorRequest $request, SiteOrcamento $siteOrcamento = null)
     {
         $fornecedor = Fornecedor::create($request->validated());
         if(!empty($request->input('cidades'))){
@@ -53,8 +55,8 @@ class FornecedorController extends Controller
             }
         }
         Log::channel('main')->info('Novo fornecedor cadastrado', ['fornecedor' => $fornecedor->nome, 'user' => auth()->user()->nome]);
-        if($site){
-            return redirect()->route('cotacao.create', ['site' => $site, 'fornecedor' => $fornecedor]);
+        if(!empty($siteOrcamento)){
+            return redirect()->route('cotacao.create', ['siteOrcamento' => $siteOrcamento, 'fornecedor' => $fornecedor]);
         } else {
             return redirect()->route('fornecedor.index');
         }
