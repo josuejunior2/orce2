@@ -89,7 +89,9 @@ Route::middleware(['auth:admin'])->group(function () {
     Route::get('site/create/+1PontaA/{orcamento}/{isPontaA}', 'App\Http\Controllers\SiteController@createMais1PontaA')->name('site.create.+1.PontaA');
     Route::post('site/create/sheet/{orcamento}', 'App\Http\Controllers\SiteController@store_sheet')->name('site.store.sheet');
     Route::post('site/create/L2L', 'App\Http\Controllers\SiteController@storel2l')->name('site.store.l2l');
-    Route::resource('site', App\Http\Controllers\SiteController::class)->except(['create', 'show', 'index']);
+    Route::get('site/edit/{siteOrcamento}/', 'App\Http\Controllers\SiteController@edit')->name('site.edit');
+    Route::post('site/update/{siteOrcamento}', 'App\Http\Controllers\SiteController@update')->name('site.update');
+    Route::resource('site', App\Http\Controllers\SiteController::class)->except(['create', 'show', 'edit', 'update', 'index']);
 
     Route::post('cotacao/status/{cotacao}', [App\Http\Controllers\CotacaoController::class, 'altera_status'])->name('cotacao.altera.status');
     Route::get('cotacao/create/{siteOrcamento}', 'App\Http\Controllers\CotacaoController@create')->name('cotacao.create');

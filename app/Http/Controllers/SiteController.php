@@ -214,27 +214,77 @@ class SiteController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Site $site)
+    public function edit(SiteOrcamento $siteOrcamento)
     {
-        $cidades = Cidade::all();
-        return view('site.edit', ['site' => $site, 'cidades' => $cidades, 'servicos' => Servico::all()]);
+        $cidades = Cidade::all()->map(function ($c) {
+            return [
+                'id' => $c->id,
+                'nome' => $c->nome . " - " . $c->Estado->uf,
+            ];
+        })->toArray();
+        $servicos = Servico::all()->map(function ($s) {
+            return [
+                'id' => $s->id,
+                'nome' => $s->nome,
+            ];
+        })->toArray();
+        $orcamento = $siteOrcamento->Orcamento->load('Cliente');
+        
+        return Inertia::render('SiteForm', [
+            'cidades' => $cidades,
+            'servicos' => $servicos,
+            'orcamento' => $orcamento,
+            'siteOrcamento' => $siteOrcamento->load(['Site', 'servicosSolicitados']),
+            'pontas' => $siteOrcamento->pontas->load(['Site', 'servicosSolicitados']),
+        ]);        
+        // $cidades = Cidade::all();
+        // return view('site.edit', ['site' => $site, 'cidades' => $cidades, 'servicos' => Servico::all()]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(SiteOrcamentoRequest $request, Site $site)
+    public function update(SiteOrcamentoRequest $request, SiteOrcamento $siteOrcamento)
     {
         $dados = $request->validated();
-        DB::transaction(function() use($dados, &$site){
-            $site->update($dados);
+        // dd($dados);
+        DB::transaction(function() use($dados, &$siteOrcamento){
+            $siteOrcamento->Site->update($dados);
 
-            SiteOrcamentoServico::where(['site_id' => $site->id])->delete();
-            foreach(explode(",", $dados['servicos']) as $servico){
-                SiteOrcamentoServico::create(['site_id' => $site->id, 'servico_id' => $servico]);
+            $dados['site_id'] = $siteOrcamento->Site->id;
+            $siteOrcamento->update($dados);
+
+            if(!empty($dados['servicos'])) {
+                SiteOrcamentoServico::where('site_orcamento_id', $siteOrcamento->id)->delete();
+                foreach($dados['servicos'] as $servico){
+                    SiteOrcamentoServico::create(['site_orcamento_id' => $siteOrcamento->id, 'servico_id' => $servico]);
+                }
             }
+            
+            if(!empty($dados['pontas'])) {
+                foreach($dados['pontas'] as $ponta) {
+                    $sitePonta = Site::find($ponta['site_id']);
+                    $siteOrcamentoPonta = SiteOrcamento::find($ponta['site_orcamento_id']);
+                    $ponta['site_orcamento_id'] = $siteOrcamento->id;
+                    $sitePonta->update($ponta);
+                    $siteOrcamentoPonta->update($ponta);
+                    if(!empty($ponta['servicos'])) {
+                        SiteOrcamentoServico::where('site_orcamento_id', $siteOrcamentoPonta->id)->delete();
+                        foreach($ponta['servicos'] as $servico){
+                            SiteOrcamentoServico::create(['site_orcamento_id' => $siteOrcamentoPonta->id, 'servico_id' => $servico]);
+                        }
+                    }
+                }
+            }
+
+            Log::channel('main')->info('Novo site cadastrado.', [ 'cliente' => $siteOrcamento->Orcamento->Cliente, 'orcamento' => $siteOrcamento->Orcamento, 'site' => $siteOrcamento, 'user' => auth()->user()->nome]);
         });
-        return redirect()->route('orcamento.show', ['orcamento' => $site->Orcamento]);
+
+        // if($dados['cadastrar_mais']) {
+        //     return redirect()->route('site.create', ['orcamento' => $site->Orcamento]);
+        // }
+        return Inertia::location(route('orcamento.show', $siteOrcamento->Orcamento));
+
     }
 
     /**

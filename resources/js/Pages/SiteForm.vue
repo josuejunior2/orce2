@@ -410,7 +410,7 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useForm } from '@inertiajs/vue3'
 import axios from 'axios'
 
@@ -587,8 +587,54 @@ const props = defineProps({
   orcamento: Object,
   cidades: Array,
   servicos: Array,
-  errors: Object
+  errors: Object,
+  siteOrcamento: { type: Object, default: null },
+  pontas: { type: Object, default: null },
 });
+
+onMounted(() => {
+  if (props.siteOrcamento) {
+    exibeCampos.value = true
+    const siteOrc = props.siteOrcamento
+    const site = props.siteOrcamento.site
+    servicoSelecionado.value = siteOrc.servicos_solicitados
+    novoSite.defaults({
+      nome: site.nome,
+      latitude: site.latitude,
+      longitude: site.longitude,
+      endereco: site.endereco,
+      cidade_id: site.cidade_id,
+      vel_solicitada_down: siteOrc.vel_solicitada_down ? Number(siteOrc.vel_solicitada_down) : null,
+      vel_solicitada_up: siteOrc.vel_solicitada_up ? Number(siteOrc.vel_solicitada_up) : null,
+      barra: siteOrc.barra ? Number(siteOrc.barra) : null,
+      subestacao: siteOrc.pontas?.length > 0,
+      servicos: siteOrc.servicos_solicitados?.map(s => s.id) ?? [],
+      pontas: []
+    })
+
+    novoSite.reset()
+  }
+
+  if (props.pontas) {
+    const pontasFormatadas = props.pontas.map(p => ({
+      site_id: p.site.id,
+      site_orcamento_id: p.id,
+      nome: p.site.nome,
+      latitude: p.site.latitude,
+      longitude: p.site.longitude,
+      cidade_id: p.site.cidade_id,
+      endereco: p.site.endereco,
+      vel_solicitada_down: p.vel_solicitada_down ? Number(p.vel_solicitada_down) : null,
+      vel_solicitada_up: p.vel_solicitada_up ? Number(p.vel_solicitada_up) : null,
+      barra: p.barra ? Number(p.barra) : null,
+      servicos: p.servicos_solicitados?.map(s => s.id) ?? []
+    })) ?? []
+
+    novoSite.pontas = pontasFormatadas
+    pontas.value = pontasFormatadas
+    novoSite.reset()
+  }
+})
 
 const submitForm = async () => {
   novoSite.orcamento_id = props.orcamento.id
@@ -598,31 +644,42 @@ const submitForm = async () => {
   const valid = await form.value.validate()
 
   if (valid.valid) {
-    novoSite.post(route('site.store'), {
-      onSuccess: (page) => {
-        showSuccess.value = true
-        
-        novoSite.reset()
-        
-        exibeCampos.value = false
-        siteSelecionado.value = null
-        servicoSelecionado.value = null
-        latConverted.value = ''
-        lonConverted.value = ''
-        if (response.data.redirect_url) {
-            window.location.href = response.data.redirect_url;
-        }
-      },
-      onError: (errors) => {
-        if (Object.keys(errors).length > 0) {
-          const firstError = Object.values(errors)[0]
-          errorMessage.value = Array.isArray(firstError) ? firstError[0] : firstError
-          showError.value = true
-        }
-      }
-    })
+    if (props.siteOrcamento) {
+      novoSite.post(route('site.update', props.siteOrcamento.id), {
+        onSuccess: () => {
+          showSuccess.value = true
+          resetarFormulario()
+        },
+        onError: tratarErros
+      })
+    } else {
+      novoSite.post(route('site.store'), {
+        onSuccess: () => {
+          showSuccess.value = true
+          resetarFormulario()
+        },
+        onError: tratarErros
+      })
+    }
   } else {
     console.log('Validação do frontend falhou')
+  }
+}
+
+const resetarFormulario = () => {
+  novoSite.reset()
+  exibeCampos.value = false
+  siteSelecionado.value = null
+  servicoSelecionado.value = null
+  latConverted.value = ''
+  lonConverted.value = ''
+}
+
+const tratarErros = (errors) => {
+  if (Object.keys(errors).length > 0) {
+    const firstError = Object.values(errors)[0]
+    errorMessage.value = Array.isArray(firstError) ? firstError[0] : firstError
+    showError.value = true
   }
 }
 </script>

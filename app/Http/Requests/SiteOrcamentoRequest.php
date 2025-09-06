@@ -40,6 +40,8 @@ class SiteOrcamentoRequest extends FormRequest
             'site_id' => ['nullable', 'exists:sites,id'],
             
             // 'pontas' => ['nullable', 'array'],
+            'pontas.*.site_id' => ['nullable'],
+            'pontas.*.site_orcamento_id' => ['nullable'],
             'pontas.*.nome' => ['required'],
             'pontas.*.latitude' => ['nullable', 'regex:/^-?\d+(?:\.\d+)?$/'],
             'pontas.*.longitude' => ['nullable', 'regex:/^-?\d+(?:\.\d+)?$/'],
