@@ -471,6 +471,40 @@
                                                     <button class="accordion-button collapsed p-2" type="button" data-bs-toggle="collapse" data-bs-target="#accordion-collapse-{{ $ponta->id }}" aria-expanded="false">
                                                         {{ $ponta->Site->nome }}
                                                     </button>
+                                                    <div class="btn-group pb-2 pe-2">
+                                                        <a href="{{ route('cotacao.create', ['siteOrcamento' => $ponta]) }}" class="btn btn-outline-primary">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                                stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-plus">
+                                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                                <path d="M12 5l0 14" />
+                                                                <path d="M5 12l14 0" />
+                                                            </svg>
+                                                            Cotação
+                                                        </a>
+                                                        <a href=" {{ route('site.edit', ['siteOrcamento' => $ponta->id]) }}" class="btn btn-outline-secondary">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="pr-0" width="18"  height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                                <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+                                                                <path d="M13.5 6.5l4 4" />
+                                                            </svg>
+                                                        </a>
+                                                        @can('excluir site')
+                                                        <a href="#" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modal-destroy-site-{{ $site->id }}">
+                                                            <form id="form_{{ $site->id }}" method="post" action="{{ route('site.destroy', ['site' => $site->id]) }}" class="m-0">
+                                                                @method('DELETE')
+                                                                @csrf
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" class="pr-0" width="18"  height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                                        <path d="M4 7l16 0" />
+                                                                        <path d="M10 11l0 6" />
+                                                                        <path d="M14 11l0 6" />
+                                                                        <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+                                                                        <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+                                                                    </svg>
+                                                                </form>
+                                                            </a>
+                                                        @endcan
+                                                    </div>
                                                 </div>
                                                 <div id="accordion-collapse-{{ $ponta->id }}" class="accordion-collapse collapse" data-bs-parent="#accordion-{{ $ponta->id }}">
                                                     <div class="accordion-body pt-1">
