@@ -13,13 +13,7 @@
         </div> --}}
                 <div class="datagrid-item">
                     <div class="datagrid-title">Velocidade</div>
-                    <div class="datagrid-content">{{ $cotacao->vel_down }} -@if ($cotacao->tecnologia == 'fibra')
-                            Fibra óptica
-                        @elseif($cotacao->tecnologia == 'radio')
-                            Rádio
-                        @elseif($cotacao->tecnologia == 'satelital')
-                            Satelital
-                        @endif
+                    <div class="datagrid-content">{{ $cotacao->vel_down }} - {{ App\Models\Cotacao::getTecnologiaTexto($cotacao->tecnologia) }}
                     </div>
                 </div>
                 <div class="datagrid-item">

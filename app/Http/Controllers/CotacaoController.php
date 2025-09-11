@@ -30,9 +30,9 @@ class CotacaoController extends Controller
     public function index()
     {
         $cotacoes = Cotacao::all();
-        $sites = Site::all();
+        $sitesOrcamento = SiteOrcamento::all();
         // dd($sites);
-        return view('cotacao.index', ['cotacoes' => $cotacoes, 'sites' => $sites]);
+        return view('cotacao.index', ['cotacoes' => $cotacoes, 'sitesOrcamento' => $sitesOrcamento]);
     }
 
     /**

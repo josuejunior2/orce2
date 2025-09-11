@@ -57,7 +57,7 @@
                             <td rowspan="{{ count($cotacao->servicos) }}">{{ $site->vel_solicitada_down }} / {{ $site->vel_solicitada_up }}</td>
                             <td rowspan="{{ count($cotacao->servicos) }}"></td>
                             <td rowspan="{{ count($cotacao->servicos) }}">{{ $site->barra }}</td>
-                            <td rowspan="{{ count($cotacao->servicos) }}">{{ ucfirst($cotacao->tecnologia) }}</td>
+                            <td rowspan="{{ count($cotacao->servicos) }}">{{ App\Models\Cotacao::getTecnologiaTexto($cotacao->tecnologia) }}</td>
                             <td rowspan="{{ count($cotacao->servicos) }}"></td>
                             <td rowspan="{{ count($cotacao->servicos) }}">{{ $site->endereco }}</td>
                             <td rowspan="{{ count($cotacao->servicos) }}">{{ $site->Cidade->nome }}</td>

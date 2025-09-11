@@ -118,7 +118,7 @@
                                         </div>
                                         <div class="datagrid-item">
                                             <div class="datagrid-title">Tecnologia</div>
-                                            <div class="datagrid-content">{{ $cotacao->tecnologia }}</div>
+                                            <div class="datagrid-content">{{ App\Models\Cotacao::getTecnologiaTexto($cotacao->tecnologia) }}</div>
                                         </div>
                                         <div class="datagrid-item">
                                             <div class="datagrid-title">Fornecedor</div>
