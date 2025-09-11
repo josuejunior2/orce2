@@ -23,9 +23,9 @@
             <div class="datagrid-item">
                 <div class="datagrid-title">Velocidade solicitada</div>
                 <div class="datagrid-content">
-                    <div class="btn p-1 pe-none user-select-all">{{ intval($site->vel_solicitada_down) }} <small class="form-hint">Mbps</small><span class="badge bg-blue ms-2 text-white user-select-all">Down</span></div>
-                    <div class="btn p-1 pe-none user-select-all">{{ intval($site->vel_solicitada_up) }} <small class="form-hint">Mbps</small><span class="badge bg-red ms-2 text-white user-select-all">Up</span></div>
-                    <div class="btn p-1 pe-none user-select-all">/{{ intval($site->barra) }}</div>
+                    <div class="btn p-1 pe-none user-select-all">{{ intval($siteOrcamento->Site->vel_solicitada_down) }} <small class="form-hint">Mbps</small><span class="badge bg-blue ms-2 text-white user-select-all">Down</span></div>
+                    <div class="btn p-1 pe-none user-select-all">{{ intval($siteOrcamento->Site->vel_solicitada_up) }} <small class="form-hint">Mbps</small><span class="badge bg-red ms-2 text-white user-select-all">Up</span></div>
+                    <div class="btn p-1 pe-none user-select-all">/{{ intval($siteOrcamento->Site->barra) }}</div>
                 </div>
             </div>
             <div class="datagrid-item">

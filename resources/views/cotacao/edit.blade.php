@@ -3,7 +3,7 @@
 @section('content')
     <div class="card m-3">
         <div class="card-header">
-            <h3 class="card-title">Orcamento de {{ $cotacao->Site->Orcamento->Cliente->nome }}</h3>
+            <h3 class="card-title">Orcamento de {{ $cotacao->SiteOrcamento->Orcamento->Cliente->nome }}</h3>
         </div>
         <div class="card-body">
             <div class="datagrid">
@@ -24,38 +24,38 @@
                 </div>
                 <div class="datagrid-item">
                     <div class="datagrid-title">Tempo do contrato</div>
-                    <div class="datagrid-content">{{ $cotacao->Site->Orcamento->tempo_contrato }}</div>
+                    <div class="datagrid-content">{{ $cotacao->SiteOrcamento->Orcamento->tempo_contrato }}</div>
                 </div>
                 <div class="datagrid-item">
                     <div class="datagrid-title">Tipo de link</div>
                     <div class="datagrid-content">
-                        @if ($cotacao->Site->Orcamento->tipo_link == 'l2l')
+                        @if ($cotacao->SiteOrcamento->Orcamento->tipo_link == 'l2l')
                             LAN to LAN (L2L)
-                        @elseif ($cotacao->Site->Orcamento->tipo_link == 'ld')
+                        @elseif ($cotacao->SiteOrcamento->Orcamento->tipo_link == 'ld')
                             Link Dedicado
                         @endif
                     </div>
                 </div>
                 <div class="datagrid-item">
                     <div class="datagrid-title">Imposto</div>
-                    <div class="datagrid-content">{{ $cotacao->Site->Orcamento->imposto }}%</div>
+                    <div class="datagrid-content">{{ $cotacao->SiteOrcamento->Orcamento->imposto }}%</div>
                 </div>
             </div>
         </div>
     </div>
     
-    @include('site.partials.card-site', ['site' => $cotacao->Site])
+    @include('site.partials.card-site', ['siteOrcamento' => $cotacao->SiteOrcamento])
 
     <div class="card m-3">
         <div class="card-header">
-            <h3 class="card-title">Atualizar cotação do fornecedor</h3>
+            <h3 class="card-title">Atualizar cotação</h3>
         </div>
         <div class="card-body">
             <form method="POST" action="{{ route('cotacao.update', ['cotacao' => $cotacao]) }}"
                 enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
-                <input type="hidden" name="site_id" id="site_id" value="{{ $cotacao->Site->id }}">
+                <input type="hidden" name="site_orcamento_id" id="site_orcamento" value="{{ $cotacao->SiteOrcamento->id }}">
                 <div class="row g-3 mb-4">
                     <div class="col-md">
                         <div class="mb-3">
@@ -99,21 +99,12 @@
                         <div class="mb-3">
                             <label class="col-form-label required">Tecnologia</label>
                             <div>
-                                <label class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="tecnologia" id="tecnologia"
-                                        value="fibra" {{ $cotacao->tecnologia == 'fibra' ? 'checked' : '' }}>
-                                    <span class="form-check-label">Fibra óptica</span>
-                                </label>
-                                <label class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="tecnologia" id="tecnologia"
-                                        value="radio" {{ $cotacao->tecnologia == 'radio' ? 'checked' : '' }}>
-                                    <span class="form-check-label">Rádio</span>
-                                </label>
-                                <label class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="tecnologia" id="tecnologia"
-                                        value="satelital" {{ $cotacao->tecnologia == 'satelital' ? 'checked' : '' }}>
-                                    <span class="form-check-label">Satelital</span>
-                                </label>
+                                @foreach(\App\Models\Cotacao::getTecnologia() as $tecnologia)
+                                    <label class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="tecnologia" value="{{$tecnologia}}" @if($cotacao->tecnologia == $tecnologia) checked @endif>
+                                        <span class="form-check-label">{{\App\Models\Cotacao::getTecnologiaTexto($tecnologia)}}</span>
+                                    </label>
+                                @endforeach
                             </div>
                         </div>
                     </div>
@@ -153,7 +144,7 @@
                                                 <option value=""></option>
                                                 @foreach($servicos as $s)
                                                     <option value="{{ $s->id }}" @if($servico->id == $s->id) selected @endif>
-                                                        {{ $s->nome }}  @if(in_array($s->id, $cotacao->Site->servicosSolicitados->pluck('id')->toArray())) (Solicitado) @endif
+                                                        {{ $s->nome }}  @if(in_array($s->id, $cotacao->SiteOrcamento->servicosSolicitados->pluck('id')->toArray())) (Solicitado) @endif
                                                     </option>
                                                 @endforeach
                                             </select>
@@ -251,12 +242,11 @@
                     <div class="col-md">
                         <div class="mb-3">
                             <label class="col-form-label required">Status da cotação</label>
-                            <select class="form-select" name="status" id="status" value="{{ $cotacao->status }}">
+                            <select class="form-select" name="status" id="status" value="">
                                 <option value=""></option>
-                                <option class="badge bg-yellow text-white" value="Em aberto"
-                                    {{ $cotacao->status == 'Em aberto' ? 'selected' : '' }}>Em aberto</option>
-                                <option class="badge bg-green text-white" value="Fechado"
-                                    {{ $cotacao->status == 'Fechado' ? 'selected' : '' }}>Fechado</option>
+                                @foreach(\App\Models\Cotacao::getStatus() as $status)
+                                    <option value="{{$status}}" @if($cotacao->status == $status) selected @endif>{{\App\Models\Cotacao::getStatusTexto($status)}}</option>
+                                @endforeach
                             </select>
                             <span class="text-danger" id="status-error"></span>
                         </div>
@@ -414,7 +404,7 @@
                             <option value=""></option>
                             @foreach($servicos as $s)
                                 <option value="{{ $s->id }}">
-                                    {{ $s->nome }}  @if(in_array($s->id, $cotacao->Site->servicosSolicitados->pluck('id')->toArray())) (Solicitado) @endif
+                                    {{ $s->nome }}  @if(in_array($s->id, $cotacao->SiteOrcamento->servicosSolicitados->pluck('id')->toArray())) (Solicitado) @endif
                                 </option>
                             @endforeach
                         </select>
@@ -476,7 +466,7 @@
                     var adesao_forn = $('#adesao_fornecedor').val();
                     var custo_operacional = $('#custo_operacional').val();
                     var mensal_imp = $('#mensal_imp').val();
-                    var porcent = "{{ $cotacao->Site->Orcamento->imposto }}";
+                    var porcent = "{{ $cotacao->SiteOrcamento->Orcamento->imposto }}";
                     var imposto_mensal = mensal_imp * (porcent / 100);
                     var custo_inst_imp = $('#custo_instalacao_imp').val();
                     var custo_ativacao = $('#custo_ativacao').val();

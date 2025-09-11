@@ -30,7 +30,7 @@
         </div>
     </div>
     {{-- CADASTRO DO SITE --}}
-    @include('site.partials.card-site', ['site' => $siteOrcamento->Site])
+    @include('site.partials.card-site', ['siteOrcamento' => $siteOrcamento])
 
     <div class="card m-3">
         <div class="card-header">

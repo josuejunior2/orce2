@@ -257,7 +257,7 @@ class SiteController extends Controller
             if(!empty($dados['servicos'])) {
                 SiteOrcamentoServico::where('site_orcamento_id', $siteOrcamento->id)->delete();
                 foreach($dados['servicos'] as $servico){
-                    SiteOrcamentoServico::create(['site_orcamento_id' => $siteOrcamento->id, 'servico_id' => $servico]);
+                    SiteOrcamentoServico::create(['site_orcamento_id' => $siteOrcamento->id, 'servico_id' => !empty($servico['id']) ? $servico['id'] : $servico]);
                 }
             }
             
@@ -273,7 +273,7 @@ class SiteController extends Controller
                         if(!empty($ponta['servicos'])) {
                             SiteOrcamentoServico::where('site_orcamento_id', $siteOrcamentoPonta->id)->delete();
                             foreach($ponta['servicos'] as $servico){
-                                SiteOrcamentoServico::create(['site_orcamento_id' => $siteOrcamentoPonta->id, 'servico_id' => $servico]);
+                                SiteOrcamentoServico::create(['site_orcamento_id' => $siteOrcamentoPonta->id, 'servico_id' => !empty($servico['id']) ? $servico['id'] : $servico]);
                             }
                         }
                     } else {

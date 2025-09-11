@@ -99,14 +99,14 @@ class CotacaoController extends Controller
         if(empty($empresa->gear_noc) || empty($empresa->custo_fixo_percent)){
             return redirect()->route('empresa.show', ['empresa' =>$empresa])->with('error', 'Parametrize o GearNoc e a % do Custo fixo!');
         }
-        $site = $cotacao->Site;
-        if (Fornecedor::whereHas('cidades', function (Builder $query) use ($site) {
-            $query->where('fornecedor_cidade.cidade_id', $site->cidade_id);
+        $siteOrcamento = $cotacao->SiteOrcamento;
+        
+        if (Fornecedor::whereHas('cidades', function (Builder $query) use ($siteOrcamento) {
+            $query->where('fornecedor_cidade.cidade_id', $siteOrcamento->Site->cidade_id);
         })->exists()){
-            $fornecedores = Fornecedor::whereHas('cidades', function (Builder $query) use ($site) {
-                $query->where('fornecedor_cidade.cidade_id', $site->cidade_id);
+            $fornecedores = Fornecedor::whereHas('cidades', function (Builder $query) use ($siteOrcamento) {
+                $query->where('fornecedor_cidade.cidade_id', $siteOrcamento->Site->cidade_id);
             })->get();
-            // dd($fornecedores);
             return view('cotacao.edit', ['cotacao' => $cotacao, 'fornecedores' => $fornecedores, 'servicos' => Servico::all()]);
         } else{
             return redirect()->route('fornecedor.create');
@@ -133,13 +133,13 @@ class CotacaoController extends Controller
                 }
             }
             
-            if(empty($cotacao->Site->Orcamento->gear_noc)){
-                $cotacao->Site->Orcamento->update(['gear_noc' => auth()->user()->Empresa->gear_noc]);
+            if(empty($cotacao->SiteOrcamento->Orcamento->gear_noc)){
+                $cotacao->SiteOrcamento->Orcamento->update(['gear_noc' => auth()->user()->Empresa->gear_noc]);
             }
-            if(empty($cotacao->Site->Orcamento->custo_fixo_percent)){
-                $cotacao->Site->Orcamento->update(['custo_fixo_percent' => auth()->user()->Empresa->custo_fixo_percent]);
+            if(empty($cotacao->SiteOrcamento->Orcamento->custo_fixo_percent)){
+                $cotacao->SiteOrcamento->Orcamento->update(['custo_fixo_percent' => auth()->user()->Empresa->custo_fixo_percent]);
             }
-            $this->orcamentoController->atualizaValoresTotais($cotacao->Site->Orcamento);
+            $this->orcamentoController->atualizaValoresTotais($cotacao->SiteOrcamento->Orcamento);
         });
 
         // Comparar os valores antigos com os novos valores após a atualização
@@ -162,7 +162,7 @@ class CotacaoController extends Controller
             ]);
         }
 
-        return redirect()->route('orcamento.show', ['orcamento' => $cotacao->Site->Orcamento]);
+        return redirect()->route('orcamento.show', ['orcamento' => $cotacao->SiteOrcamento->Orcamento]);
     }
 
     /**
