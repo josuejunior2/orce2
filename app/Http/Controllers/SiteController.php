@@ -247,7 +247,7 @@ class SiteController extends Controller
     public function update(SiteOrcamentoRequest $request, SiteOrcamento $siteOrcamento)
     {
         $dados = $request->validated();
-        // dd($dados);
+
         DB::transaction(function() use($dados, &$siteOrcamento){
             $siteOrcamento->Site->update($dados);
 
@@ -262,19 +262,35 @@ class SiteController extends Controller
             }
             
             if(!empty($dados['pontas'])) {
+                $idsPontas = [];
                 foreach($dados['pontas'] as $ponta) {
-                    $sitePonta = Site::find($ponta['site_id']);
-                    $siteOrcamentoPonta = SiteOrcamento::find($ponta['site_orcamento_id']);
-                    $ponta['site_orcamento_id'] = $siteOrcamento->id;
-                    $sitePonta->update($ponta);
-                    $siteOrcamentoPonta->update($ponta);
-                    if(!empty($ponta['servicos'])) {
-                        SiteOrcamentoServico::where('site_orcamento_id', $siteOrcamentoPonta->id)->delete();
-                        foreach($ponta['servicos'] as $servico){
-                            SiteOrcamentoServico::create(['site_orcamento_id' => $siteOrcamentoPonta->id, 'servico_id' => $servico]);
+                    if(!empty($ponta['site_id']) && !empty($ponta['site_orcamento_id'])) {
+                        $sitePonta = Site::find($ponta['site_id']);
+                        $siteOrcamentoPonta = SiteOrcamento::find($ponta['site_orcamento_id']);
+                        $ponta['site_orcamento_id'] = $siteOrcamento->id;
+                        $sitePonta->update($ponta);
+                        $siteOrcamentoPonta->update($ponta);
+                        if(!empty($ponta['servicos'])) {
+                            SiteOrcamentoServico::where('site_orcamento_id', $siteOrcamentoPonta->id)->delete();
+                            foreach($ponta['servicos'] as $servico){
+                                SiteOrcamentoServico::create(['site_orcamento_id' => $siteOrcamentoPonta->id, 'servico_id' => $servico]);
+                            }
+                        }
+                    } else {
+                        $sitePonta = Site::create($ponta);
+                        $ponta['site_id'] = $sitePonta->id;
+                        $ponta['site_orcamento_id'] = $siteOrcamento->id;
+                        $ponta['orcamento_id'] = $dados['orcamento_id'];
+                        $siteOrcamentoPonta = SiteOrcamento::create($ponta);
+                        if(!empty($ponta['servicos'])) {
+                            foreach($ponta['servicos'] as $servico){
+                                SiteOrcamentoServico::create(['site_orcamento_id' => $siteOrcamentoPonta->id, 'servico_id' => $servico]);
+                            }
                         }
                     }
+                    $idsPontas[] = $siteOrcamentoPonta->id;
                 }
+                $siteOrcamento->pontas()->whereNotIn('id', $idsPontas)->delete();
             }
 
             Log::channel('main')->info('Novo site cadastrado.', [ 'cliente' => $siteOrcamento->Orcamento->Cliente, 'orcamento' => $siteOrcamento->Orcamento, 'site' => $siteOrcamento, 'user' => auth()->user()->nome]);

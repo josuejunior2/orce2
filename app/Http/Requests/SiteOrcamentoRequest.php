@@ -35,7 +35,7 @@ class SiteOrcamentoRequest extends FormRequest
             'longitude' => ['nullable', 'regex:/^-?\d+(?:\.\d+)?$/'],
             'vel_solicitada_down' => ['nullable', 'numeric'],
             'vel_solicitada_up' => ['nullable', 'numeric'],
-            'servicos' => ['nullable', 'exists:servicos,id'],
+            'servicos' => ['nullable', 'array'],
             'barra' => ['nullable'],
             'site_id' => ['nullable', 'exists:sites,id'],
             
@@ -50,7 +50,7 @@ class SiteOrcamentoRequest extends FormRequest
             'pontas.*.vel_solicitada_up' => ['nullable', 'numeric'],
             'pontas.*.vel_solicitada_down' => ['nullable', 'numeric'],
             'pontas.*.barra' => ['nullable'],
-            'pontas.*.servicos' => ['nullable', 'exists:servicos,id'],
+            'pontas.*.servicos' => ['nullable', 'array'],
         ];
     }
 }
