@@ -75,10 +75,10 @@
                             <div class="d-flex justify-content-between" id="heading-1">
                                 <button class="accordion-header " type="button" data-bs-toggle="collapse"
                                     data-bs-target="#accordion-collapse-{{ $cotacao->id }}" aria-expanded="true">
-                                    {{ $cotacao->Site->nome }}
+                                    {{ $cotacao->SiteOrcamento->Site->nome }}
                                 </button>
                                 <div class="d-flex justify-content-between col-auto">
-                                    <a href="{{ route('orcamento.show', ['orcamento' => $cotacao->Site->Orcamento]) }}"
+                                    <a href="{{ route('orcamento.show', ['orcamento' => $cotacao->SiteOrcamento->Orcamento]) }}"
                                         class="btn me-2 btn-secondary w-100">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="pr-0" width="18" height="18" viewBox="0 0 24 24" stroke-width="1.5"
                                             stroke="currentColor" fill="none" stroke-linecap="round"
@@ -97,15 +97,15 @@
                                     <div class="datagrid">
                                         <div class="datagrid-item">
                                             <div class="datagrid-title">Endereço</div>
-                                            <div class="datagrid-content">{{ $cotacao->Site->endereco }}</div>
+                                            <div class="datagrid-content">{{ $cotacao->SiteOrcamento->Site->endereco }}</div>
                                         </div>
                                         <div class="datagrid-item">
                                             <div class="datagrid-title">Cidade</div>
-                                            <div class="datagrid-content">{{ $cotacao->Site->Cidade->nome }}</div>
+                                            <div class="datagrid-content">{{ $cotacao->SiteOrcamento->Site->Cidade->nome }}</div>
                                         </div>
                                         <div class="datagrid-item">
                                             <div class="datagrid-title">Estado</div>
-                                            <div class="datagrid-content">{{ $cotacao->Site->Cidade->Estado->nome }}</div>
+                                            <div class="datagrid-content">{{ $cotacao->SiteOrcamento->Site->Cidade->Estado->nome }}</div>
                                         </div>
                                         <div class="datagrid-item">
                                             <div class="datagrid-title">Velocidade</div>
@@ -113,7 +113,7 @@
                                         </div>
                                         <div class="datagrid-item">
                                             <div class="datagrid-title">Tempo do contrato</div>
-                                            <div class="datagrid-content">{{ $cotacao->Site->Orcamento->tempo_contrato }}
+                                            <div class="datagrid-content">{{ $cotacao->SiteOrcamento->Orcamento->tempo_contrato }}
                                             </div>
                                         </div>
                                         <div class="datagrid-item">
