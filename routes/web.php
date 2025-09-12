@@ -91,7 +91,8 @@ Route::middleware(['auth:admin'])->group(function () {
     Route::post('site/create/L2L', 'App\Http\Controllers\SiteController@storel2l')->name('site.store.l2l');
     Route::get('site/edit/{siteOrcamento}/', 'App\Http\Controllers\SiteController@edit')->name('site.edit');
     Route::post('site/update/{siteOrcamento}', 'App\Http\Controllers\SiteController@update')->name('site.update');
-    Route::resource('site', App\Http\Controllers\SiteController::class)->except(['create', 'show', 'edit', 'update', 'index']);
+    Route::delete('site/destroy/{siteOrcamento}', 'App\Http\Controllers\SiteController@destroy')->name('site.destroy');
+    Route::resource('site', App\Http\Controllers\SiteController::class)->except(['create', 'show', 'edit', 'update', 'index', 'destroy']);
 
     Route::post('cotacao/status/{cotacao}', [App\Http\Controllers\CotacaoController::class, 'altera_status'])->name('cotacao.altera.status');
     Route::get('cotacao/create/{siteOrcamento}', 'App\Http\Controllers\CotacaoController@create')->name('cotacao.create');

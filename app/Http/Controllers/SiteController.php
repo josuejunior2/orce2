@@ -306,23 +306,26 @@ class SiteController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Site $site)
+    public function destroy(SiteOrcamento $siteOrcamento)
     {
         $this->middleware('permission:excluir site');
         
-        SiteOrcamentoServico::where('site_id', $site->id)->delete();
-        $orcamento = $site->Orcamento;
-        foreach($site->cotacoes as $cotacao){
-            $cotacao->delete();
-        }
-        $site->Orcamento()->dissociate();
-        if (Str::startsWith($site->nome, '(Ponta A)')) {
-            $orcamento->quantidade_pontasA -= 1;
-        } else {
-            $orcamento->quantidade_sites -= 1;
-        }
-        $site->delete();
-        $orcamento->save();
+        DB::transaction(function() use($siteOrcamento, &$orcamento){
+            $siteOparaLog = clone $siteOrcamento;
+            SiteOrcamentoServico::where('site_orcamento_id', $siteOrcamento->id)->delete();
+            $orcamento = clone $siteOrcamento->Orcamento;
+            foreach($siteOrcamento->cotacoes as $cotacao){
+                $cotacao->delete();
+            }
+            foreach($siteOrcamento->pontas as $ponta){
+                $ponta->delete();
+            }
+            $siteOrcamento->Orcamento()->dissociate();
+            $siteOrcamento->delete();
+            $orcamento->save();
+
+            Log::channel('main')->info('SiteOrcamento excluido.', ['siteOrcamento' => $siteOparaLog, 'user' => auth()->user()->nome]);
+        });
         return redirect()->route('orcamento.show', ['orcamento' => $orcamento]);
     }
     

@@ -184,7 +184,7 @@
                 @else
                 <div class="accordion accordion-tabs" id="accordion-tabs">
                     @foreach ($sitesOrcamento as $key => $site) {{-- pq aí os que forem (Ponta A) vem primeiro --}}
-                    @include('orcamento.modal.alert-destroy-site', ['site' => $site])
+                    @include('orcamento.modal.alert-destroy-site', ['siteOrcamento' => $site])
                     {{-- @include('orcamento.modal.create-cotacao-sheet', ['site' => $site]) --}}
                     <div class="accordion-item m-3 mb-0">
                         <div class="accordion-header d-flex justify-content-between align-items-center">
@@ -218,7 +218,7 @@
                                     </a>
                                     @can('excluir site')
                                     <a href="#" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modal-destroy-site-{{ $site->id }}">
-                                        <form id="form_{{ $site->id }}" method="post" action="{{ route('site.destroy', ['site' => $site->id]) }}" class="m-0">
+                                        <form id="form_destroy_site_orcamento_{{ $site->id }}" method="post" action="{{ route('site.destroy', ['siteOrcamento' => $site->id]) }}" class="m-0">
                                             @method('DELETE')
                                             @csrf
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="pr-0" width="18"  height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -465,6 +465,7 @@
                                 
                                 @if ($site->pontas->isNotEmpty())
                                     @foreach ($site->pontas as $ponta)
+                                        @include('orcamento.modal.alert-destroy-site', ['siteOrcamento' => $ponta])                                    
                                         <div class="accordion accordion-tabs" id="accordion-{{ $ponta->id }}">
                                             <div class="accordion-item m-3">
                                                 <div class="accordion-header d-flex justify-content-between" id="heading-1">
@@ -489,8 +490,8 @@
                                                             </svg>
                                                         </a>
                                                         @can('excluir site')
-                                                        <a href="#" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modal-destroy-site-{{ $site->id }}">
-                                                            <form id="form_{{ $site->id }}" method="post" action="{{ route('site.destroy', ['site' => $site->id]) }}" class="m-0">
+                                                        <a href="#" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modal-destroy-site-{{ $ponta->id }}">
+                                                            <form id="form_destroy_site_orcamento_{{ $ponta->id }}" method="post" action="{{ route('site.destroy', ['siteOrcamento' => $ponta->id]) }}" class="m-0">
                                                                 @method('DELETE')
                                                                 @csrf
                                                                     <svg xmlns="http://www.w3.org/2000/svg" class="pr-0" width="18"  height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
