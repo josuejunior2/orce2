@@ -24,7 +24,7 @@
                     <li>Obs.: caso o site já exista no orçamento, os dados serão atualizados conforme estiver na tabela.</li>
                 </ul>
                 
-                <form id="form_{{ $orcamento->id }}" method="post" action="{{ route('site.download.modelo.planilha') }}">
+                <form id="form_{{ $orcamento->id }}" method="post" action="{{ route('siteOrcamento.download.modelo.planilha') }}">
                     @csrf
                     <button type="submit" class="btn btn-outline-secondary w-100">
                         <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-download"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" /><path d="M7 11l5 5l5 -5" /><path d="M12 4l0 12" /></svg>
@@ -32,7 +32,7 @@
                     </button>
                 </form>
             </div>
-            <form id="form_create_site_sheet_{{ $orcamento->id }}" method="post" action="{{ route('site.store.sheet', ['orcamento_id' => $orcamento->id]) }}" enctype="multipart/form-data">
+            <form id="form_create_site_sheet_{{ $orcamento->id }}" method="post" action="{{ route('siteOrcamento.store.sheet', ['orcamento_id' => $orcamento->id]) }}" enctype="multipart/form-data">
                 @method('POST')
                 @csrf
                 <div class="mb-3">

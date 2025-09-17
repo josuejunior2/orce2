@@ -645,7 +645,7 @@ const submitForm = async () => {
 
   if (valid.valid) {
     if (props.siteOrcamento) {
-      novoSite.post(route('site.update', props.siteOrcamento.id), {
+      novoSite.post(route('siteOrcamento.update', props.siteOrcamento.id), {
         onSuccess: () => {
           showSuccess.value = true
           resetarFormulario()
@@ -653,7 +653,7 @@ const submitForm = async () => {
         onError: tratarErros
       })
     } else {
-      novoSite.post(route('site.store'), {
+      novoSite.post(route('siteOrcamento.store'), {
         onSuccess: () => {
           showSuccess.value = true
           resetarFormulario()

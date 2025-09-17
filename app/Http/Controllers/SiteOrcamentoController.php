@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
-class SiteController extends Controller
+class SiteOrcamentoController extends Controller
 {
     /**
      * Show the form for creating a new resource.
@@ -109,7 +109,7 @@ class SiteController extends Controller
         });
 
         // if($dados['cadastrar_mais']) {
-        //     return redirect()->route('site.create', ['orcamento' => $site->Orcamento]);
+        //     return redirect()->route('siteOrcamento.create', ['orcamento' => $site->Orcamento]);
         // }
         return Inertia::location(route('orcamento.show', $siteOrcamento->Orcamento));
 
@@ -175,13 +175,13 @@ class SiteController extends Controller
             $botao = 'Cadastrar próxima Ponta A ('.($qtdeRestantePontasA - 1).' restantes)';
             $isPontaA = true;
 
-            return redirect()->route('site.create.l2l', ['orcamento' => $site->Orcamento, 'botao' => $botao, 'isPontaA' => $isPontaA]);
+            return redirect()->route('siteOrcamento.create.l2l', ['orcamento' => $site->Orcamento, 'botao' => $botao, 'isPontaA' => $isPontaA]);
         } else if($qtdeRestantePontasA == 1){
             if($site->Orcamento->quantidade_sites > $quantidadeRealSitesNormais){ $botao = 'Finalizar cadastro de pontas A ('.$site->Orcamento->quantidade_sites.' sites restantes)'; }
             if($site->Orcamento->quantidade_sites == $quantidadeRealSitesNormais){ $botao = 'Finalizar cadastro de pontas A'; }
             $isPontaA = true;
 
-            return redirect()->route('site.create.l2l', ['orcamento' => $site->Orcamento, 'botao' => $botao, 'isPontaA' => $isPontaA]);
+            return redirect()->route('siteOrcamento.create.l2l', ['orcamento' => $site->Orcamento, 'botao' => $botao, 'isPontaA' => $isPontaA]);
         } else if($qtdeRestantePontasA == -1){ // nao ta funcionando TESTAR
             $site->Orcamento->quantidade_pontasA += 1;
             $site->Orcamento->save();
@@ -200,14 +200,14 @@ class SiteController extends Controller
             // $isPontaA = false;
             // dd($isPontaA);
 
-            return redirect()->route('site.create.l2l', ['orcamento' => $site->Orcamento, 'botao' => $botao]);
+            return redirect()->route('siteOrcamento.create.l2l', ['orcamento' => $site->Orcamento, 'botao' => $botao]);
         } else if($qtdeRestante == -1){ // se for -1, significa que o user cadastra pelo botão adicionar site.
             $site->Orcamento->quantidade_sites += 1;
             $site->Orcamento->save();
 
             return redirect()->route('orcamento.show', $site->Orcamento);
         } else{ // se a qtdeRestante > 1, vai mandando pra rota create que uma hora fica == 1
-            return redirect()->route('site.create.l2l', ['orcamento' => $site->Orcamento, 'botao' => $botao]);
+            return redirect()->route('siteOrcamento.create.l2l', ['orcamento' => $site->Orcamento, 'botao' => $botao]);
         }
     }
 
@@ -297,7 +297,7 @@ class SiteController extends Controller
         });
 
         // if($dados['cadastrar_mais']) {
-        //     return redirect()->route('site.create', ['orcamento' => $site->Orcamento]);
+        //     return redirect()->route('siteOrcamento.create', ['orcamento' => $site->Orcamento]);
         // }
         return Inertia::location(route('orcamento.show', $siteOrcamento->Orcamento));
 

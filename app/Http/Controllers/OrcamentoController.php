@@ -73,7 +73,7 @@ class OrcamentoController extends Controller
         });
 
         if($dados['cadastrar_sites']){
-            return redirect()->route('site.create', ['orcamento' => $orcamento]);
+            return redirect()->route('siteOrcamento.create', ['orcamento' => $orcamento]);
         }
         return redirect()->route('orcamento.show', ['orcamento' => $orcamento]);
     }

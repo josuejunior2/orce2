@@ -60,7 +60,7 @@
         <h3 class="card-title">Editar Site {{$site->nome}}</h3>
     </div>
     <div class="card-body">
-        <form method="POST" action="{{ route('site.update', ['site' => $site]) }}" enctype="multipart/form-data">
+        <form method="POST" action="{{ route('siteOrcamento.update', ['site' => $site]) }}" enctype="multipart/form-data">
             @csrf
             @method('PUT')
             <input type="hidden" name="orcamento_id" id="orcamento_id" value="{{ $site->Orcamento->id }}">

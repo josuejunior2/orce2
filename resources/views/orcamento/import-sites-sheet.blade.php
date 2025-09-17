@@ -18,7 +18,7 @@
         </div>
     </div>
     <div class="card-body row row-cols">
-        <form id="form_create_site_sheet" method="post" action="{{ route('site.store.sheet', ['orcamento' => $orcamento]) }}" enctype="multipart/form-data">
+        <form id="form_create_site_sheet" method="post" action="{{ route('siteOrcamento.store.sheet', ['orcamento' => $orcamento]) }}" enctype="multipart/form-data">
             @method('POST')
             @csrf
             <table class="table table-bordered">

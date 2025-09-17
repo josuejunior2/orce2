@@ -82,7 +82,7 @@
 @endif
 <div class="card m-3">
     <div class="card-body">
-        <form method="POST" action="{{ route('site.store') }}" enctype="multipart/form-data">
+        <form method="POST" action="{{ route('siteOrcamento.store') }}" enctype="multipart/form-data">
             @csrf
             <input type="hidden" name="orcamento_id" id="orcamento_id" value="{{ $orcamento->id }}">
             <input type="hidden" name="cadastrar_mais" id="cadastrar_mais" value="0">

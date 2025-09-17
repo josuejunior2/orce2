@@ -82,17 +82,15 @@ Route::middleware(['auth:admin'])->group(function () {
 
     Route::get('/cidade', [App\Http\Controllers\CidadeController::class, 'index'])->name('cidade.index');
 
-    Route::post('site/download/modelo/planilha', 'App\Http\Controllers\SiteController@downloadModeloPlanilha')->name('site.download.modelo.planilha');
-    Route::get('site/create/+1Site/{orcamento}/{botao?}', 'App\Http\Controllers\SiteController@create')->name('site.create.+1');
-    Route::get('site/create/{orcamento}/', 'App\Http\Controllers\SiteController@create')->name('site.create');
-    Route::get('site/create/L2L/{orcamento}/{botao?}/{isPontaA?}', 'App\Http\Controllers\SiteController@createl2l')->name('site.create.l2l');
-    Route::get('site/create/+1PontaA/{orcamento}/{isPontaA}', 'App\Http\Controllers\SiteController@createMais1PontaA')->name('site.create.+1.PontaA');
-    Route::post('site/create/sheet/{orcamento}', 'App\Http\Controllers\SiteController@store_sheet')->name('site.store.sheet');
-    Route::post('site/create/L2L', 'App\Http\Controllers\SiteController@storel2l')->name('site.store.l2l');
-    Route::get('site/edit/{siteOrcamento}/', 'App\Http\Controllers\SiteController@edit')->name('site.edit');
-    Route::post('site/update/{siteOrcamento}', 'App\Http\Controllers\SiteController@update')->name('site.update');
-    Route::delete('site/destroy/{siteOrcamento}', 'App\Http\Controllers\SiteController@destroy')->name('site.destroy');
-    Route::resource('site', App\Http\Controllers\SiteController::class)->except(['create', 'show', 'edit', 'update', 'index', 'destroy']);
+    Route::post('siteOrcamento/download/modelo/planilha', 'App\Http\Controllers\SiteOrcamentoController@downloadModeloPlanilha')->name('siteOrcamento.download.modelo.planilha');
+    Route::get('siteOrcamento/create/{orcamento}/', 'App\Http\Controllers\SiteOrcamentoController@create')->name('siteOrcamento.create');
+    Route::post('siteOrcamento/create/sheet/{orcamento}', 'App\Http\Controllers\SiteOrcamentoController@store_sheet')->name('siteOrcamento.store.sheet');
+    Route::post('siteOrcamento', 'App\Http\Controllers\SiteOrcamentoController@store')->name('siteOrcamento.store');
+    Route::get('siteOrcamento/edit/{siteOrcamento}/', 'App\Http\Controllers\SiteOrcamentoController@edit')->name('siteOrcamento.edit');
+    Route::post('siteOrcamento/update/{siteOrcamento}', 'App\Http\Controllers\SiteOrcamentoController@update')->name('siteOrcamento.update');
+    Route::delete('siteOrcamento/destroy/{siteOrcamento}', 'App\Http\Controllers\SiteOrcamentoController@destroy')->name('siteOrcamento.destroy');
+
+    // Route::get('site', 'App\Http\Controllers\SiteOController@index')->name('siteOrcamento.index');
 
     Route::post('cotacao/status/{cotacao}', [App\Http\Controllers\CotacaoController::class, 'altera_status'])->name('cotacao.altera.status');
     Route::get('cotacao/create/{siteOrcamento}', 'App\Http\Controllers\CotacaoController@create')->name('cotacao.create');
@@ -112,7 +110,7 @@ Route::middleware(['auth:admin'])->group(function () {
     
     Route::get('export/orcamento/{orcamento}', [App\Http\Controllers\OrcamentoController::class, 'export_orcamento'])->name('export.orcamento');
 
-    Route::get('/sites/getSites', [App\Http\Controllers\SiteController::class, 'getSites']);
+    Route::get('/sites/getSites', [App\Http\Controllers\SiteOrcamentoController::class, 'getSites']);
 });
 
 // Route::resource('empresa', App\Http\Controllers\EmpresaController::class); // por enquanto não vou implementar, somente quando for prestar serviço para outro cliente.

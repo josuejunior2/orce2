@@ -35,7 +35,7 @@
                 </div>
                 @if ($orcamento->tipo_link == 'l2l')
                     <div>
-                        <a href="{{ route('site.create.+1.PontaA', ['orcamento' => $orcamento, 'isPontaA' => true]) }}" class="btn me-2 btn-primary">
+                        <a href="{{ route('siteOrcamento.create.+1.PontaA', ['orcamento' => $orcamento, 'isPontaA' => true]) }}" class="btn me-2 btn-primary">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                 stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-plus">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -47,7 +47,7 @@
                     </div>
                 @endif
                 <div>
-                    <a href="{{ route('site.create', ['orcamento' => $orcamento]) }}" class="btn me-2 btn-primary">
+                    <a href="{{ route('siteOrcamento.create', ['orcamento' => $orcamento]) }}" class="btn me-2 btn-primary">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                             stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-plus">
                             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -209,7 +209,7 @@
                                         </svg>
                                         Cotação
                                     </a>
-                                    <a href=" {{ route('site.edit', ['siteOrcamento' => $site->id]) }}" class="btn btn-outline-secondary">
+                                    <a href=" {{ route('siteOrcamento.edit', ['siteOrcamento' => $site->id]) }}" class="btn btn-outline-secondary">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="pr-0" width="18"  height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                             <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
@@ -218,7 +218,7 @@
                                     </a>
                                     @can('excluir site')
                                     <a href="#" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modal-destroy-site-{{ $site->id }}">
-                                        <form id="form_destroy_site_orcamento_{{ $site->id }}" method="post" action="{{ route('site.destroy', ['siteOrcamento' => $site->id]) }}" class="m-0">
+                                        <form id="form_destroy_site_orcamento_{{ $site->id }}" method="post" action="{{ route('siteOrcamento.destroy', ['siteOrcamento' => $site->id]) }}" class="m-0">
                                             @method('DELETE')
                                             @csrf
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="pr-0" width="18"  height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -298,7 +298,7 @@
                                                             </svg>
                                                             Cotação
                                                         </a>
-                                                        <a href=" {{ route('site.edit', ['siteOrcamento' => $ponta->id]) }}" class="btn btn-outline-secondary">
+                                                        <a href=" {{ route('siteOrcamento.edit', ['siteOrcamento' => $ponta->id]) }}" class="btn btn-outline-secondary">
                                                             <svg xmlns="http://www.w3.org/2000/svg" class="pr-0" width="18"  height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                                                 <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
@@ -307,7 +307,7 @@
                                                         </a>
                                                         @can('excluir site')
                                                         <a href="#" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modal-destroy-site-{{ $ponta->id }}">
-                                                            <form id="form_destroy_site_orcamento_{{ $ponta->id }}" method="post" action="{{ route('site.destroy', ['siteOrcamento' => $ponta->id]) }}" class="m-0">
+                                                            <form id="form_destroy_site_orcamento_{{ $ponta->id }}" method="post" action="{{ route('siteOrcamento.destroy', ['siteOrcamento' => $ponta->id]) }}" class="m-0">
                                                                 @method('DELETE')
                                                                 @csrf
                                                                     <svg xmlns="http://www.w3.org/2000/svg" class="pr-0" width="18"  height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
