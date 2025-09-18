@@ -90,7 +90,8 @@ Route::middleware(['auth:admin'])->group(function () {
     Route::post('siteOrcamento/update/{siteOrcamento}', 'App\Http\Controllers\SiteOrcamentoController@update')->name('siteOrcamento.update');
     Route::delete('siteOrcamento/destroy/{siteOrcamento}', 'App\Http\Controllers\SiteOrcamentoController@destroy')->name('siteOrcamento.destroy');
 
-    // Route::get('site', 'App\Http\Controllers\SiteOController@index')->name('siteOrcamento.index');
+    Route::get('site', 'App\Http\Controllers\SiteController@index')->name('site.index');
+    Route::get('getTableSites', 'App\Http\Controllers\SiteController@table')->name('site.table');
 
     Route::post('cotacao/status/{cotacao}', [App\Http\Controllers\CotacaoController::class, 'altera_status'])->name('cotacao.altera.status');
     Route::get('cotacao/create/{siteOrcamento}', 'App\Http\Controllers\CotacaoController@create')->name('cotacao.create');
