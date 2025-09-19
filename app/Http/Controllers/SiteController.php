@@ -38,7 +38,7 @@ class SiteController extends Controller
         $dados = $request->validated();
         $dados['perPage'] = $dados['perPage'] ?? 10;
 
-        $query = Site::with('Cidade.Estado', 'sitesOrcamento');
+        $query = Site::with('Cidade.Estado', 'sitesOrcamento.Orcamento.Cliente');
 
         // filtro
         if (!empty($dados['search'])) {
