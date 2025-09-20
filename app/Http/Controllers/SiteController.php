@@ -3,9 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Site;
+use App\Models\Cidade;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Http\Requests\SearchSitesRequest;
+use App\Http\Requests\SiteRequest;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class SiteController extends Controller
 {
@@ -14,6 +18,12 @@ class SiteController extends Controller
      */
     public function index()
     {
+        $cidades = Cidade::all()->map(function ($c) {
+            return [
+                'id' => $c->id,
+                'nome' => $c->nome . " - " . $c->Estado->uf,
+            ];
+        })->toArray();
         $sites = Site::with('sitesOrcamento', 'Cidade')->get()->map(function ($s) {
             return [
                 'id' => $s->id,
@@ -26,7 +36,8 @@ class SiteController extends Controller
             ];
         })->toArray();
         return Inertia::render('SiteIndex', [
-            'sites' => $sites
+            'sites' => $sites,
+            'cidades' => $cidades,
         ]);
     }
 
@@ -59,15 +70,24 @@ class SiteController extends Controller
         return response()->json([
             'items' => $paginator->items(),
             'total' => $paginator->total(),
+            'next_id' => (Site::max('id') ?? 0) + 1,
         ]);
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function storeFromTable(SiteRequest $request)
     {
-        //
+        $dados = $request->validated();
+        
+        DB::transaction(function() use($dados){
+            $site = Site::create($dados);
+
+            Log::channel('main')->info('Novo site cadastrado.', ['site' => $site, 'user' => auth()->user()->nome]);
+        });
+
+        return back();
     }
 
     /**

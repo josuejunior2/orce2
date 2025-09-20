@@ -92,6 +92,7 @@ Route::middleware(['auth:admin'])->group(function () {
 
     Route::get('site', 'App\Http\Controllers\SiteController@index')->name('site.index');
     Route::get('getTableSites', 'App\Http\Controllers\SiteController@table')->name('site.table');
+    Route::post('storeFromTable', 'App\Http\Controllers\SiteController@storeFromTable')->name('site.table.store');
 
     Route::post('cotacao/status/{cotacao}', [App\Http\Controllers\CotacaoController::class, 'altera_status'])->name('cotacao.altera.status');
     Route::get('cotacao/create/{siteOrcamento}', 'App\Http\Controllers\CotacaoController@create')->name('cotacao.create');

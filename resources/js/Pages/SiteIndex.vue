@@ -93,41 +93,188 @@
                 </tr>
             </template>
         </v-data-table-server>
+        
+        <v-dialog v-model="dialog" max-width="500">
+            <v-card
+                :title="`${isEditing ? 'Editar' : 'Cadastrar'} Site`"
+            >
+            <template v-slot:text>
+                <v-form @submit.prevent="submitForm" ref="form">
+                    <v-row>
+                        <v-col cols="12">
+                            <v-text-field 
+                                v-model="formSite.nome" 
+                                label="Nome" 
+                                variant="outlined"
+                                density="comfortable"
+                                class="no-border-radius-right"
+                                :rules="[v => !!v || 'Nome é obrigatório']"
+                                required
+                                autocomplete="off"
+                            ></v-text-field>
+                        </v-col>
+    
+                        <v-col cols="12">
+                            <v-text-field 
+                                v-model="formSite.endereco" 
+                                label="Endereço" 
+                                variant="outlined"
+                                density="comfortable"
+                                class="no-border-radius-right"
+                                autocomplete="off"
+                            ></v-text-field>
+                        </v-col>
+    
+                        <v-col cols="12" md="6">
+                            <v-text-field
+                                v-model="formSite.latitude" 
+                                label="Latitude" 
+                                variant="outlined"
+                                density="comfortable"
+                                class="no-border-radius-right"
+                                autocomplete="off"
+                            ></v-text-field>
+                        </v-col>
+    
+                        <v-col cols="12" md="6">
+                            <v-text-field
+                                v-model="formSite.longitude" 
+                                label="Longitude" 
+                                variant="outlined"
+                                density="comfortable"
+                                class="no-border-radius-right"
+                                autocomplete="off"
+                            ></v-text-field>
+                        </v-col>
+                        <v-col cols="12">
+                            <v-autocomplete
+                                v-model="formSite.cidade_id"
+                                :items="props.cidades"
+                                item-title="nome"
+                                item-value="id"
+                                label="Pesquisar cidade"
+                                :return-object="false"
+                                variant="outlined"
+                                density="comfortable"
+                                class="no-border-radius-right"
+                                :rules="[v => !!v || 'Cidade é obrigatório']"
+                                required
+                            />
+                        </v-col>
+                    </v-row>
+                </v-form>
+            </template>
+
+            <v-card-actions class="bg-surface-light">
+                <v-btn text="Fechar" variant="plain" @click="dialog = false"></v-btn>
+
+                <v-spacer></v-spacer>
+
+                <v-btn text="Salvar" @click="submitForm"></v-btn>
+            </v-card-actions>
+            </v-card>
+        </v-dialog>
     </v-container>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, shallowRef, computed } from 'vue'
+import { useForm } from '@inertiajs/vue3'
 
 const page = ref(1)
 const itemsPerPage = ref(10)
 const total = ref(0)
+const nextId = ref(0)
 const sites = ref([])
-const search = ref(null);
+const search = ref(null)
+const dialog = shallowRef(false)
+const form = ref(null)
+
+const formSite = useForm({
+    id: null,
+    nome: '',
+    endereco: '',
+    cidade_id: '',
+    latitude: '',
+    longitude: '',
+})
+
+const isEditing = computed(() => !!formSite.id)
 
 const headers = [
-  { title: 'ID', key: 'id' },
-  { title: 'Nome', key: 'nome' },
-  { title: 'Cidade', key: 'cidade.nome' },
-  { title: 'Estado', key: 'cidade.estado.nome' },
-  { title: 'Endereço', key: 'endereco' },
-  { title: 'Latitude', key: 'latitude' },
-  { title: 'Longitude', key: 'longitude' },
-  { key: 'data-table-expand', width: 50, sortable: false }, // botão expandir
+    { title: 'ID', key: 'id' },
+    { title: 'Nome', key: 'nome' },
+    { title: 'Cidade', key: 'cidade.nome' },
+    { title: 'Estado', key: 'cidade.estado.nome' },
+    { title: 'Endereço', key: 'endereco' },
+    { title: 'Latitude', key: 'latitude' },
+    { title: 'Longitude', key: 'longitude' },
+    { key: 'data-table-expand', width: 50, sortable: false },
 ]
 
+const props = defineProps({
+    cidades: Array,
+})
+
 const loadData = async ({ page, itemsPerPage, sortBy }) => {
-  // chamada server-side (Laravel/Inertia)
-  const response = await axios.get('/getTableSites', {
-    params: {
+    const response = await axios.get('/getTableSites', {
+        params: {
         search: search.value,
         page,
         per_page: itemsPerPage,
-        sortBy
+        sortBy,
+        },
+    })
+
+    sites.value = response.data.items
+    total.value = response.data.total
+    nextId.value = response.data.next_id
+}
+
+function add() {
+    formSite.reset()
+    dialog.value = true
+}
+
+function edit(id) {
+    const found = sites.value.find(s => s.id === id)
+
+    formSite.defaults({
+        id: found.id,
+        nome: found.nome,
+        endereco: found.endereco,
+        latitude: found.latitude,
+        longitude: found.longitude,
+        cidade_id: found.cidade_id,
+    })
+    formSite.reset()
+
+    dialog.value = true
+}
+
+async function submitForm() {
+    const valid = await form.value.validate()
+    if (!valid) {
+        console.log('Validação do frontend falhou')
+        return
     }
-  })
-console.log(response.data, response.data.data);
-  sites.value = response.data.items
-  total.value = response.data.total
+
+    if (formSite.id) {
+        formSite.put(route('site.table.update', formSite.id), {
+        onSuccess: () => {
+            formSite.reset()
+            loadData({ page: page.value, itemsPerPage: itemsPerPage.value })
+            dialog.value = false
+        },
+        })
+    } else {
+        formSite.post(route('site.table.store'), {
+        onSuccess: () => {
+            formSite.reset()
+            loadData({ page: page.value, itemsPerPage: itemsPerPage.value })
+            dialog.value = false
+        },
+        })
+    }
 }
 </script>
