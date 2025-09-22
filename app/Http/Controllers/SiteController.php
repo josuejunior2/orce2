@@ -13,9 +13,6 @@ use Illuminate\Support\Facades\Log;
 
 class SiteController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $cidades = Cidade::all()->map(function ($c) {
@@ -41,9 +38,6 @@ class SiteController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function table(SearchSitesRequest $request)
     {
         $dados = $request->validated();
@@ -51,7 +45,6 @@ class SiteController extends Controller
 
         $query = Site::with('Cidade.Estado', 'sitesOrcamento.Orcamento.Cliente');
 
-        // filtro
         if (!empty($dados['search'])) {
             $query->where('nome', 'like', "%{$dados['search']}%")
                 ->orWhereHas('cidade', function ($q) use ($dados) {
@@ -59,14 +52,13 @@ class SiteController extends Controller
                 });
         }
 
-        // ordenação
         if (!empty($dados['sortBy']) && isset($dados['sortBy'][0]['key'])) {
             $direction = $dados['sortBy'][0]['order'] ?? 'asc';
             $query->orderBy($dados['sortBy'][0]['key'], $direction);
         }
 
         $paginator = $query->paginate($dados['perPage']);
-// dd($paginator->items(), $request->all());
+
         return response()->json([
             'items' => $paginator->items(),
             'total' => $paginator->total(),
@@ -74,9 +66,6 @@ class SiteController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function storeFromTable(SiteRequest $request)
     {
         $dados = $request->validated();
@@ -87,8 +76,33 @@ class SiteController extends Controller
             Log::channel('main')->info('Novo site cadastrado.', ['site' => $site, 'user' => auth()->user()->nome]);
         });
 
-        return back();
+        return back()->with(['success' => 'Site cadastrado com sucesso!']);
     }
+
+    public function updateFromTable(SiteRequest $request, Site $site)
+    {
+        $dados = $request->validated();
+        
+        DB::transaction(function() use($dados, $site){
+            $site->update($dados);
+
+            Log::channel('main')->info('Site atualizado.', ['site' => $site, 'user' => auth()->user()->nome]);
+        });
+
+        return back()->with(['success' => 'Site atualizado com sucesso!']);
+    }
+
+    public function destroyFromTable(Site $site)
+    {
+        DB::transaction(function() use($site){
+            $site->delete();
+
+            Log::channel('main')->info('Site excluido.', ['site' => $site, 'user' => auth()->user()->nome]);
+        });
+
+        return back()->with(['success' => 'Site excluído com sucesso!']);
+    }
+
 
     /**
      * Store a newly created resource in storage.

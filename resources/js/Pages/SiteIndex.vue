@@ -1,5 +1,11 @@
 <template>
     <v-container fluid>
+        <v-snackbar v-model="showSuccess" color="success" timeout="7000" value>{{ msgSuccess }}</v-snackbar>
+
+  <v-snackbar v-model="showError" color="error" timeout="7000">
+    {{ errorMessage }}
+  </v-snackbar>
+
         <v-row class="align-center mb-3">
             <v-col cols="12" md="10">
                 <v-text-field
@@ -31,20 +37,38 @@
             :items="sites"
             :search="search"
             item-value="id"
-            show-expand
             @update:options="loadData"
         >
             <!-- Coluna de actions com botão expandir -->
-            <template v-slot:item.data-table-expand="{ internalItem, isExpanded, toggleExpand }">
-            <v-btn
-                size="small"
-                variant="text"
-                color="primary"
-                :append-icon="isExpanded(internalItem) ? 'mdi-chevron-up' : 'mdi-chevron-down'"
-                :text="isExpanded(internalItem) ? 'Fechar' : 'Sites'"
-                @click="toggleExpand(internalItem)"
-            />
+            <template v-slot:item.actions="{ item, internalItem, isExpanded, toggleExpand }">
+                <div class="d-flex align-center ga-2">
+                    <v-btn
+                        size="small"
+                        variant="text"
+                        color="primary"
+                        :append-icon="isExpanded(internalItem) ? 'mdi-chevron-up' : 'mdi-chevron-down'"
+                        :text="isExpanded(internalItem) ? 'Fechar' : 'Sites'"
+                        @click="toggleExpand(internalItem)"
+                    />
+
+                    <v-icon
+                        color="primary"
+                        icon="mdi-pencil"
+                        size="small"
+                        class="cursor-pointer"
+                        @click="edit(item.id)"
+                    ></v-icon>
+
+                    <v-icon
+                        color="error"
+                        icon="mdi-delete"
+                        size="small"
+                        class="cursor-pointer"
+                        @click="remove(item.id)"
+                    ></v-icon>
+                </div>
             </template>
+
 
             <!-- Conteúdo expandido -->
             <template v-slot:expanded-row="{ item, columns }">
@@ -174,6 +198,25 @@
             </v-card-actions>
             </v-card>
         </v-dialog>
+        
+        <v-dialog v-model="dialogDelete" max-width="400">
+            <v-card>
+                <v-card-title class="text-h6">
+                    Confirmar exclusão
+                </v-card-title>
+
+                <v-card-text>
+                    Tem certeza que deseja excluir o site 
+                    <strong>{{ siteToDelete?.nome }}</strong>?
+                </v-card-text>
+
+                <v-card-actions>
+                    <v-spacer />
+                    <v-btn text="Cancelar" variant="plain" @click="dialogDelete = false" />
+                    <v-btn text="Excluir" color="error" @click="confirmRemove" />
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </v-container>
 </template>
 
@@ -189,6 +232,12 @@ const sites = ref([])
 const search = ref(null)
 const dialog = shallowRef(false)
 const form = ref(null)
+const showSuccess = ref(false)
+const msgSuccess = ref('')
+const showError = ref(false)
+const errorMessage = ref('')
+const dialogDelete = ref(false)
+const siteToDelete = ref(null)
 
 const formSite = useForm({
     id: null,
@@ -209,7 +258,7 @@ const headers = [
     { title: 'Endereço', key: 'endereco' },
     { title: 'Latitude', key: 'latitude' },
     { title: 'Longitude', key: 'longitude' },
-    { key: 'data-table-expand', width: 50, sortable: false },
+    { title: 'Ações', key: 'actions', sortable: false, width: 100 },
 ]
 
 const props = defineProps({
@@ -252,6 +301,21 @@ function edit(id) {
     dialog.value = true
 }
 
+function askRemove(site) {
+    siteToDelete.value = site
+    dialogDelete.value = true
+}
+
+function confirmRemove() {
+    if (!siteToDelete.value) return
+        const index = sites.value.findIndex(s => s.id === siteToDelete.value.id)
+    if (index !== -1) {
+        sites.value.splice(index, 1)
+    }
+    dialogDelete.value = false
+    siteToDelete.value = null
+}
+
 async function submitForm() {
     const valid = await form.value.validate()
     if (!valid) {
@@ -261,20 +325,34 @@ async function submitForm() {
 
     if (formSite.id) {
         formSite.put(route('site.table.update', formSite.id), {
-        onSuccess: () => {
-            formSite.reset()
-            loadData({ page: page.value, itemsPerPage: itemsPerPage.value })
-            dialog.value = false
-        },
+            onSuccess: (response) => {
+                formSite.reset()
+                loadData({ page: page.value, itemsPerPage: itemsPerPage.value })
+                dialog.value = false
+                showSuccess.value = true
+                msgSuccess.value = response.props.flash.success
+            },
+            onError: tratarErros
         })
     } else {
         formSite.post(route('site.table.store'), {
-        onSuccess: () => {
-            formSite.reset()
-            loadData({ page: page.value, itemsPerPage: itemsPerPage.value })
-            dialog.value = false
-        },
+            onSuccess: (response) => {
+                formSite.reset()
+                loadData({ page: page.value, itemsPerPage: itemsPerPage.value })
+                dialog.value = false
+                showSuccess.value = true
+                msgSuccess.value = response.props.flash.success
+            },
+            onError: tratarErros
         })
+    }
+}
+
+const tratarErros = (errors) => {
+    if (Object.keys(errors).length > 0) {
+        const firstError = Object.values(errors)[0]
+        errorMessage.value = Array.isArray(firstError) ? firstError[0] : firstError
+        showError.value = true
     }
 }
 </script>
