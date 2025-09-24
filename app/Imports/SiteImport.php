@@ -6,6 +6,7 @@ use App\Models\Site;
 use App\Models\Cidade;
 use App\Models\Estado;
 use App\Models\Orcamento;
+use App\Models\SiteOrcamento;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\ToCollection;
@@ -110,19 +111,25 @@ class SiteImport implements ToCollection, SkipsEmptyRows
                 
 
                 DB::transaction(function () use ($cidade, $dados) {
-                    Site::updateOrCreate(
+                    $site = Site::updateOrCreate(
                         [
-                            'orcamento_id'  => $this->orcamento->id,
-                            'nome'          => $dados['nome'],
-                            'cidade_id'     => $cidade->id ?? null,
+                            'nome'      => $dados['nome'],
+                            'cidade_id' => $cidade->id,
                         ],
                         [
-                            'orcamento_id'          => $this->orcamento->id,
-                            'cidade_id'             => $cidade->id ?? null,
-                            'nome'                  => $dados['nome'] ?? null,
-                            'endereco'              => $dados['endereco'] ?? null,
-                            'latitude'              => $dados['latitude'] ?? null,
-                            'longitude'             => $dados['longitude'] ?? null,
+                            'nome'      => $dados['nome'],
+                            'cidade_id' => $cidade->id,
+                            'latitude'  => $dados['latitude'],
+                            'longitude' => $dados['longitude'],
+                            'endereco'  => $dados['endereco'] ?? null,
+                        ]);
+                    
+                    SiteOrcamento::updateOrCreate(
+                        [
+                            'site_id'  => $site->id,
+                        ],
+                        [
+                            'site_id'               => $site->id,
                             'vel_solicitada_down'   => $dados['vel_solicitada_down'] ?? null,
                             'vel_solicitada_up'     => $dados['vel_solicitada_up'] ?? null,
                             'barra'                 => $dados['barra'] ?? null,
