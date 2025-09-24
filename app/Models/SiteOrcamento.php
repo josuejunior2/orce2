@@ -15,7 +15,7 @@ class SiteOrcamento extends Model
     protected $fillable = ['orcamento_id', 'site_id', 'site_orcamento_id', 'vel_solicitada_down', 'vel_solicitada_up', 'barra'];
 
     public function Site(){
-        return $this->belongsTo('App\Models\Site');
+        return $this->belongsTo('App\Models\Site')->withTrashed();
     }
 
     public function Orcamento(){

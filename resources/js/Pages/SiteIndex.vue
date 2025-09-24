@@ -64,7 +64,7 @@
                         icon="mdi-delete"
                         size="small"
                         class="cursor-pointer"
-                        @click="remove(item.id)"
+                        @click="askRemove(item.id)"
                     ></v-icon>
                 </div>
             </template>
@@ -308,9 +308,17 @@ function askRemove(site) {
 
 function confirmRemove() {
     if (!siteToDelete.value) return
-        const index = sites.value.findIndex(s => s.id === siteToDelete.value.id)
+    const index = sites.value.findIndex(s => s.id === siteToDelete.value)
     if (index !== -1) {
-        sites.value.splice(index, 1)
+        formSite.delete(route('site.table.destroy', siteToDelete.value), {
+            preserveScroll: true,
+            onSuccess: () => {
+                dialogDelete.value = false
+                siteToDelete.value = null
+                loadData({ page: page.value, itemsPerPage: itemsPerPage.value })
+            },
+            onError: tratarErros
+        })
     }
     dialogDelete.value = false
     siteToDelete.value = null
