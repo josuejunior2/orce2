@@ -31,6 +31,7 @@ class SiteOrcamentoRequest extends FormRequest
             'cidade_id' => 'required',
             'nome' => 'required',
             'endereco' => 'nullable',
+            'id_instalacao' => 'nullable',
             'latitude' => ['nullable', 'regex:/^-?\d+(?:\.\d+)?$/'],
             'longitude' => ['nullable', 'regex:/^-?\d+(?:\.\d+)?$/'],
             'vel_solicitada_down' => ['nullable', 'numeric'],
@@ -51,6 +52,7 @@ class SiteOrcamentoRequest extends FormRequest
             'pontas.*.vel_solicitada_down' => ['nullable', 'numeric'],
             'pontas.*.barra' => ['nullable'],
             'pontas.*.servicos' => ['nullable', 'array'],
+            'pontas.*.id_instalacao' => ['nullable'],
         ];
     }
 }

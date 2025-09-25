@@ -54,12 +54,12 @@ class SiteOrcamentoController extends Controller
         $idOrcamento = $request->input('orcamento_id');
 
         $sites = Site::where('nome', 'like', '%' . $nome . '%')
-            ->select('id', 'nome', 'cidade_id', 'endereco', 'latitude', 'longitude')
+            ->select('id', 'nome', 'cidade_id', 'endereco', 'latitude', 'longitude', 'id_instalacao')
             ->limit(10)
             ->get()->map(function ($s) use($idOrcamento) {
             return [
                 'id' => $s->id,
-                'nomeDisplay' => $s->nome . (!empty($s->endereco) ? " | " . $s->endereco : "") . " | " . $s->Cidade->nome . " - " . $s->Cidade->Estado->uf,
+                'nomeDisplay' => $s->nome . (!empty($s->id_instalacao) ? " | " . $s->id_instalacao : "") . (!empty($s->endereco) ? " | " . $s->endereco : "") . " | " . $s->Cidade->nome . " - " . $s->Cidade->Estado->uf,
                 'nome' => $s->nome,
                 'endereco' => $s->endereco,
                 'latitude' => $s->latitude,

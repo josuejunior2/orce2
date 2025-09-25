@@ -137,6 +137,17 @@
                                 autocomplete="off"
                             ></v-text-field>
                         </v-col>
+
+                        <v-col cols="12">
+                            <v-text-field 
+                                v-model="formSite.id_instalacao" 
+                                label="ID da instalação" 
+                                variant="outlined"
+                                density="comfortable"
+                                class="no-border-radius-right"
+                                autocomplete="off"
+                            ></v-text-field>
+                        </v-col>
     
                         <v-col cols="12">
                             <v-text-field 
@@ -246,6 +257,7 @@ const formSite = useForm({
     cidade_id: '',
     latitude: '',
     longitude: '',
+    id_instalacao: '',
 })
 
 const isEditing = computed(() => !!formSite.id)
@@ -253,6 +265,7 @@ const isEditing = computed(() => !!formSite.id)
 const headers = [
     { title: 'ID', key: 'id' },
     { title: 'Nome', key: 'nome' },
+    { title: 'ID da instalação', key: 'id_instalacao' },
     { title: 'Cidade', key: 'cidade.nome' },
     { title: 'Estado', key: 'cidade.estado.nome' },
     { title: 'Endereço', key: 'endereco' },

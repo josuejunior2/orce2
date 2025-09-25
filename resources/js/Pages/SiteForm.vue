@@ -87,13 +87,18 @@
                     :error-messages="novoSite.errors.nome"
                   />
               </v-col>
-              <v-col v-if="exibeCampos" cols="1" md="1">
-                <v-checkbox
-                  v-model="novoSite.subestacao"
-                  label="Subestação"
-                  density="compact"
-                  hide-details
-                />
+              <v-col v-if="exibeCampos" cols="2" md="2">
+                  <v-text-field
+                    v-model="novoSite.id_instalacao"
+                    label="ID da Instalação"
+                    variant="outlined"
+                    density="comfortable"
+                    hide-details
+                    class="no-border-radius-right"
+                    autocomplete="off"
+                    :error-messages="novoSite.errors.id_instalacao"
+                    :readonly="siteSelecionado != null"
+                  />
               </v-col>
               <v-col v-if="exibeCampos" cols="2" md="2">
                 <v-text-field
@@ -126,7 +131,7 @@
                   :readonly="siteSelecionado != null"
                 />
               </v-col>
-              <v-col v-if="exibeCampos" cols="4" md="4">
+              <v-col v-if="exibeCampos" cols="3" md="3">
                 <v-autocomplete
                   v-model="novoSite.cidade_id"
                   :items="props.cidades"
@@ -142,6 +147,15 @@
                   required
                   :error-messages="novoSite.errors.cidade_id"
                   :readonly="siteSelecionado != null"
+                  autocomplete="off"
+                />
+              </v-col>
+              <v-col v-if="exibeCampos" cols="1" md="1">
+                <v-checkbox
+                  v-model="novoSite.subestacao"
+                  label="Subestação"
+                  density="compact"
+                  hide-details
                 />
               </v-col>
               <v-col v-if="exibeCampos" cols="4" md="4">
@@ -157,7 +171,7 @@
                     :readonly="siteSelecionado != null"
                   />
               </v-col>
-              <v-col v-if="exibeCampos" cols="4" md="4">
+              <v-col v-if="exibeCampos" cols="3" md="3">
                 <v-autocomplete
                   v-model="servicoSelecionado"
                   :items="props.servicos"
@@ -257,6 +271,15 @@
                       />
                     </v-col>
 
+                    <v-col cols="12" md="2">
+                      <v-text-field
+                        v-model="ponta.id_instalacao"
+                        label="ID da instalação"
+                        density="compact"
+                        variant="outlined"
+                      />
+                    </v-col>
+
                     <!-- Latitude + Longitude -->
                     <v-col cols="12" md="2">
                       <v-text-field
@@ -289,7 +312,7 @@
                     </v-col>
 
                     <!-- Cidade + Endereço -->
-                    <v-col cols="12" md="4">
+                    <v-col cols="12" md="3">
                         <v-autocomplete
                           v-model="ponta.cidade_id"
                           :items="props.cidades"
@@ -307,7 +330,7 @@
                         />
                     </v-col>
 
-                    <v-col cols="12" md="3">
+                    <v-col cols="12" md="4">
                       <v-text-field
                         v-model="ponta.endereco"
                         label="Endereço"
@@ -430,6 +453,7 @@ const form = ref(null);
 const novoSite = useForm({
   nome: '',
   latitude: '',
+  id_instalacao: null,
   longitude: null,
   endereco: null,
   cidade_id: null,
@@ -449,6 +473,7 @@ const adicionarPonta = () => {
   pontas.value.push({
     nome: "",
     latitude: "",
+    id_instalacao: "",
     longitude: "",
     cidade_id: "",
     endereco: "",
@@ -486,6 +511,7 @@ const buscarSites = async (nome) => {
 const selecionaSite = (site) => {
   if (site) {
     novoSite.nome = site.nome
+    novoSite.id_instalacao = site.id_instalacao
     novoSite.latitude = site.latitude
     novoSite.longitude = site.longitude
     novoSite.endereco = site.endereco
@@ -600,6 +626,7 @@ onMounted(() => {
     servicoSelecionado.value = siteOrc.servicos_solicitados
     novoSite.defaults({
       nome: site.nome,
+      id_instalacao: site.id_instalacao,
       latitude: site.latitude,
       longitude: site.longitude,
       endereco: site.endereco,
@@ -620,6 +647,7 @@ onMounted(() => {
       site_id: p.site.id,
       site_orcamento_id: p.id,
       nome: p.site.nome,
+      id_instalacao: p.site.id_instalacao,
       latitude: p.site.latitude,
       longitude: p.site.longitude,
       cidade_id: p.site.cidade_id,

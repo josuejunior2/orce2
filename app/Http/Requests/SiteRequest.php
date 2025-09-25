@@ -27,6 +27,7 @@ class SiteRequest extends FormRequest
             'endereco' => 'nullable',
             'latitude' => ['nullable', 'regex:/^-?\d+(?:\.\d+)?$/'],
             'longitude' => ['nullable', 'regex:/^-?\d+(?:\.\d+)?$/'],
+            'id_instalacao' => 'nullable',
         ];
     }
 }
