@@ -254,7 +254,7 @@ const formSite = useForm({
     id: null,
     nome: '',
     endereco: '',
-    cidade_id: '',
+    cidade_id: null,
     latitude: '',
     longitude: '',
     id_instalacao: '',
@@ -294,22 +294,24 @@ const loadData = async ({ page, itemsPerPage, sortBy }) => {
 }
 
 function add() {
-    formSite.reset()
+    formSite.id = null;
+    formSite.nome = null;
+    formSite.endereco = null;
+    formSite.latitude = null;
+    formSite.longitude = null;
+    formSite.cidade_id = null;
     dialog.value = true
 }
 
 function edit(id) {
     const found = sites.value.find(s => s.id === id)
-
-    formSite.defaults({
-        id: found.id,
-        nome: found.nome,
-        endereco: found.endereco,
-        latitude: found.latitude,
-        longitude: found.longitude,
-        cidade_id: found.cidade_id,
-    })
-    formSite.reset()
+    
+    formSite.id = found.id;
+    formSite.nome = found.nome;
+    formSite.latitude = found.latitude;
+    formSite.endereco = found.endereco;
+    formSite.cidade_id = found.cidade_id;
+    formSite.longitude = found.longitude;
 
     dialog.value = true
 }
@@ -347,7 +349,6 @@ async function submitForm() {
     if (formSite.id) {
         formSite.put(route('site.table.update', formSite.id), {
             onSuccess: (response) => {
-                formSite.reset()
                 loadData({ page: page.value, itemsPerPage: itemsPerPage.value })
                 dialog.value = false
                 showSuccess.value = true
@@ -358,7 +359,6 @@ async function submitForm() {
     } else {
         formSite.post(route('site.table.store'), {
             onSuccess: (response) => {
-                formSite.reset()
                 loadData({ page: page.value, itemsPerPage: itemsPerPage.value })
                 dialog.value = false
                 showSuccess.value = true
