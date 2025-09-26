@@ -28,6 +28,7 @@ class SiteRequest extends FormRequest
             'latitude' => ['nullable', 'regex:/^-?\d+(?:\.\d+)?$/'],
             'longitude' => ['nullable', 'regex:/^-?\d+(?:\.\d+)?$/'],
             'id_instalacao' => 'nullable',
+            'is_subestacao' => 'nullable',
         ];
     }
 }

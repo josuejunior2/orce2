@@ -39,6 +39,7 @@ class SiteOrcamentoRequest extends FormRequest
             'servicos' => ['nullable', 'array'],
             'barra' => ['nullable'],
             'site_id' => ['nullable', 'exists:sites,id'],
+            'is_subestacao' => 'nullable',
             
             // 'pontas' => ['nullable', 'array'],
             'pontas.*.site_id' => ['nullable'],

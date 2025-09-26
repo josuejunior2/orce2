@@ -189,7 +189,7 @@
                     <div class="accordion-item m-3 mb-0">
                         <div class="accordion-header d-flex justify-content-between align-items-center">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ $site->id }}-tabs" aria-expanded="false">
-                                {{ $site->Site->nome }} {{ !empty($site->Site->id_instalacao) ? "| ".$site->Site->id_instalacao : "" }}
+                                {{ $site->Site->nome }} {{ !empty($site->Site->id_instalacao) ? "| ".$site->Site->id_instalacao : "" }} {{ !empty($site->Site->is_subestacao) ? "| Subestação" : "" }}
                             </button>
                             {{-- <div class="d-flex justify-content-between col-auto"> --}}
                                 {{-- <div>

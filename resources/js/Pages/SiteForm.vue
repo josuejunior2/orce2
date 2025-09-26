@@ -152,10 +152,11 @@
               </v-col>
               <v-col v-if="exibeCampos" cols="1" md="1">
                 <v-checkbox
-                  v-model="novoSite.subestacao"
+                  v-model="novoSite.is_subestacao"
                   label="Subestação"
                   density="compact"
                   hide-details
+                  :checked="novoSite.is_subestacao"
                 />
               </v-col>
               <v-col v-if="exibeCampos" cols="4" md="4">
@@ -238,7 +239,7 @@
               </v-col>
             </v-row>
 
-            <v-col v-if="novoSite.subestacao" cols="12">
+            <v-col v-if="novoSite.is_subestacao" cols="12">
               <v-card
                 v-for="(ponta, index) in pontas"
                 :key="index"
@@ -260,7 +261,6 @@
 
                 <v-card-text>
                   <v-row dense>
-                    <!-- Nome + Subestação -->
                     <v-col cols="12" md="3">
                       <v-text-field
                         v-model="ponta.nome"
@@ -407,7 +407,6 @@
                 </v-card-text>
               </v-card>
 
-              <!-- Botão para adicionar mais subestações -->
               <v-btn
                 variant="outlined"
                 color="primary"
@@ -463,7 +462,7 @@ const novoSite = useForm({
   orcamento_id: null,
   servicos: null,
   site_id: false,
-  subestacao: false,
+  is_subestacao: false,
   pontas: []
 })
 
@@ -634,7 +633,7 @@ onMounted(() => {
       vel_solicitada_down: siteOrc.vel_solicitada_down ? Number(siteOrc.vel_solicitada_down) : null,
       vel_solicitada_up: siteOrc.vel_solicitada_up ? Number(siteOrc.vel_solicitada_up) : null,
       barra: siteOrc.barra ? Number(siteOrc.barra) : null,
-      subestacao: siteOrc.pontas?.length > 0,
+      is_subestacao: Boolean(site.is_subestacao),
       servicos: siteOrc.servicos_solicitados?.map(s => s.id) ?? [],
       pontas: []
     })

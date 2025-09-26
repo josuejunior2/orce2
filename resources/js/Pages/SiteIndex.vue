@@ -125,7 +125,7 @@
             <template v-slot:text>
                 <v-form @submit.prevent="submitForm" ref="form">
                     <v-row>
-                        <v-col cols="12">
+                        <v-col cols="12" class="py-0 my-0">
                             <v-text-field 
                                 v-model="formSite.nome" 
                                 label="Nome" 
@@ -137,8 +137,19 @@
                                 autocomplete="off"
                             ></v-text-field>
                         </v-col>
+                        
+                        <v-col cols="12" class="py-0 my-0">
+                            <v-checkbox
+                                v-model="formSite.is_subestacao"
+                                label="Subestação"
+                                variant="outlined"
+                                density="comfortable"
+                                class="py-0 my-0"
+                                hide-details
+                            />
+                        </v-col>
 
-                        <v-col cols="12">
+                        <v-col cols="12" class="py-0 my-0">
                             <v-text-field 
                                 v-model="formSite.id_instalacao" 
                                 label="ID da instalação" 
@@ -149,7 +160,7 @@
                             ></v-text-field>
                         </v-col>
     
-                        <v-col cols="12">
+                        <v-col cols="12" class="py-0 my-0">
                             <v-text-field 
                                 v-model="formSite.endereco" 
                                 label="Endereço" 
@@ -160,7 +171,7 @@
                             ></v-text-field>
                         </v-col>
     
-                        <v-col cols="12" md="6">
+                        <v-col cols="12" md="6" class="py-0 my-0">
                             <v-text-field
                                 v-model="formSite.latitude" 
                                 label="Latitude" 
@@ -171,7 +182,7 @@
                             ></v-text-field>
                         </v-col>
     
-                        <v-col cols="12" md="6">
+                        <v-col cols="12" md="6" class="py-0 my-0">
                             <v-text-field
                                 v-model="formSite.longitude" 
                                 label="Longitude" 
@@ -181,7 +192,7 @@
                                 autocomplete="off"
                             ></v-text-field>
                         </v-col>
-                        <v-col cols="12">
+                        <v-col cols="12" class="py-0 my-0">
                             <v-autocomplete
                                 v-model="formSite.cidade_id"
                                 :items="props.cidades"
@@ -258,6 +269,7 @@ const formSite = useForm({
     latitude: '',
     longitude: '',
     id_instalacao: '',
+    is_subestacao: false,
 })
 
 const isEditing = computed(() => !!formSite.id)
@@ -300,6 +312,7 @@ function add() {
     formSite.latitude = null;
     formSite.longitude = null;
     formSite.cidade_id = null;
+    formSite.is_subestacao = false;
     dialog.value = true
 }
 
@@ -312,6 +325,7 @@ function edit(id) {
     formSite.endereco = found.endereco;
     formSite.cidade_id = found.cidade_id;
     formSite.longitude = found.longitude;
+    formSite.is_subestacao = Boolean(found.is_subestacao);
 
     dialog.value = true
 }

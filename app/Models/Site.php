@@ -10,7 +10,7 @@ class Site extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['cidade_id', 'nome', 'endereco', 'latitude', 'longitude', 'id_instalacao'];
+    protected $fillable = ['cidade_id', 'nome', 'endereco', 'latitude', 'longitude', 'id_instalacao', 'is_subestacao'];
     
     public function sitesOrcamento(){
         return $this->hasMany('App\Models\SiteOrcamento', 'site_id');
