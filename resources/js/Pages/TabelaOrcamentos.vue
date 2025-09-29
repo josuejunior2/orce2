@@ -1,10 +1,30 @@
 <template>
     <v-container fluid>
-      <v-text-field
-        v-model="search"
-        label="Pesquisar"
-        prepend-icon="mdi-magnify"
-      />
+      <v-row class="align-center mb-3">
+          <v-col cols="12" md="10">
+              <v-text-field
+              v-model="search"
+              label="Pesquisar"
+              prepend-icon="mdi-magnify"
+              clearable
+              density="comfortable"
+              hide-details
+              />
+          </v-col>
+
+          <v-col cols="auto">
+              <v-btn
+              class="me-2"
+              prepend-icon="mdi-plus"
+              rounded="lg"
+              text="Novo Orçamento"
+              color="primary"
+              variant="flat"
+              href="/orcamento/create"
+              style="text-decoration: none;"
+              />
+          </v-col>
+      </v-row>
   
     <v-data-table
         :headers="headers"
