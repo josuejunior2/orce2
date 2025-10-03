@@ -39,6 +39,7 @@ class SiteOrcamentoController extends Controller
             ];
         })->toArray();
         $orcamento->load('Cliente');
+        $orcamento->status = Orcamento::getStatusTexto($orcamento->status);
         
         return Inertia::render('SiteForm', [
             'cidades' => $cidades,

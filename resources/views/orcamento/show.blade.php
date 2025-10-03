@@ -99,7 +99,7 @@
                     <div class="datagrid-title">Tempo do contrato</div>
                     <div class="datagrid-content">{{ $orcamento->tempo_contrato }} meses</div>
                 </div>
-                <div class="datagrid-item">
+                {{-- <div class="datagrid-item">
                     <div class="datagrid-title">Tipo do link</div>
                     <div class="datagrid-content">
                         @if ($orcamento->tipo_link == 'l2l')
@@ -108,7 +108,7 @@
                             Link Dedicado - {{ $orcamento->quantidade_sites }} sites
                         @endif
                     </div>
-                </div>
+                </div> --}}
                 <div class="datagrid-item">
                     <div class="datagrid-title">Imposto</div>
                     <div class="datagrid-content">{{ $orcamento->imposto }}%</div>
@@ -116,15 +116,7 @@
                 <div class="datagrid-item">
                     <div class="datagrid-title">Status</div>
                     <div class="datagrid-content">
-                        @if ($orcamento->status == 'Sem viabilidade')
-                        <span class="badge bg-red text-white">Sem viabilidade</span>
-                        @elseif ($orcamento->status == 'Em cotação')
-                        <span class="badge bg-yellow text-white">Em cotação</span>
-                        @elseif ($orcamento->status == 'Enviado')
-                        <span class="badge bg-blue text-white">Enviado</span>
-                        @elseif ($orcamento->status == 'Aprovado')
-                        <span class="badge bg-green text-white">Aprovado</span>
-                        @endif
+                        {{ \App\Models\Orcamento::getStatusTexto($orcamento->status) }}
                     </div>
                 </div>
             </div>
