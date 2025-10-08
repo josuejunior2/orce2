@@ -9,28 +9,28 @@
   
   <v-row no-gutters>
     <v-col cols="12" class="tabler-datagrid">
-      <v-card class="ma-3 mt-4" elevation="0" rounded="lg" border>
+      <v-card class="ma-3 mt-4 mb-1" elevation="0" rounded="lg" border>
         <!-- Cabeçalho -->
         <v-card-item class="border-b tabler-datagrid pt-6 pb-6 pl-5 pr-8">
-          <v-card-title class="text-h6">{{ orcamento.titulo }}</v-card-title>
+          <v-card-title style="font-weight: 400; font-size: 16px;">{{ orcamento.titulo }}</v-card-title>
         </v-card-item>
 
         <!-- Corpo com data-grid -->
         <v-card-text>
           <v-row dense class="tabler-datagrid mt-2">
-            <v-col cols="12" md="4" class="p-1">
+            <v-col cols="12" md="4" class="p-2">
                 <div class="text-caption text-grey-darken-1 font-weight-bold">RAZÃO SOCIAL DO CLIENTE</div>
                 <div>
-                  <a href="#" class="text-primary font-weight-medium">{{ orcamento.cliente.nome }}</a>
+                  <a href="#" class="text-primary font-weight-regular">{{ orcamento.cliente.nome }}</a>
                 </div>
             </v-col>
-            <v-col cols="12" md="4" class="p-1">
+            <v-col cols="12" md="4" class="p-2">
               <div class="text-caption text-grey-darken-1 font-weight-bold">TEMPO DO CONTRATO</div>
-              <div class="font-weight-medium">{{ orcamento.tempo_contrato }} meses</div>
+              <div class="font-weight-regular">{{ orcamento.tempo_contrato }} meses</div>
             </v-col>
-            <v-col cols="12" md="4" class="p-1">
+            <v-col cols="12" md="4" class="p-2">
               <div class="text-caption text-grey-darken-1 font-weight-bold">STATUS</div>
-              <div class="font-weight-medium">{{ orcamento.status }}</div>
+              <div class="font-weight-regular">{{ orcamento.status }}</div>
             </v-col>
           </v-row>
         </v-card-text>
@@ -40,7 +40,7 @@
     <v-col cols="12">
       <v-card class="ma-3" elevation="0" rounded="lg" border>
         <v-card-item class="border-b mb-4 px-5 py-4">
-          <v-card-title class="text-h6">Cadastro de Site</v-card-title>
+          <v-card-title style="font-weight: 400; font-size: 16px;">Cadastro de Site</v-card-title>
         </v-card-item>
         <v-card-text>
           <v-form @submit.prevent="submitForm" ref="form">
@@ -722,20 +722,3 @@ const tratarErros = (errors) => {
 }
 </script>
 
-
-<style scoped>
-.tabler-datagrid {
-  font-family: var(--tblr-font-sans-serif);
-  font-size: 0.875rem;
-  font-size: 1rem;
-  font-weight: var(--tblr-font-weight-medium);
-  color: inherit;
-  line-height: 1.5rem;
-}
-
-.tabler-datagrid strong {
-  display: inline-block;
-  min-width: 120px;
-  color: #667382;
-}
-</style>

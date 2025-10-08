@@ -20,7 +20,7 @@ const vuetify = createVuetify({
   locale: {
     locale: 'pt',
     messages: { pt },
-  },
+  }
 })
 
 createInertiaApp({
