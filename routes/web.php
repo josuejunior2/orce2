@@ -96,6 +96,8 @@ Route::middleware(['auth:admin'])->group(function () {
     Route::put('updateFromTable/{site}', 'App\Http\Controllers\SiteController@updateFromTable')->name('site.table.update');
     Route::delete('destroyFromTable/{site}', 'App\Http\Controllers\SiteController@destroyFromTable')->name('site.table.destroy');
 
+    Route::get('site/import', 'App\Http\Controllers\SiteController@indexImport')->name('site.import.index');
+
     Route::post('cotacao/status/{cotacao}', [App\Http\Controllers\CotacaoController::class, 'altera_status'])->name('cotacao.altera.status');
     Route::get('cotacao/create/{siteOrcamento}', 'App\Http\Controllers\CotacaoController@create')->name('cotacao.create');
     Route::resource('cotacao', App\Http\Controllers\CotacaoController::class)->except(['create', 'show']);

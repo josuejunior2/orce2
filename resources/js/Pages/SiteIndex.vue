@@ -7,7 +7,7 @@
   </v-snackbar>
 
         <v-row class="align-center mb-3">
-            <v-col cols="12" md="10">
+            <v-col cols="12" md="9">
                 <v-text-field
                 v-model="search"
                 label="Pesquisar"
@@ -18,15 +18,43 @@
                 />
             </v-col>
 
-            <v-col cols="auto">
+            <v-col cols="12" md="3">
                 <v-btn
-                class="me-2"
-                prepend-icon="mdi-plus"
-                rounded="lg"
-                text="Novo Site"
-                color="primary"
-                @click="add"
+                    class="me-2"
+                    prepend-icon="mdi-plus"
+                    rounded="lg"
+                    text="Novo Site"
+                    color="primary"
+                    @click="add"
                 />
+                <v-btn
+                    class="me-2"
+                    rounded="lg"
+                    color="secondary"
+                    href="/site/import"
+                    style="text-decoration: none;"                
+                >
+                    <template #prepend>
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                        width="20" height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="icon icon-tabler icon-tabler-table-import me-2"
+                        >
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                        <path d="M12 21h-7a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v8" />
+                        <path d="M3 10h18" />
+                        <path d="M10 3v18" />
+                        <path d="M19 22v-6" />
+                        <path d="M22 19l-3 -3l-3 3" />
+                        </svg>
+                    </template>
+                    Importação
+                </v-btn>
             </v-col>
         </v-row>       
         <v-data-table-server
