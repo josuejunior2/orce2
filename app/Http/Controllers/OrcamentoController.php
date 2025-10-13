@@ -39,7 +39,7 @@ class OrcamentoController extends Controller
                 'created_at' => $orc->created_at,
                 'tipo_link' => $orc->tipo_link,
                 'tempo_contrato' => $orc->tempo_contrato,
-                'quantidade_sites' => !empty($orc->sites) ? $orc->sites->count() : 0,
+                'quantidade_sites' => !empty($orc->sitesOrcamento) ? $orc->sitesOrcamento()->whereNull('site_orcamento_id')->count() : 0,
                 'status' => \App\Models\Orcamento::getStatusTexto($orc->status),
             ];
         })->toArray();
