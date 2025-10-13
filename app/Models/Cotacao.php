@@ -37,7 +37,7 @@ class Cotacao extends Model
 
     const fibra = 1;
     const radio = 2;
-    const satelital = 2;
+    const satelital = 3;
 
     public static function getTecnologia(): array
     {
