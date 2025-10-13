@@ -83,7 +83,10 @@ class OrcamentoController extends Controller
      */
     public function show(Orcamento $orcamento)
     {
-        $coordenadasDecimal = $this->coordService->toDecimalForView($orcamento->sitesOrcamento);
+        $coordenadasDecimal = $this->coordService->toDecimalForView($orcamento->sitesOrcamento()->with('Site')->whereHas('Site', function($q) {
+            $q->whereNotNull('latitude');
+            $q->whereNotNull('longitude');
+        }));
         
         $colunas = ['nome', 'endereco', 'cidade', 'uf', 'latitude', 'longitude', 'vel_solicitada_down', 'vel_solicitada_up', 'barra'];
 
