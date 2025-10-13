@@ -10,11 +10,9 @@ class CoordService
      */
     public function toDecimalForView($sites)
     {
-        $coordenadas = $sites->whereNotNull('latitude')->whereNotNull('longitude');
-
         $coordDecimal = [];
 
-        $coordenadas->each(function ($item, $i) use (&$coordDecimal) {
+        $sites->each(function ($item, $i) use (&$coordDecimal) {
             $convertToDecimal = function ($coord) {
                 $degrees = $minutes = $seconds = 0;
                 $direction = '';
@@ -49,10 +47,10 @@ class CoordService
             };
         
             // Converte latitude e longitude
-            $coordDecimal[$i]['id'] = $item['id'];
-            $coordDecimal[$i]['nome'] = $item['nome'];
-            $coordDecimal[$i]['latitude'] = $convertToDecimal($item['latitude']);
-            $coordDecimal[$i]['longitude'] = $convertToDecimal($item['longitude']);
+            $coordDecimal[$i]['id'] = $item->id;
+            $coordDecimal[$i]['nome'] = $item->Site->nome;
+            $coordDecimal[$i]['latitude'] = $convertToDecimal($item->Site->latitude);
+            $coordDecimal[$i]['longitude'] = $convertToDecimal($item->Site->longitude);
         });
         // dd($coordDecimal);
         return $coordDecimal;

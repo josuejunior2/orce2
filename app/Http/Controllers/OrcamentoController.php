@@ -39,7 +39,7 @@ class OrcamentoController extends Controller
                 'created_at' => $orc->created_at,
                 'tipo_link' => $orc->tipo_link,
                 'tempo_contrato' => $orc->tempo_contrato,
-                'quantidade_sites' => !empty($orc->sites) ? $orc->sites->count() : 0,
+                'quantidade_sites' => !empty($orc->sitesOrcamento) ? $orc->sitesOrcamento()->whereNull('site_orcamento_id')->count() : 0,
                 'status' => \App\Models\Orcamento::getStatusTexto($orc->status),
             ];
         })->toArray();
@@ -83,7 +83,10 @@ class OrcamentoController extends Controller
      */
     public function show(Orcamento $orcamento)
     {
-        $coordenadasDecimal = $this->coordService->toDecimalForView($orcamento->sitesOrcamento);
+        $coordenadasDecimal = $this->coordService->toDecimalForView($orcamento->sitesOrcamento()->with('Site')->whereHas('Site', function($q) {
+            $q->whereNotNull('latitude');
+            $q->whereNotNull('longitude');
+        }));
         
         $colunas = ['nome', 'endereco', 'cidade', 'uf', 'latitude', 'longitude', 'vel_solicitada_down', 'vel_solicitada_up', 'barra'];
 
