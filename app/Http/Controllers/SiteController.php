@@ -7,9 +7,12 @@ use App\Models\Cidade;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Http\Requests\SearchSitesRequest;
+use App\Http\Requests\SiteImportRequest;
 use App\Http\Requests\SiteRequest;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\SiteImport;
 
 class SiteController extends Controller
 {
@@ -106,5 +109,23 @@ class SiteController extends Controller
     public function indexImport()
     {
         return Inertia::render('SiteImport');
+    }
+
+    public function storeImport(SiteImportRequest $request)
+    {
+        $dados = $request->validated();
+        $arquivo = $dados['sites_sheet'];
+        
+        try {
+            $sites = Excel::import(new SiteImport($dados['colunas']), $arquivo);
+        } catch (\Exception $e) {
+            Log::channel('main')->error($e->getMessage());
+            return redirect()->back()->withErrors($e->getMessage());
+        }
+        $nomeOriginal = $arquivo->getClientOriginalName();
+
+        $arquivo->move('uploads', $nomeOriginal);
+        
+        return back()->with('success', 'Importação realizada com sucesso!');
     }
 }

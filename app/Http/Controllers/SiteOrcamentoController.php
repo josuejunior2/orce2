@@ -10,7 +10,7 @@ use App\Models\Cidade;
 use Illuminate\Http\Request;
 use App\Http\Requests\SiteOrcamentoRequest;
 use App\Http\Requests\SiteSheetRequest;
-use App\Imports\SiteImport;
+use App\Imports\SiteOrcamentoImport;
 use App\Models\SiteOrcamentoServico;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Log;
@@ -125,7 +125,7 @@ class SiteOrcamentoController extends Controller
         $arquivo = $dados['sites_sheet'];
         
         try {
-            $sites = Excel::import(new SiteImport($orcamento, $dados['colunas']), $arquivo);
+            $sites = Excel::import(new SiteOrcamentoImport($orcamento, $dados['colunas']), $arquivo);
         } catch (\Exception $e) {
             Log::channel('main')->error($e->getMessage());
             return redirect()->back()->withErrors($e->getMessage());

@@ -1,6 +1,6 @@
 <template>
   <v-snackbar v-model="showSuccess" color="success" timeout="7000">
-    Site criado com sucesso!
+    Importação realizada com sucesso!
   </v-snackbar>
 
   <v-snackbar v-model="showError" color="error" timeout="7000">
@@ -84,8 +84,8 @@
         label="Arquivo"
         prepend-icon="mdi-paperclip"
         variant="outlined"
-        hide-details
         density="comfortable"
+        @update:modelValue="(file) => form.sites_sheet = file"
       />
 
       <v-btn color="success" @click="submitForm" :loading="form.processing">
@@ -116,6 +116,9 @@ const colunas = [
 // Estado reativo
 const qtdCols = ref(0)
 const colunasSelecionadas = ref([])
+const showSuccess = ref(false);
+const showError = ref(false);
+const errorMessage = ref('');
 
 // Letras do cabeçalho (A, B, C, ...)
 const colunasABC = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
@@ -143,6 +146,21 @@ const form = useForm({
 
 // Submissão
 const submitForm = () => {
-  form.post(route('siteOrcamento.store.sheet', { orcamento: 1 })) // ajuste o ID conforme necessário
+    console.log(form.sites_sheet, form) // Deve ser File ou array de File!
+  form.post(route('site.import.store'), {
+    // forceFormData: true,
+    onSuccess: () => {
+      showSuccess.value = true
+      form.reset()
+    },
+    onError: tratarErros
+  })
+}
+const tratarErros = (errors) => {
+  if (Object.keys(errors).length > 0) {
+    const firstError = Object.values(errors)[0]
+    errorMessage.value = Array.isArray(firstError) ? firstError[0] : firstError
+    showError.value = true
+  }
 }
 </script>

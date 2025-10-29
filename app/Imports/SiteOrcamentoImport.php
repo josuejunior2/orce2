@@ -5,22 +5,29 @@ namespace App\Imports;
 use App\Models\Site;
 use App\Models\Cidade;
 use App\Models\Estado;
+use App\Models\Orcamento;
+use App\Models\SiteOrcamento;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\ToCollection;
+use Maatwebsite\Excel\Concerns\WithValidation;
+use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
 
-class SiteImport implements ToCollection, SkipsEmptyRows
+class SiteOrcamentoImport implements ToCollection, SkipsEmptyRows
 {
     use Importable;
 
+    protected $orcamento;
     protected $colunas;
     protected $cidades;
     protected $estados;
 
-    public function __construct($colunas)
+    public function __construct(Orcamento $orcamento, $colunas)
     {
+        $this->orcamento = $orcamento;
         $this->colunas = $colunas;
         $this->cidades = Cidade::all();
         $this->estados = Estado::all();
@@ -89,6 +96,18 @@ class SiteImport implements ToCollection, SkipsEmptyRows
                         $dados['longitude'] = explode('\'', $dados['longitude'])[1];
                     }
                 }
+
+                if(array_key_exists('vel_solicitada_down', $dados)) {
+                    $dados['vel_solicitada_down'] = preg_replace('/[^0-9]/', '', $dados['vel_solicitada_down']);
+                }
+
+                if(array_key_exists('vel_solicitada_up', $dados)) {
+                    $dados['vel_solicitada_up'] = preg_replace('/[^0-9]/', '', $dados['vel_solicitada_up']);
+                }
+
+                if(array_key_exists('barra', $dados)) {
+                    $dados['barra'] = preg_replace('/[^0-9]/', '', $dados['barra']);
+                }
                 
 
                 DB::transaction(function () use ($cidade, $dados) {
@@ -104,6 +123,18 @@ class SiteImport implements ToCollection, SkipsEmptyRows
                             'longitude' => $dados['longitude'],
                             'endereco'  => $dados['endereco'] ?? null,
                         ]);
+                    
+                    SiteOrcamento::updateOrCreate(
+                        [
+                            'site_id'  => $site->id,
+                        ],
+                        [
+                            'site_id'               => $site->id,
+                            'vel_solicitada_down'   => $dados['vel_solicitada_down'] ?? null,
+                            'vel_solicitada_up'     => $dados['vel_solicitada_up'] ?? null,
+                            'barra'                 => $dados['barra'] ?? null,
+                        ]
+                    );
                 });
             }
             
