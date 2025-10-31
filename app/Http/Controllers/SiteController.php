@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Maatwebsite\Excel\Facades\Excel;
 use App\Models\Site;
 use App\Models\Cidade;
 use Illuminate\Http\Request;
@@ -11,7 +12,6 @@ use App\Http\Requests\SiteImportRequest;
 use App\Http\Requests\SiteRequest;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\SiteImport;
 
 class SiteController extends Controller

@@ -80,12 +80,12 @@
     <!-- Rodapé -->
     <v-card-actions class="d-flex justify-space-between">
       <v-file-input
-        v-model="form.sites_sheet"
         label="Arquivo"
         prepend-icon="mdi-paperclip"
         variant="outlined"
         density="comfortable"
-        @update:modelValue="(file) => form.sites_sheet = file"
+        @change="onFileChange"
+        ref="fileInput"
       />
 
       <v-btn color="success" @click="submitForm" :loading="form.processing">
@@ -99,7 +99,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useForm } from '@inertiajs/vue3'
 
 // Colunas fixas (vindas do backend originalmente)
@@ -119,6 +119,7 @@ const colunasSelecionadas = ref([])
 const showSuccess = ref(false);
 const showError = ref(false);
 const errorMessage = ref('');
+const fileInput = ref(null);
 
 // Letras do cabeçalho (A, B, C, ...)
 const colunasABC = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
@@ -141,17 +142,25 @@ const removeCol = () => {
 // Formulário via Inertia
 const form = useForm({
   sites_sheet: null,
-  colunas: colunasSelecionadas,
+  colunas: colunasSelecionadas
 })
 
+watch(colunasSelecionadas, (newVal) => {
+  form.colunas = [...newVal]
+}, { deep: true }) // observa mutações internas do array
+
+function onFileChange(event) {
+  form.sites_sheet = event.target.files[0];
+}
 // Submissão
 const submitForm = () => {
-    console.log(form.sites_sheet, form) // Deve ser File ou array de File!
+    console.log(colunasSelecionadas.value, form.colunas)
   form.post(route('site.import.store'), {
-    // forceFormData: true,
+    forceFormData: true,
     onSuccess: () => {
       showSuccess.value = true
-      form.reset()
+      colunasSelecionadas.value = [];
+      fileInput.value.reset()
     },
     onError: tratarErros
   })

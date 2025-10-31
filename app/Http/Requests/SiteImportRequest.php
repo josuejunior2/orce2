@@ -25,7 +25,8 @@ class SiteImportRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'colunas.*' => 'nullable',
+            'colunas' => 'array|required',
+            'colunas.*' => 'required',
             'sites_sheet' => 'required|mimes:xlsx'
         ];
     }
@@ -37,7 +38,6 @@ class SiteImportRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'required' => 'Por favor, selecione um arquivo.',
             'sites_sheet.mimes' => 'O arquivo deve ter a extensão .xlsx.',
         ];
     }

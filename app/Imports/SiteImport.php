@@ -51,10 +51,10 @@ class SiteImport implements ToCollection, SkipsEmptyRows
                 if(array_key_exists('uf', $dados)){
                     $estado = $this->estados->where('uf', $dados['uf'])->first();
                 }
-                
+
                 $cidade = null;
                 if(array_key_exists('cidade', $dados)){
-                    if(array_key_exists('uf', $dados)){
+                    if(array_key_exists('uf', $dados) && !empty($estado)){
                         try{
                             $cidade = Cidade::where('nome', $dados['cidade'])->where('estado_id', $estado->id)->firstOr(function () use($dados, $estado) {
                                 return Cidade::create([
@@ -94,12 +94,11 @@ class SiteImport implements ToCollection, SkipsEmptyRows
                 DB::transaction(function () use ($cidade, $dados) {
                     $site = Site::updateOrCreate(
                         [
-                            'nome'      => $dados['nome'],
-                            'cidade_id' => $cidade->id,
+                            'id_instalacao' => $dados['id_instalacao'],
+                            'nome'          => $dados['nome'],
+                            'cidade_id'     => $dados['cidade'],
                         ],
                         [
-                            'nome'      => $dados['nome'],
-                            'cidade_id' => $cidade->id,
                             'latitude'  => $dados['latitude'],
                             'longitude' => $dados['longitude'],
                             'endereco'  => $dados['endereco'] ?? null,

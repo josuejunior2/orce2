@@ -319,7 +319,7 @@ const props = defineProps({
 })
 
 const loadData = async ({ page, itemsPerPage, sortBy }) => {
-    const response = await axios.get('/getTableSites', {
+    const response = await axios.get('site/getTableSites', {
         params: {
         search: search.value,
         page,
