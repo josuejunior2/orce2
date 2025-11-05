@@ -3,6 +3,7 @@
 namespace App\Imports;
 
 use App\Models\Site;
+use App\Models\SiteOrcamento;
 use App\Models\Cidade;
 use App\Models\Estado;
 use Illuminate\Support\Collection;
@@ -18,10 +19,12 @@ class SiteImport implements ToCollection, SkipsEmptyRows
     protected $colunas;
     protected $cidades;
     protected $estados;
+    protected $orcamentoId;
 
-    public function __construct($colunas)
+    public function __construct($orcamentoId, $colunas)
     {
         $this->colunas = $colunas;
+        $this->orcamentoId = $orcamentoId;
         $this->cidades = Cidade::all();
         $this->estados = Estado::all();
     }
@@ -103,6 +106,16 @@ class SiteImport implements ToCollection, SkipsEmptyRows
                             'longitude' => $dados['longitude'],
                             'endereco'  => $dados['endereco'] ?? null,
                         ]);
+
+                    if(!empty($this->orcamentoId)) {
+                        SiteOrcamento::create([
+                            'orcamento_id'          =>      $this->orcamentoId,
+                            'site_id'               =>      $site->id,
+                            'vel_solicitada_down'   =>      !empty($dados['vel_solicitada_down']) ? $dados['vel_solicitada_down'] : '',
+                            'vel_solicitada_up'     =>      !empty($dados['vel_solicitada_up']) ? $dados['vel_solicitada_up'] : '',
+                            'barra'                 =>      !empty($dados['barra']) ? $dados['barra'] : '',
+                        ]);
+                    }
                 });
             }
             

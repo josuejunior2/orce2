@@ -210,4 +210,22 @@ class OrcamentoController extends Controller
             ]);
         });
     }
+    
+    public function getOrcamentos(Request $request)
+    {
+        $titulo = $request->input('titulo');
+
+        $orcamentos = Orcamento::where('titulo', 'like', '%' . $titulo . '%')
+            ->select('id', 'titulo', 'cliente_id', 'status')
+            ->with('Cliente', 'sitesOrcamento')
+            ->limit(10)
+            ->get()->map(function ($o) {
+            return [
+                'id' => $o->id,
+                'tituloDisplay' => $o->titulo . " | " . $o->Cliente->nome . " | " . $o->sitesOrcamento()->count() . " sites",
+            ];
+        })->toArray();
+
+        return response()->json($orcamentos);
+    }
 }

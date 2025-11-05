@@ -27,7 +27,8 @@ class SiteImportRequest extends FormRequest
         return [
             'colunas' => 'array|required',
             'colunas.*' => 'required',
-            'sites_sheet' => 'required|mimes:xlsx'
+            'sites_sheet' => 'required|mimes:xlsx',
+            'orcamento_id' => 'nullable|exists:orcamentos,id',
         ];
     }
 

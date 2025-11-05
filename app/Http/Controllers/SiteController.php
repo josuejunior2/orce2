@@ -115,9 +115,9 @@ class SiteController extends Controller
     {
         $dados = $request->validated();
         $arquivo = $dados['sites_sheet'];
-        
+        $dados['orcamento_id'] = $dados['orcamento_id'] ?? '';
         try {
-            $sites = Excel::import(new SiteImport($dados['colunas']), $arquivo);
+            $sites = Excel::import(new SiteImport($dados['orcamento_id'], $dados['colunas']), $arquivo);
         } catch (\Exception $e) {
             Log::channel('main')->error($e->getMessage());
             return redirect()->back()->withErrors($e->getMessage());
