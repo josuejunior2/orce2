@@ -222,7 +222,7 @@ class OrcamentoController extends Controller
             ->get()->map(function ($o) {
             return [
                 'id' => $o->id,
-                'tituloDisplay' => $o->titulo . " | " . $o->Cliente->nome . " | " . $o->sitesOrcamento()->count() . " sites",
+                'tituloDisplay' => $o->titulo . " | " . $o->Cliente->nome . " | " . $o->sitesOrcamento()->whereNull('site_orcamento_id')->count() . " sites",
             ];
         })->toArray();
 
