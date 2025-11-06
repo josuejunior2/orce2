@@ -49,4 +49,15 @@ class SiteImportRequest extends FormRequest
             'sites_sheet.mimes' => 'O arquivo deve ter a extensão .xlsx.',
         ];
     }
+
+    /**
+     * Get the messages array.
+     *
+     */
+    public function attributes(): array
+    {
+        return [
+            'sites_sheet' => 'arquivo',
+        ];
+    }
 }

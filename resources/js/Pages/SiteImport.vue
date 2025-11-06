@@ -74,8 +74,9 @@
                 prepend-icon="mdi-paperclip"
                 variant="outlined"
                 density="comfortable"
-                hide-details
                 @change="onFileChange"
+                :rules="[v => !!v || 'O arquivo é obrigatório']"
+                required
               />
             </v-col>
             <template v-if="novoOrcamento">
@@ -91,7 +92,7 @@
                   @update:search="buscarClientes"
                   variant="outlined"
                   density="comfortable"
-                  :return-object="false"
+                  :return-object="true"
                   autocomplete="off"
                   clearable
                   :rules="[v => !!v || 'Cliente é obrigatório']"
@@ -121,6 +122,7 @@
                   :min="1"
                   :rules="[v => !!v || 'Tempo do contrato é obrigatório']"
                   required
+                  autocomplete="off"
                 />
               </v-col>
 
@@ -165,6 +167,7 @@
                   :max="100"
                   :rules="[v => v !== null && v !== '' || 'Imposto é obrigatório']"
                   required
+                  autocomplete="off"
                 />
               </v-col>
             </template>
@@ -437,6 +440,7 @@ function onFileChange(event) {
 const submitForm = () => {
   if (novoOrcamento.value) {
     form.orcamento_id = null
+    dadosNovoOrcamento.value.cliente_id = dadosNovoOrcamento.value.cliente_id.id ?? dadosNovoOrcamento.value.cliente_id
     form.novo_orcamento = dadosNovoOrcamento.value
   } else {
     form.orcamento_id = orcamentoSelecionado.value?.id ?? null

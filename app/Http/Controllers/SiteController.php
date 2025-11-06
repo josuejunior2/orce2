@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Models\Site;
 use App\Models\Cidade;
+use App\Models\Orcamento;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Http\Requests\SearchSitesRequest;
@@ -113,13 +114,14 @@ class SiteController extends Controller
 
     public function storeImport(SiteImportRequest $request)
     {
-        $dados = $request->validated(); dd($dados);
+        $dados = $request->validated();
         $arquivo = $dados['sites_sheet'];
         $dados['orcamento_id'] = $dados['orcamento_id'] ?? '';
 
-        DB::transaction(function() use($dados){
-
-            Log::channel('main')->info('Site excluido.', ['site' => $site, 'user' => auth()->user()->nome]);
+        DB::transaction(function() use(&$dados){
+            $orcamento = Orcamento::create($dados['novo_orcamento']);
+            $dados['orcamento_id'] = $orcamento->id;
+            Log::channel('main')->info('Novo Orcamento cadastrado pela importacao de sites.', ['orcamento' => $orcamento, 'user' => auth()->user()->nome]);
         });
 
         try {
