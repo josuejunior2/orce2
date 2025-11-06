@@ -146,15 +146,7 @@
     </div>
     <div class="card m-3">
         <div class="card-header justify-content-between">
-            <ul class="nav nav-tabs card-header-tabs" data-bs-toggle="tabs" style="background: unset">
-                <li class="nav-item">
-                    <a href="#tab-sites" class="nav-link active" data-bs-toggle="tab" onclick="$('.mapa').show();"><h3>Lista de sites</h3></a>
-                </li>
-                <li class="nav-item">
-                    <a href="#tab-import" class="nav-link" data-bs-toggle="tab" onclick="$('.mapa').hide();"><h3>Importação</h3></a>
-                </li>
-            </ul>
-            <h3 class="card-title"></h3>
+            <h3 class="card-title">Lista de sites</h3>
             <div class="d-flex justify-content-between col-auto">
                 @if ($orcamento->tipo_link == 'l2l')
                     <span class="form-help align-self-center me-2" data-bs-toggle="popover" data-bs-placement="top" data-bs-content="<p>Caso deseje adicionar Pontas A, clique no botão 'Adicionar Ponta A' na parte superior.</p>" data-bs-html="true">?</span>
@@ -370,9 +362,6 @@
                 @endforeach
                 </div>
                 @endif
-            </div>
-            <div class="tab-pane" id="tab-import">
-                @include('orcamento.import-sites-sheet')
             </div>
         </div>
 
