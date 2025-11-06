@@ -10,7 +10,7 @@ class Cliente extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['nome', 'cnpj', 'telefone', 'email'];
+    protected $fillable = ['nome', 'telefone', 'email'];
 
     public function orcamentos(){
         return $this->hasMany('App\Models\Orcamento');

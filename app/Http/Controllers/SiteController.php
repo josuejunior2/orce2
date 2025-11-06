@@ -113,9 +113,15 @@ class SiteController extends Controller
 
     public function storeImport(SiteImportRequest $request)
     {
-        $dados = $request->validated();
+        $dados = $request->validated(); dd($dados);
         $arquivo = $dados['sites_sheet'];
         $dados['orcamento_id'] = $dados['orcamento_id'] ?? '';
+
+        DB::transaction(function() use($dados){
+
+            Log::channel('main')->info('Site excluido.', ['site' => $site, 'user' => auth()->user()->nome]);
+        });
+
         try {
             $sites = Excel::import(new SiteImport($dados['orcamento_id'], $dados['colunas']), $arquivo);
         } catch (\Exception $e) {

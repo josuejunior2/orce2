@@ -18,8 +18,9 @@
         <!-- Corpo -->
         <v-card-text>
           <v-row dense class="mt-2">
-            <v-col cols="12" md="6">
+            <v-col cols="12" md="4">
               <v-autocomplete
+                v-if="!novoOrcamento"
                 v-model="orcamentoSelecionado"
                 v-model:search="searchOrcamento"
                 :items="orcamentos"
@@ -45,10 +46,29 @@
                   />
                 </template>
               </v-autocomplete>
+
+              <v-text-field
+                v-else
+                v-model="dadosNovoOrcamento.titulo"
+                label="Título do orçamento"
+                variant="outlined"
+                density="comfortable"
+                :rules="[v => !!v || 'Título é obrigatório']"
+                required
+              />
+            </v-col>
+            <v-col cols="12" md="2">
+              <v-checkbox
+                v-model="novoOrcamento"
+                label="Novo orçamento"
+                density="compact"
+                hide-details
+              />
             </v-col>
 
             <v-col cols="12" md="6">
               <v-file-input
+                v-model="arquivoSelecionado"
                 ref="fileInput"
                 label="Arquivo"
                 prepend-icon="mdi-paperclip"
@@ -58,6 +78,96 @@
                 @change="onFileChange"
               />
             </v-col>
+            <template v-if="novoOrcamento">
+              <v-col cols="12" md="3">
+                <v-autocomplete
+                  v-model="dadosNovoOrcamento.cliente_id"
+                  v-model:search="searchCliente"
+                  :items="clientes"
+                  item-title="nomeDisplay"
+                  item-value="id"
+                  label="Selecionar cliente"
+                  :loading="loadingCliente"
+                  @update:search="buscarClientes"
+                  variant="outlined"
+                  density="comfortable"
+                  :return-object="false"
+                  autocomplete="off"
+                  clearable
+                  :rules="[v => !!v || 'Cliente é obrigatório']"
+                  required
+                >
+                  <template #no-data>
+                    <v-list-item
+                      v-if="searchCliente && searchCliente.length >= 2 && clientes.length == 0"
+                      title="Nenhum cliente encontrado"
+                    />
+                    <v-list-item
+                      v-else
+                      title="Digite pelo menos 2 caracteres para pesquisar"
+                    />
+                  </template>
+                </v-autocomplete>
+              </v-col>
+
+              <!-- Tempo do Contrato -->
+              <v-col cols="12" md="3">
+                <v-text-field
+                  v-model.number="dadosNovoOrcamento.tempo_contrato"
+                  type="number"
+                  label="Tempo do contrato (em meses)"
+                  variant="outlined"
+                  density="comfortable"
+                  :min="1"
+                  :rules="[v => !!v || 'Tempo do contrato é obrigatório']"
+                  required
+                />
+              </v-col>
+
+              <!-- Status -->
+              <v-col cols="12" md="3">
+                <v-select
+                  v-model="dadosNovoOrcamento.status"
+                  :items="statusOpcoes"
+                  item-title="title"
+                  item-value="value"
+                  label="Status"
+                  variant="outlined"
+                  density="comfortable"
+                  :rules="[v => !!v || 'Status é obrigatório']"
+                  required
+                >
+                  <template #item="{ props, item }">
+                    <v-list-item v-bind="props">
+                      <template #prepend>
+                        <v-icon :color="item.raw.color" size="small">mdi-circle</v-icon>
+                      </template>
+                    </v-list-item>
+                  </template>
+                  
+                  <template #selection="{ item }">
+                    <v-chip :color="item.raw.color" size="small" class="mr-2">
+                      {{ item.title }}
+                    </v-chip>
+                  </template>
+                </v-select>
+              </v-col>
+
+              <!-- Imposto -->
+              <v-col cols="12" md="3">
+                <v-text-field
+                  v-model.number="dadosNovoOrcamento.imposto"
+                  type="number"
+                  label="Imposto (%)"
+                  variant="outlined"
+                  density="comfortable"
+                  :min="0"
+                  :max="100"
+                  :rules="[v => v !== null && v !== '' || 'Imposto é obrigatório']"
+                  required
+                />
+              </v-col>
+            </template>
           </v-row>
         </v-card-text>
       </v-card>
@@ -124,8 +234,8 @@
                         v-bind="props"
                         :disabled="item.raw.disabled"
                       >
-                        <template #append v-if="item.raw.requerOrcamento && !orcamentoSelecionado">
-                          <span class="text-caption text-grey">(Selecione um orçamento)</span>
+                        <template #append v-if="item.raw.requerOrcamento">
+                          <span class="text-caption text-grey">(Selecione/crie um orçamento)</span>
                         </template>
                       </v-list-item>
                     </template>
@@ -179,10 +289,50 @@ const orcamentos = ref([])
 const loadingOrcamento = ref(false)
 const orcamentoSelecionado = ref(null)
 const searchOrcamento = ref('')
+const arquivoSelecionado = ref(null)
 
-// Letras do cabeçalho (A, B, C, ...)
 const colunasABC = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
 
+const novoOrcamento = ref(false)
+const dadosNovoOrcamento = ref({
+  titulo: '',
+  cliente_id: null,
+  tempo_contrato: null,
+  status: '',
+  imposto: null,
+})
+
+const clientes = ref([])
+const loadingCliente = ref(false)
+const searchCliente = ref('')
+
+const statusOpcoes = [
+  { value: '1', title: 'Em cotação', color: 'yellow' },
+  { value: '2', title: 'Enviado', color: 'blue' },
+  { value: '3', title: 'Aprovado', color: 'green' },
+  { value: '4', title: 'Sem viabilidade', color: 'red' },
+]
+
+const buscarClientes = async (nome) => {
+  if (!nome || nome.length < 2) {
+    if (!dadosNovoOrcamento.value.cliente_id) {
+      clientes.value = []
+    }
+    return
+  }
+  
+  loadingCliente.value = true
+  try {
+    const response = await axios.get('/cliente/getClientes', {
+      params: { nome },
+    })
+    clientes.value = response.data
+  } catch (error) {
+    console.error('Erro ao buscar clientes:', error)
+  } finally {
+    loadingCliente.value = false
+  }
+}
 const getColunasDisponiveis = (currentIndex) => {
   const todasColunas = []
   
@@ -203,8 +353,7 @@ const getColunasDisponiveis = (currentIndex) => {
     const jaSelecionada = colunasSelecionadas.value.some((selecionada, index) => 
       index !== currentIndex && selecionada === coluna
     )
-    
-    const disable = !orcamentoSelecionado.value || jaSelecionada
+    const disable = (!orcamentoSelecionado.value && !novoOrcamento.value) || jaSelecionada
     
     todasColunas.push({
       value: coluna,
@@ -255,24 +404,61 @@ const removeCol = () => {
 const form = useForm({
   sites_sheet: null,
   colunas: colunasSelecionadas,
-  orcamento_id: null
+  orcamento_id: null,
+  novo_orcamento: null,
 })
 
 watch(colunasSelecionadas, (newVal) => {
   form.colunas = [...newVal]
 }, { deep: true }) // observa mutações internas do array
 
+watch(novoOrcamento, (newVal) => {
+  if (newVal) {
+    orcamentoSelecionado.value = null
+    searchOrcamento.value = ''
+    orcamentos.value = []
+  } else {
+    dadosNovoOrcamento.value = {
+      titulo: '',
+      cliente_id: null,
+      tempo_contrato: null,
+      status: '',
+      imposto: null,
+    }
+    searchCliente.value = ''
+    clientes.value = []
+  }
+})
+
 function onFileChange(event) {
   form.sites_sheet = event.target.files[0];
 }
 // Submissão
 const submitForm = () => {
-  form.orcamento_id = orcamentoSelecionado.value.id ?? null;
+  if (novoOrcamento.value) {
+    form.orcamento_id = null
+    form.novo_orcamento = dadosNovoOrcamento.value
+  } else {
+    form.orcamento_id = orcamentoSelecionado.value?.id ?? null
+    form.novo_orcamento = null
+  }
+  
   form.post(route('site.import.store'), {
     forceFormData: true,
     onSuccess: () => {
       showSuccess.value = true
-      colunasSelecionadas.value = [];
+      colunasSelecionadas.value = []
+      qtdCols.value = 0
+      novoOrcamento.value = false
+      orcamentoSelecionado.value = null
+      arquivoSelecionado.value = null
+      dadosNovoOrcamento.value = {
+        titulo: '',
+        cliente_id: null,
+        tempo_contrato: null,
+        status: '',
+        imposto: null,
+      }
       fileInput.value.reset()
     },
     onError: tratarErros

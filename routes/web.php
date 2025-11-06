@@ -104,6 +104,7 @@ Route::middleware(['auth:admin'])->group(function () {
     Route::get('cotacao/create/{siteOrcamento}', 'App\Http\Controllers\CotacaoController@create')->name('cotacao.create');
     Route::resource('cotacao', App\Http\Controllers\CotacaoController::class)->except(['create', 'show']);
 
+    Route::get('cliente/getClientes', [App\Http\Controllers\ClienteController::class, 'getClientes'])->name('cliente.getClientes');
     Route::resource('cliente', App\Http\Controllers\ClienteController::class);
 
     Route::post('altera-status-home', [App\Http\Controllers\OrcamentoController::class, 'altera_status_home'])->name('orcamento.altera.status.home');

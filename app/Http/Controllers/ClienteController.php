@@ -97,4 +97,21 @@ class ClienteController extends Controller
         return redirect()->route('cliente.index');
     }
 
+    
+    public function getClientes(Request $request)
+    {
+        $nome = $request->input('nome');
+
+        $clientes = Cliente::where('nome', 'like', '%' . $nome . '%')
+            ->select('id', 'nome', 'email')
+            ->limit(10)
+            ->get()->map(function ($c) {
+            return [
+                'id' => $c->id,
+                'nomeDisplay' => $c->nome . (!empty($c->email) ? " | " . $c->email : ""),
+            ];
+        })->toArray();
+
+        return response()->json($clientes);
+    }
 }

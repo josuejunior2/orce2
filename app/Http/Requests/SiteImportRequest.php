@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+use App\Models\Orcamento;
 
 class SiteImportRequest extends FormRequest
 {
@@ -29,6 +31,11 @@ class SiteImportRequest extends FormRequest
             'colunas.*' => 'required',
             'sites_sheet' => 'required|mimes:xlsx',
             'orcamento_id' => 'nullable|exists:orcamentos,id',
+            'novo_orcamento' => 'nullable|array',
+            'novo_orcamento.titulo' => 'nullable',
+            'novo_orcamento.cliente_id' => 'nullable|exists:clientes,id',
+            'novo_orcamento.status' => ['nullable', Rule::in(Orcamento::getStatus())],
+            'novo_orcamento.imposto' => 'nullable',
         ];
     }
 
