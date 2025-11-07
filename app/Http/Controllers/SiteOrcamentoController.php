@@ -119,23 +119,23 @@ class SiteOrcamentoController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store_sheet(SiteSheetRequest $request, Orcamento $orcamento)
-    {
-        $dados = $request->validated();
-        $arquivo = $dados['sites_sheet'];
+    // public function store_sheet(SiteSheetRequest $request, Orcamento $orcamento)
+    // {
+    //     $dados = $request->validated();
+    //     $arquivo = $dados['sites_sheet'];
         
-        try {
-            $sites = Excel::import(new SiteOrcamentoImport($orcamento, $dados['colunas']), $arquivo);
-        } catch (\Exception $e) {
-            Log::channel('main')->error($e->getMessage());
-            return redirect()->back()->withErrors($e->getMessage());
-        }
-        $nomeOriginal = $arquivo->getClientOriginalName();
+    //     try {
+    //         $sites = Excel::import(new SiteOrcamentoImport($orcamento, $dados['colunas']), $arquivo);
+    //     } catch (\Exception $e) {
+    //         Log::channel('main')->error($e->getMessage());
+    //         return redirect()->back()->withErrors($e->getMessage());
+    //     }
+    //     $nomeOriginal = $arquivo->getClientOriginalName();
 
-        $arquivo->move('uploads', $nomeOriginal);
+    //     $arquivo->move('uploads', $nomeOriginal);
         
-        return redirect()->back()->with('success', 'Operação realizada com sucesso!');
-    }
+    //     return redirect()->back()->with('success', 'Operação realizada com sucesso!');
+    // }
     /**
      * Show the form for creating a new resource.
      */
