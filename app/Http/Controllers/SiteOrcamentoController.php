@@ -21,9 +21,6 @@ use Inertia\Inertia;
 
 class SiteOrcamentoController extends Controller
 {
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create(Orcamento $orcamento)
     {
         $cidades = Cidade::all()->map(function ($c) {
@@ -72,9 +69,7 @@ class SiteOrcamentoController extends Controller
 
         return response()->json($sites);
     }
-    /**
-     * Store a newly created resource in storage.
-     */
+
     public function store(SiteOrcamentoRequest $request)
     {
         $dados = $request->validated();
@@ -116,105 +111,6 @@ class SiteOrcamentoController extends Controller
 
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    // public function store_sheet(SiteSheetRequest $request, Orcamento $orcamento)
-    // {
-    //     $dados = $request->validated();
-    //     $arquivo = $dados['sites_sheet'];
-        
-    //     try {
-    //         $sites = Excel::import(new SiteOrcamentoImport($orcamento, $dados['colunas']), $arquivo);
-    //     } catch (\Exception $e) {
-    //         Log::channel('main')->error($e->getMessage());
-    //         return redirect()->back()->withErrors($e->getMessage());
-    //     }
-    //     $nomeOriginal = $arquivo->getClientOriginalName();
-
-    //     $arquivo->move('uploads', $nomeOriginal);
-        
-    //     return redirect()->back()->with('success', 'Operação realizada com sucesso!');
-    // }
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function createl2l(Orcamento $orcamento, $botao = null, $isPontaA = null)
-    {
-        if($isPontaA == null) { $isPontaA = false; }
-        $cidades = Cidade::all();
-        if(is_null($botao)){
-            return view('site.createL2L', ['orcamento' => $orcamento, 'cidades' => $cidades, 'isPontaA' => $isPontaA]);
-        }else {
-            return view('site.createL2L', ['orcamento' => $orcamento, 'cidades' => $cidades, 'botao' => $botao, 'isPontaA' => $isPontaA]);
-        }
-    }
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function createMais1PontaA(Orcamento $orcamento, $isPontaA)
-    {
-        $cidades = Cidade::all();
-        return view('site.createL2L', ['orcamento' => $orcamento, 'cidades' => $cidades, 'isPontaA' => $isPontaA]);
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function storel2l(SiteOrcamentoRequest $request)
-    {
-        $dados = $request->validated();
-        $site = Site::create($dados);
-        // dd($site);
-        Log::channel('main')->info('Novo site cadastrado.', [ 'cliente' => $site->Orcamento->Cliente, 'orcamento' => $site->Orcamento, 'site' => $site, 'user' => auth()->user()->nome]);
-
-        $quantidadeRealPontasA = $site->Orcamento->sitesOrcamento->filter(function ($site) { return Str::startsWith($site->nome, '(Ponta A)'); })->count();
-        $quantidadeRealSitesNormais = $site->Orcamento->sitesOrcamento->filter(function ($site) { return !Str::startsWith($site->nome, '(Ponta A)'); })->count();
-
-        $qtdeRestantePontasA = $site->Orcamento->quantidade_pontasA - $quantidadeRealPontasA;
-        if($qtdeRestantePontasA > 1){
-            $botao = 'Cadastrar próxima Ponta A ('.($qtdeRestantePontasA - 1).' restantes)';
-            $isPontaA = true;
-
-            return redirect()->route('siteOrcamento.create.l2l', ['orcamento' => $site->Orcamento, 'botao' => $botao, 'isPontaA' => $isPontaA]);
-        } else if($qtdeRestantePontasA == 1){
-            if($site->Orcamento->quantidade_sites > $quantidadeRealSitesNormais){ $botao = 'Finalizar cadastro de pontas A ('.$site->Orcamento->quantidade_sites.' sites restantes)'; }
-            if($site->Orcamento->quantidade_sites == $quantidadeRealSitesNormais){ $botao = 'Finalizar cadastro de pontas A'; }
-            $isPontaA = true;
-
-            return redirect()->route('siteOrcamento.create.l2l', ['orcamento' => $site->Orcamento, 'botao' => $botao, 'isPontaA' => $isPontaA]);
-        } else if($qtdeRestantePontasA == -1){ // nao ta funcionando TESTAR
-            $site->Orcamento->quantidade_pontasA += 1;
-            $site->Orcamento->save();
-            return redirect()->route('orcamento.show', $site->Orcamento);
-        }
-
-        $qtdeRestante = $site->Orcamento->quantidade_sites - $site->Orcamento->sitesOrcamento->count() + $site->Orcamento->quantidade_pontasA;
-
-
-        $botao = 'Cadastrar próximo site ('.$qtdeRestante.' restantes)';
-        // dd($botao);
-        if($qtdeRestante == 0){ // se nao tiver mais nenhum para cadastrar, mandar para o show orçamento
-            return redirect()->route('orcamento.show', $site->Orcamento);
-        } elseif($qtdeRestante == 1){
-            $botao = 'Finalizar Cadastro'; // porque o que estará na tela será o último
-            // $isPontaA = false;
-            // dd($isPontaA);
-
-            return redirect()->route('siteOrcamento.create.l2l', ['orcamento' => $site->Orcamento, 'botao' => $botao]);
-        } else if($qtdeRestante == -1){ // se for -1, significa que o user cadastra pelo botão adicionar site.
-            $site->Orcamento->quantidade_sites += 1;
-            $site->Orcamento->save();
-
-            return redirect()->route('orcamento.show', $site->Orcamento);
-        } else{ // se a qtdeRestante > 1, vai mandando pra rota create que uma hora fica == 1
-            return redirect()->route('siteOrcamento.create.l2l', ['orcamento' => $site->Orcamento, 'botao' => $botao]);
-        }
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(SiteOrcamento $siteOrcamento)
     {
         $cidades = Cidade::all()->map(function ($c) {
@@ -242,9 +138,6 @@ class SiteOrcamentoController extends Controller
         // return view('site.edit', ['site' => $site, 'cidades' => $cidades, 'servicos' => Servico::all()]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(SiteOrcamentoRequest $request, SiteOrcamento $siteOrcamento)
     {
         $dados = $request->validated();
@@ -304,9 +197,6 @@ class SiteOrcamentoController extends Controller
 
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(SiteOrcamento $siteOrcamento)
     {
         $this->middleware('permission:excluir site');
@@ -329,10 +219,7 @@ class SiteOrcamentoController extends Controller
         });
         return redirect()->route('orcamento.show', ['orcamento' => $orcamento]);
     }
-    
-    /**
-     * Remove the specified resource from storage.
-     */
+
     public function downloadModeloPlanilha()
     {
         $filePath = public_path('files/modelo_importacao_sites.xlsx');
