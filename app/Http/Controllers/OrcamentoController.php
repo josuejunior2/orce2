@@ -68,6 +68,8 @@ class OrcamentoController extends Controller
         $dados['cadastrar_sites'] = $request->boolean('cadastrar_sites');
         
         DB::transaction(function() use($dados, &$orcamento){
+            $dados['gear_noc'] = auth()->user()->Empresa->gear_noc;
+            $dados['custo_fixo_percent'] = auth()->user()->Empresa->custo_fixo_percent;
             $orcamento = Orcamento::create($dados);
             Log::channel('main')->info('Novo orçamento cadastrado.', ['orcamento' => $orcamento, 'cliente' => $orcamento->Cliente, 'user' => auth()->user()->nome]);
         });

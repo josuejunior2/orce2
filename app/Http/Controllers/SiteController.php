@@ -118,11 +118,15 @@ class SiteController extends Controller
         $arquivo = $dados['sites_sheet'];
         $dados['orcamento_id'] = $dados['orcamento_id'] ?? '';
 
-        DB::transaction(function() use(&$dados){
-            $orcamento = Orcamento::create($dados['novo_orcamento']);
-            $dados['orcamento_id'] = $orcamento->id;
-            Log::channel('main')->info('Novo Orcamento cadastrado pela importacao de sites.', ['orcamento' => $orcamento, 'user' => auth()->user()->nome]);
-        });
+        if(!empty($dados['novo_orcamento'])) {
+            DB::transaction(function() use(&$dados){
+                $dados['novo_orcamento']['gear_noc'] = auth()->user()->Empresa->gear_noc;
+                $dados['novo_orcamento']['custo_fixo_percent'] = auth()->user()->Empresa->custo_fixo_percent;                
+                $orcamento = Orcamento::create($dados['novo_orcamento']);
+                $dados['orcamento_id'] = $orcamento->id;
+                Log::channel('main')->info('Novo Orcamento cadastrado pela importacao de sites.', ['orcamento' => $orcamento, 'user' => auth()->user()->nome]);
+            });
+        }
 
         try {
             $sites = Excel::import(new SiteImport($dados['orcamento_id'], $dados['colunas']), $arquivo);

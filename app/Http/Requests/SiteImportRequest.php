@@ -36,6 +36,7 @@ class SiteImportRequest extends FormRequest
             'novo_orcamento.cliente_id' => 'nullable|exists:clientes,id',
             'novo_orcamento.status' => ['nullable', Rule::in(Orcamento::getStatus())],
             'novo_orcamento.imposto' => 'nullable',
+            'novo_orcamento.tempo_contrato' => 'nullable',
         ];
     }
 
