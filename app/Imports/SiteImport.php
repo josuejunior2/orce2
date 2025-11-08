@@ -108,9 +108,12 @@ class SiteImport implements ToCollection, SkipsEmptyRows
                         ]);
 
                     if(!empty($this->orcamentoId)) {
-                        SiteOrcamento::create([
-                            'orcamento_id'          =>      $this->orcamentoId,
+                        SiteOrcamento::updateOrCreate(
+                        [
                             'site_id'               =>      $site->id,
+                            'orcamento_id'          =>      $this->orcamentoId,
+                        ],
+                        [
                             'vel_solicitada_down'   =>      !empty($dados['vel_solicitada_down']) ? $dados['vel_solicitada_down'] : '',
                             'vel_solicitada_up'     =>      !empty($dados['vel_solicitada_up']) ? $dados['vel_solicitada_up'] : '',
                             'barra'                 =>      !empty($dados['barra']) ? $dados['barra'] : '',

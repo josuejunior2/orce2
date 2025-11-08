@@ -230,4 +230,17 @@ class OrcamentoController extends Controller
 
         return response()->json($orcamentos);
     }
+
+    public function siteImport(Orcamento $orcamento)
+    {
+        $orcamento->tituloDisplay = $orcamento->titulo . " | " . $orcamento->Cliente->nome . " | " . $orcamento->sitesOrcamento()->whereNull('site_orcamento_id')->count() . " sites";
+        
+        return Inertia::render('SiteImport', [
+            'orcamento' => [
+                'id' => $orcamento->id,
+                'titulo' => $orcamento->titulo,
+                'tituloDisplay' => $orcamento->tituloDisplay,
+            ],
+        ]);
+    }
 }

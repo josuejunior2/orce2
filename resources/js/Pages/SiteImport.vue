@@ -12,13 +12,13 @@
       <v-card class="ma-3 mt-4 mb-1" elevation="0" rounded="lg" border>
         <!-- Cabeçalho -->
         <v-card-item class="border-b tabler-datagrid pt-6 pb-6 pl-5 pr-8">
-          <v-card-title style="font-weight: 400; font-size: 16px;">Importação de Sites</v-card-title>
+          <v-card-title style="font-weight: 400; font-size: 16px;">Importação de Sites {{ props.orcamento ? ' em '+props.orcamento.titulo : '' }}</v-card-title>
         </v-card-item>
 
         <!-- Corpo -->
         <v-card-text>
           <v-row dense class="mt-2">
-            <v-col cols="12" md="4">
+            <v-col cols="12"  :md="props.orcamento ? 6 : 4">
               <v-autocomplete
                 v-if="!novoOrcamento"
                 v-model="orcamentoSelecionado"
@@ -34,6 +34,7 @@
                 :return-object="true"
                 autocomplete="off"
                 clearable
+                :disabled="!!props.orcamento"
               >
                 <template #no-data>
                   <v-list-item
@@ -57,7 +58,7 @@
                 required
               />
             </v-col>
-            <v-col cols="12" md="2">
+            <v-col cols="12" md="2" v-if="!props.orcamento">
               <v-checkbox
                 v-model="novoOrcamento"
                 label="Novo orçamento"
@@ -262,19 +263,19 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { useForm } from '@inertiajs/vue3'
 import axios from 'axios'
 
 // Colunas fixas (vindas do backend originalmente)
 const colunas = [
+  'id_instalacao',
   'nome',
   'endereco',
   'cidade',
   'uf',
   'latitude',
   'longitude',
-  'id_instalacao',
 ]
 const colunasSiteOrcamento = [
   'vel_solicitada_down',
@@ -432,6 +433,20 @@ watch(novoOrcamento, (newVal) => {
     clientes.value = []
   }
 })
+
+const props = defineProps({
+  orcamento: Object,
+});
+
+onMounted(() => {
+  if (props.orcamento) {
+    if (!orcamentos.value.some(o => o.id === props.orcamento.id)) {
+      orcamentos.value.unshift(props.orcamento)
+    }
+    orcamentoSelecionado.value = props.orcamento
+  }
+})
+
 
 function onFileChange(event) {
   form.sites_sheet = event.target.files[0];

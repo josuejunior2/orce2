@@ -79,6 +79,7 @@ Route::middleware(['auth:admin'])->group(function () {
 
     Route::get('orcamento/getOrcamentos', [App\Http\Controllers\OrcamentoController::class, 'getOrcamentos'])->name('orcamento.getOrcamentos');
     Route::post('orcamento/status/{orcamento}', [App\Http\Controllers\OrcamentoController::class, 'altera_status'])->name('orcamento.altera.status');
+    Route::get('orcamento/siteImport/{orcamento}', [App\Http\Controllers\OrcamentoController::class, 'siteImport'])->name('orcamento.site.import');
     Route::resource('orcamento', App\Http\Controllers\OrcamentoController::class);
 
     Route::get('/cidade', [App\Http\Controllers\CidadeController::class, 'index'])->name('cidade.index');
