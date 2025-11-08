@@ -114,9 +114,9 @@ class SiteImport implements ToCollection, SkipsEmptyRows
                             'orcamento_id'          =>      $this->orcamentoId,
                         ],
                         [
-                            'vel_solicitada_down'   =>      !empty($dados['vel_solicitada_down']) ? $dados['vel_solicitada_down'] : '',
-                            'vel_solicitada_up'     =>      !empty($dados['vel_solicitada_up']) ? $dados['vel_solicitada_up'] : '',
-                            'barra'                 =>      !empty($dados['barra']) ? $dados['barra'] : '',
+                            'vel_solicitada_down'   =>      !empty($dados['vel_solicitada_down']) ? $dados['vel_solicitada_down'] : null,
+                            'vel_solicitada_up'     =>      !empty($dados['vel_solicitada_up']) ? $dados['vel_solicitada_up'] : null,
+                            'barra'                 =>      !empty($dados['barra']) ? $dados['barra'] : null,
                         ]);
                     }
                 });
