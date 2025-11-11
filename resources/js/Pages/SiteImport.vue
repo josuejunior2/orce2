@@ -224,26 +224,32 @@
               <tr>
                 <td v-for="(col, index) in qtdCols" :key="'body-' + index" style="width: 200px; min-width: 200px; max-width: 200px; overflow: hidden;">
                   <v-select
-                    v-model="colunasSelecionadas[index]"
-                    :items="getColunasDisponiveis(index)"
-                    item-title="text"
-                    item-value="value"
-                    density="comfortable"
-                    variant="outlined"
-                    hide-details
-                    placeholder="Selecione..."
-                  >
-                    <template #item="{ props, item }">
-                      <v-list-item
-                        v-bind="props"
-                        :disabled="item.raw.disabled"
-                      >
-                        <template #append v-if="item.raw.requerOrcamento">
-                          <span class="text-caption text-grey">(Selecione/crie um orçamento)</span>
-                        </template>
-                      </v-list-item>
-                    </template>
-                  </v-select>
+                      v-model="colunasSelecionadas[index]"
+                      :items="getColunasDisponiveis(index)"
+                      item-title="text"
+                      item-value="value"
+                      density="comfortable"
+                      variant="outlined"
+                      hide-details
+                      placeholder="Selecione uma coluna"
+                    >
+                      <template #item="{ props, item }">
+                        <v-list-item v-bind="props" :disabled="item.raw.disabled">
+                          <template #title>
+                            <span>
+                              {{ item.raw.text }}
+                              <span v-if="item.raw.desc" class="text-grey text-caption" style="margin-left:8px;">
+                                {{ item.raw.desc }}
+                              </span>
+                            </span>
+                          </template>
+                          <template #append v-if="item.raw.requerOrcamento">
+                            <span class="text-caption text-grey">(Selecione/crie um orçamento)</span>
+                          </template>
+                        </v-list-item>
+                      </template>
+                    </v-select>
+
                 </td>
               </tr>
             </tbody>
@@ -266,22 +272,6 @@
 import { ref, watch, onMounted } from 'vue'
 import { useForm } from '@inertiajs/vue3'
 import axios from 'axios'
-
-// Colunas fixas (vindas do backend originalmente)
-const colunas = [
-  'id_instalacao',
-  'nome',
-  'endereco',
-  'cidade',
-  'uf',
-  'latitude',
-  'longitude',
-]
-const colunasSiteOrcamento = [
-  'vel_solicitada_down',
-  'vel_solicitada_up',
-  'barra',
-]
 
 const qtdCols = ref(0)
 const colunasSelecionadas = ref([])
@@ -337,38 +327,38 @@ const buscarClientes = async (nome) => {
     loadingCliente.value = false
   }
 }
+const colunasOpcoes = [
+  { value: 'id_instalacao', title: 'ID da Instalação', desc: 'ID único da instalação', requerOrcamento: false },
+  { value: 'nome', title: 'Nome', desc: 'Nome comercial ou fantasia', requerOrcamento: false },
+  { value: 'endereco', title: 'Endereço', desc: 'Rua, número, bairro', requerOrcamento: false },
+  { value: 'cidade', title: 'Cidade', desc: 'Nome da cidade', requerOrcamento: false },
+  { value: 'uf', title: 'UF', desc: 'Unidade Federativa do Estado', requerOrcamento: false },
+  { value: 'latitude', title: 'Latitude', desc: 'Latitude decimal', requerOrcamento: false },
+  { value: 'longitude', title: 'Longitude', desc: 'Longitude decimal', requerOrcamento: false },
+  { value: 'vel_solicitada_down', title: 'Download', desc: 'Mbps solicitados de download', requerOrcamento: true },
+  { value: 'vel_solicitada_up', title: 'Upload', desc: 'Mbps solicitados de upload', requerOrcamento: true },
+  { value: 'barra', title: 'Prefixo da máscara', desc: 'Inserir apenas o número', requerOrcamento: true },
+]
+
 const getColunasDisponiveis = (currentIndex) => {
-  const todasColunas = []
-  
-  colunas.forEach(coluna => {
-    const jaSelecionada = colunasSelecionadas.value.some((selecionada, index) => 
-      index !== currentIndex && selecionada === coluna
+  return colunasOpcoes.map((coluna) => {
+    const jaSelecionada = colunasSelecionadas.value.some(
+      (selecionada, index) => index !== currentIndex && selecionada === coluna.value
     )
-    
-    todasColunas.push({
-      value: coluna,
-      text: coluna,
-      disabled: jaSelecionada,
-      requerOrcamento: false
-    })
+
+    const disabled =
+      (coluna.requerOrcamento && !orcamentoSelecionado.value && !novoOrcamento.value) || jaSelecionada
+
+    return {
+      value: coluna.value,
+      text: coluna.title,
+      desc: coluna.desc,
+      disabled: disabled,
+      requerOrcamento: coluna.requerOrcamento,
+    }
   })
-  
-  colunasSiteOrcamento.forEach(coluna => {
-    const jaSelecionada = colunasSelecionadas.value.some((selecionada, index) => 
-      index !== currentIndex && selecionada === coluna
-    )
-    const disable = (!orcamentoSelecionado.value && !novoOrcamento.value) || jaSelecionada
-    
-    todasColunas.push({
-      value: coluna,
-      text: coluna,
-      disabled: disable,
-      requerOrcamento: true
-    })
-  })
-  
-  return todasColunas
 }
+
 
 const buscarOrcamentos = async (titulo) => {
   if (!titulo || titulo.length < 2) {
@@ -391,7 +381,7 @@ const buscarOrcamentos = async (titulo) => {
 
 // Funções de controle
 const addCol = () => {
-  const totalColunas = colunas.length + colunasSiteOrcamento.length
+  const totalColunas = colunasOpcoes.length
   if (qtdCols.value < totalColunas) {
     colunasSelecionadas.value.push('')
     qtdCols.value++
