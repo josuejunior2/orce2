@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
+use App\Services\CoordService;
 
 class SiteImport implements ToCollection, SkipsEmptyRows
 {
@@ -75,24 +76,9 @@ class SiteImport implements ToCollection, SkipsEmptyRows
                     $dados['cidade'] = $cidade->id;
                 }
 
-                if(array_key_exists('latitude', $dados)){
-                    if(str_contains($dados['latitude'], ' ')) {
-                        $dados['latitude'] = str_replace(" ", "", $dados['latitude']);
-                    }
-                    if(str_contains($dados['latitude'], '\'')) {
-                        $dados['latitude'] = explode('\'', $dados['latitude'])[1];
-                    }
-                }
-
-                if(array_key_exists('longitude', $dados)){
-                    if(str_contains($dados['longitude'], ' ')) {
-                        $dados['longitude'] = str_replace(" ", "", $dados['longitude']);
-                    }
-                    if(str_contains($dados['longitude'], '\'')) {
-                        $dados['longitude'] = explode('\'', $dados['longitude'])[1];
-                    }
-                }
-                
+                $coordService = new CoordService;
+                $dados['latitude'] = $coordService->convertToDecimal($dados['latitude']);
+                $dados['longitude'] = $coordService->convertToDecimal($dados['longitude']);
 
                 DB::transaction(function () use ($cidade, $dados) {
                     $site = Site::updateOrCreate(

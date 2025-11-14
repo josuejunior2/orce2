@@ -13,46 +13,60 @@ class CoordService
         $coordDecimal = [];
 
         $sites->each(function ($item, $i) use (&$coordDecimal) {
-            $convertToDecimal = function ($coord) {
-                $degrees = $minutes = $seconds = 0;
-                $direction = '';
-
-                if(!str_contains($coord, "°") || !str_contains($coord, "'")){
-                    if(str_contains($coord, ",")) return number_format((float) str_replace(',', '.', $coord), 7, '.', '');
-                    else return number_format((float) $coord, 7, '.', '');
-                }
-                
-                if (str_contains($coord, "°")) {
-                    [$degrees, $remainder] = explode("°", $coord);
-                }
-                if (str_contains($remainder, "'")) {
-                    [$minutes, $remainder] = explode("'", $remainder);
-                }
-                if (str_contains($remainder, "\"")) {
-                    [$seconds, $direction] = explode("\"", $remainder);
-                } else {
-                    $direction = $remainder; // Para casos sem segundos, o restante é a direção
-                }
-
-                // Calcula a coordenada decimal
-                $decimal = $degrees + ($minutes / 60) + ($seconds / 3600);
-                // dd($degrees . '     ' . ($minutes / 60) . '     ' . ($seconds / 3600) . '       '. $coord     .  ' ==' . $decimal);
-
-                // Ajusta o sinal de acordo com a direção (Sul ou Oeste)
-                if (str_contains($direction, "S") || str_contains($direction, "O") || str_contains($direction, "W")) {
-                    $decimal = -$decimal;
-                }
-
-                return number_format($decimal, 7, '.', '');
-            };
-        
-            // Converte latitude e longitude
             $coordDecimal[$i]['id'] = $item->id;
             $coordDecimal[$i]['nome'] = $item->Site->nome;
-            $coordDecimal[$i]['latitude'] = $convertToDecimal($item->Site->latitude);
-            $coordDecimal[$i]['longitude'] = $convertToDecimal($item->Site->longitude);
+            $coordDecimal[$i]['latitude'] = $this->convertToDecimal($item->Site->latitude);
+            $coordDecimal[$i]['longitude'] = $this->convertToDecimal($item->Site->longitude);
         });
-        // dd($coordDecimal);
+
         return $coordDecimal;
     }
+    
+    public function convertToDecimal($coord)
+    {
+        $coord = trim($coord);
+        $degrees = $minutes = $seconds = 0;
+        $direction = '';
+
+        // Caso decimal simples (sem ° ou ')
+        if (!str_contains($coord, "°") && !str_contains($coord, "'")) {
+            if (str_contains($coord, ",")) {
+                // substitui vírgula por ponto decimal
+                return number_format((float)str_replace(',', '.', $coord), 7, '.', '');
+            } else {
+                return number_format((float)$coord, 7, '.', '');
+            }
+        }
+
+        $remainder = '';
+
+        if (str_contains($coord, "°")) {
+            [$degrees, $remainder] = explode("°", $coord, 2);
+            $degrees = (float)str_replace(',', '.', trim($degrees));
+        }
+
+        if (str_contains($remainder, "'")) {
+            [$minutes, $remainder] = explode("'", $remainder, 2);
+            $minutes = (float)str_replace(',', '.', trim($minutes));
+        }
+
+        if (str_contains($remainder, "\"")) {
+            [$seconds, $direction] = explode("\"", $remainder, 2);
+            $seconds = (float)str_replace(',', '.', trim($seconds));
+            $direction = trim($direction);
+        } else {
+            $direction = trim($remainder); // Caso sem segundos, o resto é a direção
+            $seconds = 0;
+        }
+
+        $decimal = $degrees + ($minutes / 60) + ($seconds / 3600);
+
+        // Sinal negativo para Sul (S) e Oeste (O ou W)
+        if (str_contains(strtoupper($direction), "S") || str_contains(strtoupper($direction), "O") || str_contains(strtoupper($direction), "W")) {
+            $decimal = -$decimal;
+        }
+
+        return number_format($decimal, 7, '.', '');
+    }
+
 }
