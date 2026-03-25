@@ -12,7 +12,7 @@ class SiteOrcamento extends Model
 
     protected $table = 'site_orcamento';
 
-    protected $fillable = ['orcamento_id', 'site_id', 'site_orcamento_id', 'vel_solicitada_down', 'vel_solicitada_up', 'barra'];
+    protected $fillable = ['orcamento_id', 'site_id', 'site_orcamento_id', 'vel_solicitada_down', 'vel_solicitada_up', 'barra', 'tempo_contrato'];
 
     public function Site(){
         return $this->belongsTo('App\Models\Site')->withTrashed();

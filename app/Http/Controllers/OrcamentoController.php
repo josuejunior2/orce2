@@ -85,16 +85,89 @@ class OrcamentoController extends Controller
      */
     public function show(Orcamento $orcamento)
     {
-        $coordenadasDecimal = $this->coordService->toDecimalForView($orcamento->sitesOrcamento()->with('Site')->whereHas('Site', function($q) {
-            $q->whereNotNull('latitude');
-            $q->whereNotNull('longitude');
-        }));
+        // $coordenadasDecimal = $this->coordService->toDecimalForView($orcamento->sitesOrcamento()->with('Site')->whereHas('Site', function($q) {
+        //     $q->whereNotNull('latitude');
+        //     $q->whereNotNull('longitude');
+        // }));
         
-        $colunas = ['nome', 'endereco', 'cidade', 'uf', 'latitude', 'longitude', 'vel_solicitada_down', 'vel_solicitada_up', 'barra'];
+        // $colunas = ['nome', 'endereco', 'cidade', 'uf', 'latitude', 'longitude', 'vel_solicitada_down', 'vel_solicitada_up', 'barra'];
 
-        $sitesOrcamento = $orcamento->sitesOrcamento()->whereNull('site_orcamento_id')->get()->sortBy('nome');
+        // $sitesOrcamento = $orcamento->sitesOrcamento()->whereNull('site_orcamento_id')->get()->sortBy('nome');
 
-        return view('orcamento.show', ['orcamento' => $orcamento, 'sitesOrcamento' => $sitesOrcamento, 'coordenadasDecimal' => $coordenadasDecimal, 'servicos' => Servico::all(), 'colunas' => $colunas]);
+        // return view('orcamento.show', ['orcamento' => $orcamento, 'sitesOrcamento' => $sitesOrcamento, 'coordenadasDecimal' => $coordenadasDecimal, 'servicos' => Servico::all(), 'colunas' => $colunas]);
+
+        /**
+         * nome do site
+         * endereço
+         * velocidade
+         */
+        
+        $orcamento->load('Cliente');
+        $orcamento->status = Orcamento::getStatusTexto($orcamento->status);
+
+
+        $sitesOrcamento = $orcamento->sitesOrcamento()->whereDoesntHave('Subestacao')->with('Site')->get()->map(function ($s) {
+            return [
+                'id' => $s->id,
+                'site_id' => $s->Site->id,
+                'nome' => $s->Site->nome,
+                'endereco' => $s->endereco,
+                'cidade' => $s->Site->Cidade->nome,
+                'estado' => $s->Site->Cidade->Estado->uf,
+                'coords' => $s->Site->latitude . ", " . $s->Site->longitude,
+                'vel_solicitada_down' => $s->vel_solicitada_down,
+                'vel_solicitada_up' => $s->vel_solicitada_up,
+                'barra' => $s->barra,
+                'pontas' => $s->pontas->map(function($p){
+                    return [
+                        'id' => $p->id,
+                        'site_id' => $p->Site->id,
+                        'nome' => $p->Site->nome,
+                        'endereco' => $p->endereco,
+                        'cidade' => $p->Site->Cidade->nome,
+                        'estado' => $p->Site->Cidade->Estado->uf,
+                        'coords' => $p->Site->latitude . ", " . $p->Site->longitude,
+                        'vel_solicitada_down' => $p->vel_solicitada_down,
+                        'vel_solicitada_up' => $p->vel_solicitada_up,
+                        'barra' => $p->barra,
+                    ];
+                })->toArray(),
+                'cotacoes' => $s->cotacoes->map(function($c){
+                    return [
+                        'selecionar' => '',
+                        'id' => $c->id,
+                        'fornecedor' => $c->Fornecedor->nome,
+                        'custo_ativacao' => $c->custo_ativacao,
+                        'velocidade' => $c->vel_down . " Down / " . $c->vel_up . " Up",
+                        'tecnologia' => $c->getTecnologiaTexto($c->tecnologia),
+                        'adesao_fornecedor' => $c->adesao_fornecedor,
+                        'custo_operacional' => $c->custo_operacional,
+                        'mensal_imp' => $c->mensal_imp,
+                        'mensal_fornecedor' => $c->mensal_fornecedor,
+                        'custo_instalacao_imp' => $c->custo_instalacao_imp,
+                        'prazo_instalacao' => $c->prazo_instalacao,
+                        'prazo_instalacao_fornecedor' => $c->prazo_instalacao_fornecedor,
+                        'imposto_mensal' => $c->imposto_mensal,
+                        'imposto_adesao' => $c->imposto_adesao,
+                        'lucro_adesao' => $c->lucro_adesao,
+                        'lucro_liquido' => $c->lucro_liquido,
+                        'custo_fixo' => $c->custo_fixo,
+                    ];
+                })->toArray()
+            ];
+        })->toArray();
+        $servicos = Servico::all()->map(function ($s) {
+            return [
+                'id' => $s->id,
+                'nome' => $s->nome,
+            ];
+        })->toArray();
+
+        return Inertia::render('OrcamentoShow', [
+            'orcamento' => $orcamento,
+            'sitesOrcamentoArray' => $sitesOrcamento,
+            'servicos' => $servicos
+        ]);
     }
 
     /**
