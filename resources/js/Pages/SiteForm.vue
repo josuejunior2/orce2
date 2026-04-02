@@ -43,391 +43,11 @@
           <v-card-title style="font-weight: 400; font-size: 16px;">Cadastro de Site</v-card-title>
         </v-card-item>
         <v-card-text>
-          <v-form @submit.prevent="submitForm" ref="form">
-            <v-row>
-              <v-col v-if="!exibeCampos || siteSelecionado != null" :cols="siteSelecionado != null ? '3' : '12'" :md="siteSelecionado != null ? '3' : '12'">
-                <v-autocomplete
-                    v-model="siteSelecionado"
-                    v-model:search="searchInput"
-                    :items="sites"
-                    item-title="nomeDisplay"
-                    item-value="id"
-                    label="Pesquisar site"
-                    :loading="loading"
-                    @update:search="buscarSites"
-                    @update:modelValue="selecionaSite"
-                    variant="outlined"
-                    density="comfortable"
-                    class="no-border-radius-right"
-                    id="selectSites"
-                    :return-object="true"
-                    autocomplete="off"
-                >
-                    <template #no-data>
-                        <v-list-item
-                          v-if="searchInput && searchInput.length >= 2"
-                          @click="selecionarCriarNovoSite"
-                          title="Criar novo site"
-                        />
-                        <v-list-item
-                          v-else
-                          title="Digite pelo menos 2 caracteres para pesquisar pelo nome"
-                        />
-                    </template>
-                    <template #item="{ props, item }">
-                      <v-list-item v-bind="props" :disabled="item.raw.orcado">
-                        <template #append>
-                          <span v-if="item.raw.orcado" class="text-red-500 text-xs">
-                            (Já foi incluído no orçamento)
-                          </span>
-                        </template>
-                      </v-list-item>
-                    </template>
-                </v-autocomplete>
-              </v-col>
-              <v-col v-if="exibeCampos && siteSelecionado == null" cols="3" md="3">
-                  <v-text-field
-                    v-model="novoSite.nome"
-                    label="Nome do novo site"
-                    variant="outlined"
-                    density="comfortable"
-                    class="no-border-radius-right"
-                    :rules="[v => !!v || 'Nome é obrigatório']"
-                    required
-                    autocomplete="off"
-                    :error-messages="novoSite.errors.nome"
-                  />
-              </v-col>
-              <v-col v-if="exibeCampos" cols="2" md="2">
-                  <v-text-field
-                    v-model="novoSite.id_instalacao"
-                    label="ID da Instalação"
-                    variant="outlined"
-                    density="comfortable"
-                    hide-details
-                    class="no-border-radius-right"
-                    autocomplete="off"
-                    :error-messages="novoSite.errors.id_instalacao"
-                    :readonly="siteSelecionado != null"
-                  />
-              </v-col>
-              <v-col v-if="exibeCampos" cols="2" md="2">
-                <v-text-field
-                  v-model="novoSite.latitude"
-                  label="Latitude do novo site"
-                  variant="outlined"
-                  density="comfortable"
-                  hide-details="auto"
-                  class="no-border-radius-right"
-                  :rules="[v => validateCoords(v, 'lat', novoSite) || 'Formato inválido']"
-                  :hint="latConverted"
-                  autocomplete="off"
-                  :error-messages="novoSite.errors.latitude"
-                  :readonly="siteSelecionado != null"
-                />
-              </v-col>
-
-              <v-col v-if="exibeCampos" cols="2" md="2">
-                <v-text-field
-                  v-model="novoSite.longitude"
-                  label="Longitude do novo site"
-                  variant="outlined"
-                  density="comfortable"
-                  hide-details="auto"
-                  class="no-border-radius-right"
-                  :rules="[v => validateCoords(v, 'lon', novoSite) || 'Formato inválido']"
-                  :hint="lonConverted"
-                  autocomplete="off"
-                  :error-messages="novoSite.errors.longitude"
-                  :readonly="siteSelecionado != null"
-                />
-              </v-col>
-              <v-col v-if="exibeCampos" cols="3" md="3">
-                <v-autocomplete
-                  v-model="novoSite.cidade_id"
-                  :items="props.cidades"
-                  item-title="nome"
-                  item-value="id"
-                  label="Pesquisar cidade"
-                  :clearable="siteSelecionado == null"
-                  :return-object="false"
-                  variant="outlined"
-                  density="comfortable"
-                  class="no-border-radius-right"
-                  :rules="[v => !!v || 'Cidade é obrigatório']"
-                  required
-                  :error-messages="novoSite.errors.cidade_id"
-                  :readonly="siteSelecionado != null"
-                  autocomplete="off"
-                />
-              </v-col>
-              <v-col v-if="exibeCampos" cols="1" md="1">
-                <v-checkbox
-                  v-model="novoSite.is_subestacao"
-                  label="Subestação"
-                  density="compact"
-                  hide-details
-                  :checked="novoSite.is_subestacao"
-                />
-              </v-col>
-              <v-col v-if="exibeCampos" cols="4" md="4">
-                  <v-text-field
-                    v-model="novoSite.endereco"
-                    label="Endereço"
-                    variant="outlined"
-                    density="comfortable"
-                    hide-details
-                    class="no-border-radius-right"
-                    autocomplete="off"
-                    :error-messages="novoSite.errors.endereco"
-                    :readonly="siteSelecionado != null"
-                  />
-              </v-col>
-              <v-col v-if="exibeCampos" cols="3" md="3">
-                <v-autocomplete
-                  v-model="servicoSelecionado"
-                  :items="props.servicos"
-                  item-title="nome"
-                  item-value="id"
-                  label="Pesquisar serviço"
-                  clearable
-                  :return-object="false"
-                  multiple
-                  chips
-                  closable-chips
-                  variant="outlined"
-                  density="comfortable"
-                  hide-details
-                  class="no-border-radius-right"
-                  autocomplete="off"
-                  :error-messages="novoSite.errors.servicos"
-                />
-              </v-col>
-              <v-col v-if="exibeCampos" cols="12" sm="4">
-                  <div class="d-flex">
-                    <v-number-input
-                      v-model="novoSite.vel_solicitada_down"
-                      :min="0"
-                      placeholder="Mbps"
-                      label="Down"
-                      variant="outlined"
-                      density="comfortable"
-                      hide-details
-                      control-variant="hidden"
-                      class="no-border-radius-right"
-                      autocomplete="off"
-                  :error-messages="novoSite.errors.vel_solicitada_down"
-                    />
-
-                    <v-number-input
-                      v-model="novoSite.vel_solicitada_up"
-                      :min="0"
-                      placeholder="Mbps"
-                      label="Up"
-                      variant="outlined"
-                      density="comfortable"
-                      hide-details
-                      control-variant="hidden"
-                      class="no-border-radius"
-                      autocomplete="off"
-                  :error-messages="novoSite.errors.vel_solicitada_up"
-                    />
-
-                    <v-number-input
-                      v-model="novoSite.barra"
-                      :min="0"
-                      :max="32"
-                      label="/"
-                      variant="outlined"
-                      density="comfortable"
-                      hide-details
-                      class="no-border-radius-left"
-                      control-variant="hidden"
-                      autocomplete="off"
-                  :error-messages="novoSite.errors.barra"
-                    />
-                  </div>
-              </v-col>
-            </v-row>
-
-            <v-col v-if="novoSite.is_subestacao" cols="12">
-              <v-card
-                v-for="(ponta, index) in pontas"
-                :key="index"
-                class="mb-3"
-                elevation="0"
-                rounded="lg"
-                border
-              >
-                <v-card-title class="d-flex justify-space-between align-center">
-                  <span>Ponta {{ index + 1 }}</span>
-                  <v-btn
-                    icon="mdi-close"
-                    size="small"
-                    color="red"
-                    variant="text"
-                    @click="removerPonta(index)"
-                  />
-                </v-card-title>
-
-                <v-card-text>
-                  <v-row dense>
-                    <v-col cols="12" md="3">
-                      <v-text-field
-                        v-model="ponta.nome"
-                        label="Nome"
-                        density="compact"
-                        variant="outlined"
-                        :rules="[v => !!v || 'Nome é obrigatório']"
-                      />
-                    </v-col>
-
-                    <v-col cols="12" md="2">
-                      <v-text-field
-                        v-model="ponta.id_instalacao"
-                        label="ID da instalação"
-                        density="compact"
-                        variant="outlined"
-                      />
-                    </v-col>
-
-                    <!-- Latitude + Longitude -->
-                    <v-col cols="12" md="2">
-                      <v-text-field
-                        v-model="ponta.latitude"
-                        label="Latitude da ponta"
-                        variant="outlined"
-                        density="compact"
-                        hide-details="auto"
-                        class="no-border-radius-right"
-                        :rules="[v => validateCoords(v, 'lat', ponta) || 'Formato inválido']"
-                        :hint="latConverted"
-                        autocomplete="off"
-                        :error-messages="novoSite.errors.latitude"
-                      />
-                    </v-col>
-
-                    <v-col cols="12" md="2">
-                      <v-text-field
-                        v-model="ponta.longitude"
-                        label="Longitude da ponta"
-                        variant="outlined"
-                        density="compact"
-                        hide-details="auto"
-                        class="no-border-radius-right"
-                        :rules="[v => validateCoords(v, 'lon', ponta) || 'Formato inválido']"
-                        :hint="lonConverted"
-                        autocomplete="off"
-                        :error-messages="novoSite.errors.longitude"
-                      />
-                    </v-col>
-
-                    <!-- Cidade + Endereço -->
-                    <v-col cols="12" md="3">
-                        <v-autocomplete
-                          v-model="ponta.cidade_id"
-                          :items="props.cidades"
-                          item-title="nome"
-                          item-value="id"
-                          label="Pesquisar cidade"
-                          :clearable="siteSelecionado == null"
-                          :return-object="false"
-                          variant="outlined"
-                          density="compact"
-                          class="no-border-radius-right"
-                          :rules="[v => !!v || 'Cidade é obrigatório']"
-                          required
-                          :error-messages="novoSite.errors.cidade_id"
-                        />
-                    </v-col>
-
-                    <v-col cols="12" md="4">
-                      <v-text-field
-                        v-model="ponta.endereco"
-                        label="Endereço"
-                        density="compact"
-                        variant="outlined"
-                      />
-                    </v-col>
-
-                    <v-col cols="4" md="4">
-                        <v-autocomplete
-                          v-model="ponta.servicos"
-                          :items="props.servicos"
-                          item-title="nome"
-                          item-value="id"
-                          label="Pesquisar serviço"
-                          clearable
-                          :return-object="false"
-                          multiple
-                          chips
-                          closable-chips
-                          variant="outlined"
-                          density="compact"
-                          hide-details
-                          class="no-border-radius-right"
-                          autocomplete="off"
-                          :error-messages="novoSite.errors.servicos"
-                        />
-                    </v-col>
-
-                    <v-col cols="12" md="4">
-                      <div class="d-flex">
-                        <v-text-field
-                          v-model="ponta.vel_solicitada_up"
-                          :min="0"
-                          placeholder="Mbps"
-                          label="Down"
-                          variant="outlined"
-                          density="compact"
-                          hide-details
-                          control-variant="hidden"
-                          class="no-border-radius-right"
-                          autocomplete="off"
-                          :error-messages="novoSite.errors.vel_solicitada_down"
-                        />
-                        <v-text-field
-                          v-model="ponta.vel_solicitada_down"
-                          :min="0"
-                          placeholder="Mbps"
-                          label="Up"
-                          variant="outlined"
-                          density="compact"
-                          hide-details
-                          control-variant="hidden"
-                          class="no-border-radius"
-                          autocomplete="off"
-                          :error-messages="novoSite.errors.vel_solicitada_up"
-                        />
-                        <v-text-field
-                          v-model="ponta.barra"
-                          :min="0"
-                          :max="32"
-                          label="/"
-                          variant="outlined"
-                          density="compact"
-                          hide-details
-                          class="no-border-radius-left"
-                          control-variant="hidden"
-                          autocomplete="off"
-                          :error-messages="novoSite.errors.barra"
-                        />
-                      </div>
-                    </v-col>
-                  </v-row>
-                </v-card-text>
-              </v-card>
-
-              <v-btn
-                variant="outlined"
-                color="primary"
-                prepend-icon="mdi-plus"
-                @click="adicionarPonta"
-              >
-                Adicionar Ponta
-              </v-btn>
-            </v-col>
-          </v-form>
+          <FormSiteOrcamento
+            ref="formRef"
+            :cidades="props.cidades"
+            :servicos="props.servicos"
+          />
         </v-card-text>
 
         <!-- card-footer -->
@@ -443,6 +63,32 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
+import { useForm } from '@inertiajs/vue3'
+import FormSiteOrcamento from '@/Components/FormSiteOrcamento.vue'
+
+const props = defineProps({
+  orcamento: Object,
+  cidades: Array,
+  servicos: Array,
+  errors: Object,
+  siteOrcamento: { type: Object, default: null },
+  pontas: { type: Object, default: null },
+})
+
+const formRef = ref(null)
+
+async function submit() {
+  const valid = await formRef.value.validate()
+  if (!valid) return
+
+  const dados = formRef.value.getData()
+  useForm(dados).post(route('site.table.store'), {
+    preserveScroll: true,
+  })
+}
+</script>
+<!-- <script setup>
 import { ref, onMounted } from 'vue'
 import { useForm } from '@inertiajs/vue3'
 import axios from 'axios'
@@ -720,5 +366,5 @@ const tratarErros = (errors) => {
     showError.value = true
   }
 }
-</script>
+</script> -->
 

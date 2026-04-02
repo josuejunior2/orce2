@@ -82,6 +82,11 @@ Route::middleware(['auth:admin'])->group(function () {
     Route::get('orcamento/siteImport/{orcamento}', [App\Http\Controllers\OrcamentoController::class, 'siteImport'])->name('orcamento.site.import');
     Route::resource('orcamento', App\Http\Controllers\OrcamentoController::class);
 
+    // NOVO ORCAMENTO SHOW VUE
+    Route::post('siteOrcamento/storeFromTable', 'App\Http\Controllers\SiteOrcamentoController@storeFromTable')->name('siteOrcamento.table.store');
+    
+
+
     Route::get('/cidade', [App\Http\Controllers\CidadeController::class, 'index'])->name('cidade.index');
 
     Route::post('siteOrcamento/download/modelo/planilha', 'App\Http\Controllers\SiteOrcamentoController@downloadModeloPlanilha')->name('siteOrcamento.download.modelo.planilha');

@@ -9,6 +9,7 @@ use App\Models\Orcamento;
 use App\Models\Cidade;
 use Illuminate\Http\Request;
 use App\Http\Requests\SiteOrcamentoRequest;
+use App\Http\Requests\SiteOrcamentoFromTableRequest;
 use App\Http\Requests\SiteSheetRequest;
 use App\Imports\SiteOrcamentoImport;
 use App\Models\SiteOrcamentoServico;
@@ -224,5 +225,10 @@ class SiteOrcamentoController extends Controller
     {
         $filePath = public_path('files/modelo_importacao_sites.xlsx');
         return Response::download($filePath);
+    }
+
+    public function storeFromTable(SiteOrcamentoFromTableRequest $request)
+    {
+        dd($request->validated());
     }
 }

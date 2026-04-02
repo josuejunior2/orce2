@@ -46,12 +46,11 @@
           <v-row class="d-flex justify-md-end">
             <v-col col="12" md="3" class="d-flex justify-md-end">
               <v-btn
-                  class="me-2 text-right"
-                  prepend-icon="mdi-plus"
-                  rounded="lg"
-                  text="Novo Site"
-                  color="primary"
-                  @click="add"
+                prepend-icon="mdi-plus"
+                rounded="lg"
+                text="Novo Site"
+                color="primary"
+                @click="dialogSite.abrirCadastro()"
               />
             </v-col>
           </v-row>
@@ -151,173 +150,13 @@
       </v-card>
     </v-col>
   </v-row>
-  <v-dialog v-model="dialogFormSite" max-width="500">
-      <v-card
-          :title="`${isEditingSite ? 'Editar' : 'Cadastrar'} Site`"
-      >
-      <template v-slot:text>
-          <v-form @submit.prevent="submitFormSite" ref="form">
-              <v-row>
-                  <v-col cols="12" class="py-0 my-0">
-                      <v-text-field 
-                          v-model="formSite.nome" 
-                          label="Nome" 
-                          variant="outlined"
-                          density="comfortable"
-                          class="no-border-radius-right"
-                          :rules="[v => !!v || 'Nome é obrigatório']"
-                          required
-                          autocomplete="off"
-                      ></v-text-field>
-                  </v-col>
-                  
-                  <v-col cols="12" class="py-0 my-0">
-                      <v-checkbox
-                          v-model="formSite.is_subestacao"
-                          label="Subestação"
-                          variant="outlined"
-                          density="comfortable"
-                          class="py-0 my-0"
-                          hide-details
-                      />
-                  </v-col>
 
-                  <v-col cols="12" class="py-0 my-0">
-                      <v-text-field 
-                          v-model="formSite.id_instalacao" 
-                          label="ID da instalação" 
-                          variant="outlined"
-                          density="comfortable"
-                          class="no-border-radius-right"
-                          autocomplete="off"
-                      ></v-text-field>
-                  </v-col>
-
-                  <v-col cols="12" class="py-0 my-0">
-                      <v-text-field 
-                          v-model="formSite.endereco" 
-                          label="Endereço" 
-                          variant="outlined"
-                          density="comfortable"
-                          class="no-border-radius-right"
-                          autocomplete="off"
-                      ></v-text-field>
-                  </v-col>
-
-                  <v-col cols="12" md="6" class="py-0 my-0">
-                      <v-text-field
-                          v-model="formSite.latitude" 
-                          label="Latitude" 
-                          variant="outlined"
-                          density="comfortable"
-                          class="no-border-radius-right"
-                          autocomplete="off"
-                      ></v-text-field>
-                  </v-col>
-
-                  <v-col cols="12" md="6" class="py-0 my-0">
-                      <v-text-field
-                          v-model="formSite.longitude" 
-                          label="Longitude" 
-                          variant="outlined"
-                          density="comfortable"
-                          class="no-border-radius-right"
-                          autocomplete="off"
-                      ></v-text-field>
-                  </v-col>
-                  <v-col cols="12" class="py-0 my-0">
-                      <v-autocomplete
-                          v-model="formSite.cidade_id"
-                          :items="props.cidades"
-                          item-title="nome"
-                          item-value="id"
-                          label="Pesquisar cidade"
-                          :return-object="false"
-                          variant="outlined"
-                          density="comfortable"
-                          class="no-border-radius-right"
-                          :rules="[v => !!v || 'Cidade é obrigatório']"
-                          required
-                      />
-                  </v-col>
-                  <v-col cols="12" sm="12">
-                      <div class="d-flex">
-                        <v-number-input
-                          v-model="formSite.vel_solicitada_down"
-                          :min="0"
-                          placeholder="Mbps"
-                          label="Down"
-                          variant="outlined"
-                          density="comfortable"
-                          hide-details
-                          control-variant="hidden"
-                          class="no-border-radius-right"
-                          autocomplete="off"
-                          :error-messages="formSite.errors.vel_solicitada_down"
-                        />
-
-                        <v-number-input
-                          v-model="formSite.vel_solicitada_up"
-                          :min="0"
-                          placeholder="Mbps"
-                          label="Up"
-                          variant="outlined"
-                          density="comfortable"
-                          hide-details
-                          control-variant="hidden"
-                          class="no-border-radius"
-                          autocomplete="off"
-                          :error-messages="formSite.errors.vel_solicitada_up"
-                        />
-
-                        <v-number-input
-                          v-model="formSite.barra"
-                          :min="0"
-                          :max="32"
-                          label="/"
-                          variant="outlined"
-                          density="comfortable"
-                          hide-details
-                          class="no-border-radius-left"
-                          control-variant="hidden"
-                          autocomplete="off"
-                          :error-messages="formSite.errors.barra"
-                        />
-                      </div>
-                  </v-col>
-                  <v-col cols="12" md="12">
-                      <v-autocomplete
-                        v-model="formSite.servicos"
-                        :items="props.servicos"
-                        item-title="nome"
-                        item-value="id"
-                        label="Pesquisar serviço"
-                        clearable
-                        :return-object="false"
-                        multiple
-                        chips
-                        closable-chips
-                        variant="outlined"
-                        density="compact"
-                        hide-details
-                        class="no-border-radius-right"
-                        autocomplete="off"
-                        :error-messages="formSite.errors.servicos"
-                      />
-                  </v-col>
-              </v-row>
-          </v-form>
-      </template>
-
-      <v-card-actions class="bg-surface-light">
-          <v-btn text="Fechar" variant="plain" @click="dialogFormSite = false"></v-btn>
-
-          <v-spacer></v-spacer>
-
-          <v-btn text="Salvar" @click="submitFormSite"></v-btn>
-      </v-card-actions>
-      </v-card>
-  </v-dialog>
+  <DialogFormSiteOrcamento
+    ref="dialogSite"
+    :cidades="cidades"
+    :servicos="servicos"
+    :orcamento-id="orcamento.id"
+  />
   <DialogFormCotacao
     ref="dialogCotacao"
     :fornecedores="fornecedores"
@@ -331,11 +170,12 @@
 import { ref, shallowRef, computed } from 'vue'
 import { useForm } from '@inertiajs/vue3'
 import DialogFormCotacao from './DialogFormCotacao.vue'
+import DialogFormSiteOrcamento from './DialogFormSiteOrcamento.vue'
 
 const showSuccess = ref(false);
 const showError = ref(false);
 const errorMessage = ref('');
-const dialogFormSite = shallowRef(false);
+const dialogSite = ref(null)
 const props = defineProps({
   orcamento: Object,
   sitesOrcamentoArray: Array,
@@ -344,28 +184,19 @@ const props = defineProps({
   tecnologiaOpcoes: Array,
   statusOpcoes: Array,
   podePrecificar: Boolean,
+  cidades: Array,
 });
 
 const sitesOrcamento = ref(
   props.sitesOrcamentoArray.map(site => ({
     ...site,
-    cotacao_selecionada_id: site.cotacoes?.[0]?.id ?? null // seleciona a primeira por padrão
+    cotacao_selecionada_id: site.cotacoes?.[0]?.id ?? null
   }))
 )
 
 function cotacaoSelecionada(site) {
   return site.cotacoes?.find(c => c.id === site.cotacao_selecionada_id)
 }
-// const headers = ref([
-//   { title: 'Nome',    key: 'nome'       },
-//   { title: 'Endereco',  key: 'endereco'  },
-//   { title: 'Cidade', key: 'cidade' },
-//   { title: 'Estado',      key: 'estado'      },
-//   { title: 'Lat/Lng',     key: 'coords'     },
-//   { title: 'Down',     key: 'vel_solicitada_down'     },
-//   { title: 'Up',     key: 'vel_solicitada_up'     },
-//   { title: 'Barra',     key: 'barra'     },
-// ])
 
 // Colunas da tabela pai (sites)
 const headers = ref([
@@ -415,22 +246,6 @@ const headersCotacoes = ref([
 ])
 
 
-const formSite = useForm({
-    id: null,
-    nome: '',
-    endereco: '',
-    cidade_id: null,
-    latitude: '',
-    longitude: '',
-    id_instalacao: '',
-    is_subestacao: false,
-    vel_solicitada_down: null,
-    vel_solicitada_up: null,
-    barra: null,
-    servicos: []
-})
-
-const isEditingSite = computed(() => !!formSite.id)
 
 function add() {
     formSite.id = null;

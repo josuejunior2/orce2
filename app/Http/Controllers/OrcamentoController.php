@@ -7,6 +7,7 @@ use App\Models\Fornecedor;
 use App\Models\Cliente;
 use App\Models\Cotacao;
 use App\Models\Servico;
+use App\Models\Cidade;
 use App\Http\Requests\OrcamentoRequest;
 use App\Http\Requests\StatusRequest;
 use App\Http\Requests\OrcamentoRecalculateRequest;
@@ -103,6 +104,12 @@ class OrcamentoController extends Controller
          * velocidade
          */
         
+        $cidades = Cidade::all()->map(function ($c) {
+            return [
+                'id' => $c->id,
+                'nome' => $c->nome . " - " . $c->Estado->uf,
+            ];
+        })->toArray();
         $orcamento->load('Cliente');
         $orcamento->status = Orcamento::getStatusTexto($orcamento->status);
 
@@ -180,6 +187,7 @@ class OrcamentoController extends Controller
                     'label' => Cotacao::getStatusTexto($v)
                 ]),
             'podePrecificar' => auth()->user()->can('precificar orcamento'),
+            'cidades' => $cidades,
         ]);
     }
 
