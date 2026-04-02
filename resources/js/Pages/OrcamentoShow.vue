@@ -78,7 +78,12 @@
                       <v-toolbar density="compact" color="transparent">
                         <v-toolbar-title class="text-subtitle-2">Cotações</v-toolbar-title>
                         <v-spacer />
-                        <v-btn size="small" color="primary" prepend-icon="mdi-plus">
+                        <v-btn
+                          size="small"
+                          color="primary"
+                          prepend-icon="mdi-plus"
+                          @click="$refs.dialogCotacao.abrirCadastro(item.id)"
+                        >
                           Nova
                         </v-btn>
                       </v-toolbar>
@@ -313,11 +318,19 @@
       </v-card-actions>
       </v-card>
   </v-dialog>
+  <DialogFormCotacao
+    ref="dialogCotacao"
+    :fornecedores="fornecedores"
+    :tecnologia-opcoes="tecnologiaOpcoes"
+    :status-opcoes="statusOpcoes"
+    :pode-precificar="podePrecificar"
+  />
 </template>
 
 <script setup>
 import { ref, shallowRef, computed } from 'vue'
 import { useForm } from '@inertiajs/vue3'
+import DialogFormCotacao from './DialogFormCotacao.vue'
 
 const showSuccess = ref(false);
 const showError = ref(false);
@@ -326,7 +339,11 @@ const dialogFormSite = shallowRef(false);
 const props = defineProps({
   orcamento: Object,
   sitesOrcamentoArray: Array,
-  servicos: Array
+  servicos: Array,
+  fornecedores: Array,
+  tecnologiaOpcoes: Array,
+  statusOpcoes: Array,
+  podePrecificar: Boolean,
 });
 
 const sitesOrcamento = ref(

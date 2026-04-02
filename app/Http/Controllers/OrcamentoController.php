@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Orcamento;
 use App\Models\Fornecedor;
 use App\Models\Cliente;
+use App\Models\Cotacao;
 use App\Models\Servico;
 use App\Http\Requests\OrcamentoRequest;
 use App\Http\Requests\StatusRequest;
@@ -166,7 +167,19 @@ class OrcamentoController extends Controller
         return Inertia::render('OrcamentoShow', [
             'orcamento' => $orcamento,
             'sitesOrcamentoArray' => $sitesOrcamento,
-            'servicos' => $servicos
+            'servicos' => $servicos,
+            'fornecedores' => Fornecedor::select('id', 'nome')->get(),
+            'tecnologiaOpcoes' => collect(Cotacao::getTecnologia())
+                ->map(fn($v) => [
+                    'value' => $v,
+                    'label' => Cotacao::getTecnologiaTexto($v)
+                ]),
+            'statusOpcoes' => collect(Cotacao::getStatus())
+                ->map(fn($v) => [
+                    'value' => $v,
+                    'label' => Cotacao::getStatusTexto($v)
+                ]),
+            'podePrecificar' => auth()->user()->can('precificar orcamento'),
         ]);
     }
 
