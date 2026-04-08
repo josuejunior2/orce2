@@ -125,7 +125,7 @@ Route::middleware(['auth:admin'])->group(function () {
     
     Route::get('export/orcamento/{orcamento}', [App\Http\Controllers\OrcamentoController::class, 'export_orcamento'])->name('export.orcamento');
 
-    Route::get('/sites/getSites', [App\Http\Controllers\SiteOrcamentoController::class, 'getSites']);
+    Route::get('/sites/getSites', [App\Http\Controllers\SiteOrcamentoController::class, 'getSites'])->name('site.getSites');
 });
 
 // Route::resource('empresa', App\Http\Controllers\EmpresaController::class); // por enquanto não vou implementar, somente quando for prestar serviço para outro cliente.

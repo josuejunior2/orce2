@@ -380,7 +380,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useForm } from '@inertiajs/vue3'
 import axios from 'axios'
 
@@ -390,8 +390,10 @@ import axios from 'axios'
 const props = defineProps({
   cidades: { type: Array, required: true },
   servicos: { type: Array, required: true },
-  // site inicial para edição (opcional)
+  orcamento: { type: Object, required: true },
   site: { type: Object, default: null },
+  siteOrcamento: { type: Object, default: null },
+  pontas: { type: Object, default: null },
 })
 
 const emit = defineEmits(['submit', 'update:novoSite', 'update:pontas'])
@@ -412,6 +414,8 @@ const novoSite = useForm({
   vel_solicitada_up: props.site?.vel_solicitada_up ?? null,
   barra: props.site?.barra ?? null,
   servicos: props.site?.servicos ?? [],
+  orcamento_id: props.orcamento?.id ?? null,
+  pontas: []
 })
 
 // -------------------------------------------------------
@@ -427,7 +431,7 @@ const servicoSelecionado = ref(props.site?.servicos ?? [])
 async function buscarSites(val) {
   if (!val || val.length < 2) return
   loading.value = true
-  const { data } = await axios.get(route('site.search'), { params: { q: val } })
+  const { data } = await axios.get(route('site.getSites'), { params: { nome: val, orcamento_id: props.orcamento?.id } })
   sites.value = data
   loading.value = false
 }
@@ -435,20 +439,17 @@ async function buscarSites(val) {
 function selecionaSite(siteObj) {
   if (!siteObj) return
   exibeCampos.value = true
-  Object.assign(novoSite, {
-    nome: siteObj.nome,
-    endereco: siteObj.endereco,
-    cidade_id: siteObj.cidade_id,
-    latitude: siteObj.latitude,
-    longitude: siteObj.longitude,
-    id_instalacao: siteObj.id_instalacao,
-    is_subestacao: siteObj.is_subestacao,
-    vel_solicitada_down: siteObj.vel_solicitada_down,
-    vel_solicitada_up: siteObj.vel_solicitada_up,
-    barra: siteObj.barra,
-    servicos: siteObj.servicos ?? [],
-  })
-  servicoSelecionado.value = siteObj.servicos ?? []
+  novoSite.nome = siteObj.nome
+  novoSite.id_instalacao = siteObj.id_instalacao
+  novoSite.latitude = siteObj.latitude
+  novoSite.longitude = siteObj.longitude
+  novoSite.endereco = siteObj.endereco
+  novoSite.cidade_id = siteObj.cidade_id
+  exibeCampos.value = true
+  servicoSelecionado.value = null
+  novoSite.vel_solicitada_down = null
+  novoSite.vel_solicitada_up = null
+  novoSite.barra = null
 }
 
 function selecionarCriarNovoSite() {
@@ -569,9 +570,11 @@ function removerPonta(index) {
 // -------------------------------------------------------
 const form = ref(null)
 
-async function validate() {
-  const { valid } = await form.value.validate()
-  return valid
+async function validateForm() {
+  const result = await form.value.validate()
+
+  if (!result.valid) return false
+  return true
 }
 
 function getData() {
@@ -591,6 +594,50 @@ function reset() {
   servicoSelecionado.value = []
   pontas.value = []
 }
+function setDataFromOrcamento(siteOrcamento, pontasData) {
+  if (siteOrcamento) {
+    exibeCampos.value = true
 
-defineExpose({ validate, getData, reset, novoSite })
+    const site = siteOrcamento.site
+
+    servicoSelecionado.value = siteOrcamento.servicos_solicitados
+
+    novoSite.defaults({
+      nome: site.nome,
+      id_instalacao: site.id_instalacao,
+      latitude: site.latitude,
+      longitude: site.longitude,
+      endereco: site.endereco,
+      cidade_id: site.cidade_id,
+      vel_solicitada_down: siteOrcamento.vel_solicitada_down ? Number(siteOrcamento.vel_solicitada_down) : null,
+      vel_solicitada_up: siteOrcamento.vel_solicitada_up ? Number(siteOrcamento.vel_solicitada_up) : null,
+      barra: siteOrcamento.barra ? Number(siteOrcamento.barra) : null,
+      is_subestacao: Boolean(site.is_subestacao),
+      servicos: siteOrcamento.servicos_solicitados?.map(s => s.id) ?? [],
+    })
+
+    novoSite.reset()
+  }
+
+  if (pontasData) {
+    const pontasFormatadas = pontasData.map(p => ({
+      site_id: p.site.id,
+      site_orcamento_id: p.id,
+      nome: p.site.nome,
+      id_instalacao: p.site.id_instalacao,
+      latitude: p.site.latitude,
+      longitude: p.site.longitude,
+      cidade_id: p.site.cidade_id,
+      endereco: p.site.endereco,
+      vel_solicitada_down: p.vel_solicitada_down ? Number(p.vel_solicitada_down) : null,
+      vel_solicitada_up: p.vel_solicitada_up ? Number(p.vel_solicitada_up) : null,
+      barra: p.barra ? Number(p.barra) : null,
+      servicos: p.servicos_solicitados?.map(s => s.id) ?? []
+    }))
+
+    pontas.value = pontasFormatadas
+  }
+}
+
+defineExpose({ validateForm, getData, reset, novoSite, setDataFromOrcamento })
 </script>

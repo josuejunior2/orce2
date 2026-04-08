@@ -64,6 +64,7 @@ class SiteOrcamentoController extends Controller
                 'latitude' => $s->latitude,
                 'longitude' => $s->longitude,
                 'cidade_id' => $s->cidade_id,
+                'id_instalacao' => $s->id_instalacao,
                 'orcado'    => $s->sitesOrcamento()->where('orcamento_id', $idOrcamento)->exists()
             ];
         })->toArray();
@@ -74,7 +75,7 @@ class SiteOrcamentoController extends Controller
     public function store(SiteOrcamentoRequest $request)
     {
         $dados = $request->validated();
-        // dd($dados);
+
         DB::transaction(function() use($dados, &$siteOrcamento){
             $site = !empty($dados['site_id']) ? Site::find($dados['site_id']) : Site::create($dados);
 
