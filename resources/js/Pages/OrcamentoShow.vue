@@ -155,7 +155,7 @@
     ref="dialogSite"
     :cidades="cidades"
     :servicos="servicos"
-    :orcamento-id="orcamento.id"
+    :orcamento="orcamento"
   />
   <DialogFormCotacao
     ref="dialogCotacao"

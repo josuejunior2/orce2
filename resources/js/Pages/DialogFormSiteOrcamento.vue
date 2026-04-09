@@ -4,16 +4,21 @@
       <template v-slot:text>
         <FormSiteOrcamento
           ref="formRef"
-          :cidades="cidades"
-          :servicos="servicos"
-          :site="siteParaEditar"
+          :cidades="props.cidades"
+          :servicos="props.servicos"
+          :orcamento="props.orcamento"
         />
       </template>
 
       <v-card-actions class="bg-surface-light">
         <v-btn text="Fechar" variant="plain" @click="fechar" />
         <v-spacer />
-        <v-btn text="Salvar" color="primary" @click="submit" />
+        <v-btn
+          text="Salvar"
+          color="primary"
+          :loading="formRef?.novoSite?.processing"
+          @click="submit"
+        />
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -21,13 +26,12 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { useForm } from '@inertiajs/vue3'
 import FormSiteOrcamento from '../Components/FormSiteOrcamento.vue'
 
 const props = defineProps({
   cidades: { type: Array, required: true },
   servicos: { type: Array, required: true },
-  orcamentoId: { type: Number, required: true },
+  orcamento: Object,
 })
 
 const emit = defineEmits(['salvo'])
@@ -53,22 +57,38 @@ function fechar() {
   formRef.value?.reset()
 }
 
-async function submit() {
-  const valid = await formRef.value.validate()
-  if (!valid) return
+const tratarErros = (errors) => {
+  if (Object.keys(errors).length > 0) {
+    const firstError = Object.values(errors)[0]
+    errorMessage.value = Array.isArray(firstError) ? firstError[0] : firstError
+    showError.value = true
+  }
+}
 
-  const dados = formRef.value.getData()
-  const form = useForm({ ...dados, orcamento_id: props.orcamentoId })
+async function submit() {
+  const valid = await formRef.value.validateForm()
+  if (!valid) {
+    return
+  }
+
+  const novoSite = formRef.value.novoSite
+  novoSite.servicos = formRef.value.getData().servicos
+  novoSite.site_id = formRef.value.getData().site_id
+  novoSite.pontas = formRef.value.getData().pontas
 
   if (isEditing.value) {
-    form.put(route('site.table.update', dados.id), {
-      preserveScroll: true,
-      onSuccess: () => { fechar(); emit('salvo') },
+    novoSite.post(route('siteOrcamento.update', novoSite.id), {
+      onSuccess: () => {
+        fechar()
+      },
+      onError: tratarErros
     })
   } else {
-    form.post(route('site.table.store'), {
-      preserveScroll: true,
-      onSuccess: () => { fechar(); emit('salvo') },
+    novoSite.post(route('siteOrcamento.store'), {
+      onSuccess: () => {
+        fechar()
+      },
+      onError: tratarErros
     })
   }
 }
