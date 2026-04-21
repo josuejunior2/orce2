@@ -121,6 +121,7 @@ class OrcamentoController extends Controller
                 'nome' => $s->Site->nome,
                 'endereco' => $s->endereco,
                 'cidade' => $s->Site->Cidade->nome,
+                'cidade_id' => $s->Site->cidade_id,
                 'estado' => $s->Site->Cidade->Estado->uf,
                 'coords' => $s->Site->latitude . ", " . $s->Site->longitude,
                 'vel_solicitada_down' => $s->vel_solicitada_down,
@@ -133,6 +134,7 @@ class OrcamentoController extends Controller
                         'nome' => $p->Site->nome,
                         'endereco' => $p->endereco,
                         'cidade' => $p->Site->Cidade->nome,
+                        'cidade_id' => $p->Site->cidade_id,
                         'estado' => $p->Site->Cidade->Estado->uf,
                         'coords' => $p->Site->latitude . ", " . $p->Site->longitude,
                         'vel_solicitada_down' => $p->vel_solicitada_down,
@@ -175,7 +177,6 @@ class OrcamentoController extends Controller
             'orcamento' => $orcamento,
             'sitesOrcamentoArray' => $sitesOrcamento,
             'servicos' => $servicos,
-            'fornecedores' => Fornecedor::select('id', 'nome')->get(),
             'tecnologiaOpcoes' => collect(Cotacao::getTecnologia())
                 ->map(fn($v) => [
                     'value' => $v,

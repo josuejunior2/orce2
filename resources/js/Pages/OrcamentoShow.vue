@@ -81,7 +81,7 @@
                           size="small"
                           color="primary"
                           prepend-icon="mdi-plus"
-                          @click="$refs.dialogCotacao.abrirCadastro(item.id)"
+                          @click="$refs.dialogCotacao.abrirCadastro(item.id, item.cidade_id)"
                         >
                           Nova
                         </v-btn>
@@ -159,7 +159,6 @@
   />
   <DialogFormCotacao
     ref="dialogCotacao"
-    :fornecedores="fornecedores"
     :tecnologia-opcoes="tecnologiaOpcoes"
     :status-opcoes="statusOpcoes"
     :pode-precificar="podePrecificar"
@@ -180,7 +179,6 @@ const props = defineProps({
   orcamento: Object,
   sitesOrcamentoArray: Array,
   servicos: Array,
-  fornecedores: Array,
   tecnologiaOpcoes: Array,
   statusOpcoes: Array,
   podePrecificar: Boolean,

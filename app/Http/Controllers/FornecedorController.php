@@ -126,4 +126,32 @@ class FornecedorController extends Controller
         return redirect()->route('fornecedor.index');
     }
 
+    public function getFornecedores(Request $request)
+    {
+        $nome = $request->input('nome');
+        $fornecedores = Fornecedor::where('nome', 'like', '%' . $nome . '%')->get()->map(function ($fornecedor) {
+            return [
+                'id' => $fornecedor->id,
+                'nome' => $fornecedor->nome . (!empty($fornecedor->cnpj) ? " (" . $fornecedor->cnpj . ")" : ""),
+            ];
+        });
+        return response()->json($fornecedores);
+    }
+    
+
+    public function getFornecedoresDisponiveisParaCidade(Request $request)
+    {
+        $cidade_id = $request->input('cidade_id');
+
+        $fornecedores = Fornecedor::whereHas('cidades', function (Builder $query) use ($cidade_id) {
+            $query->where('fornecedor_cidade.cidade_id', $cidade_id);
+        })->get()->map(function ($fornecedor) {
+            return [
+                'id' => $fornecedor->id,
+                'nome' => $fornecedor->nome . (!empty($fornecedor->cnpj) ? " (" . $fornecedor->cnpj . ")" : ""),
+            ];
+        });
+
+        return response()->json(['fornecedores' => $fornecedores]);
+    }
 }

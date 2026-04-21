@@ -38,11 +38,6 @@ import axios from 'axios'
 // Props
 // -------------------------------------------------------
 const props = defineProps({
-  fornecedores: {
-    type: Array,
-    required: true,
-    // [{ id: 1, nome: 'Vivo' }, ...]
-  },
   tecnologiaOpcoes: {
     type: Array,
     required: true,
@@ -67,6 +62,7 @@ const props = defineProps({
 const dialogFormCotacao = ref(false)
 const isEditingCotacao = ref(false)
 const formCotacao = ref(null) // ref do v-form para validação
+const fornecedoresDisponiveis = ref([])
 
 const form = ref(null)
 
@@ -100,10 +96,19 @@ function novoForm(siteOrcamentoId) {
 // -------------------------------------------------------
 // Expõe para o pai chamar via template ref
 // -------------------------------------------------------
-function abrirCadastro(siteOrcamentoId) {
+async function abrirCadastro(siteOrcamentoId, cidadeId) {
   isEditingCotacao.value = false
   form.value = novoForm(siteOrcamentoId)
-  dialogFormCotacao.value = true
+  try {
+    const { data } = await axios.get(route('fornecedor.getFornecedoresDisponiveis'), {
+      params: { cidade_id: cidadeId }
+    })
+    fornecedoresDisponiveis.value = data.fornecedores
+  } catch (e) {
+    console.error('Erro ao buscar fornecedores:', e)
+  } finally {
+    dialogFormCotacao.value = true
+  }
 }
 
 function abrirEdicao(cotacao) {
