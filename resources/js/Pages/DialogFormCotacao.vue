@@ -10,6 +10,10 @@
           :tecnologia-opcoes="tecnologiaOpcoes"
           :status-opcoes="statusOpcoes"
           :pode-precificar="podePrecificar"
+          :servicos="servicos"
+          :gear-noc="gearNoc"
+          :custo-fixo-percent="custoFixoPercent"
+          :imposto="imposto"
         />
       </v-card-text>
 
@@ -53,6 +57,22 @@ const props = defineProps({
     type: Boolean,
     default: false,
     // equivalente ao @can('precificar orcamento') do blade
+  },
+  servicos : {
+    type: Array,
+    required: true,
+  },
+  gearNoc: {
+    type: Number,
+    required: true,
+  },
+  custoFixoPercent: {
+    type: Number,
+    required: true,
+  },
+  imposto: {
+    type: Number,
+    required: true,
   },
 })
 

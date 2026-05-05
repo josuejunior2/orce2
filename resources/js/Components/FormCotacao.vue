@@ -398,7 +398,6 @@
             hide-details
             control-variant="hidden"
             readonly
-            bg-color="surface-variant"
           />
         </v-col>
 
@@ -412,7 +411,6 @@
             hide-details
             control-variant="hidden"
             readonly
-            bg-color="surface-variant"
           />
         </v-col>
 
@@ -426,7 +424,6 @@
             hide-details
             control-variant="hidden"
             readonly
-            bg-color="surface-variant"
           />
         </v-col>
 
@@ -440,7 +437,6 @@
             hide-details
             control-variant="hidden"
             readonly
-            bg-color="surface-variant"
           />
         </v-col>
 
@@ -454,7 +450,6 @@
             hide-details
             control-variant="hidden"
             readonly
-            bg-color="surface-variant"
           />
         </v-col>
 
@@ -468,7 +463,6 @@
             hide-details
             control-variant="hidden"
             readonly
-            bg-color="surface-variant"
           />
         </v-col>
 
@@ -497,6 +491,8 @@ const props = defineProps({
   // cotação inicial para edição (opcional)
   cotacao:          { type: Object,  default: null   },
   fornecedoresDisponiveis: { type: Array, default: () => [] },
+  gearNoc:          { type: Number, required: true,  },
+  custoFixoPercent: { type: Number, required: true,  },
 })
 
 // -------------------------------------------------------
@@ -585,10 +581,11 @@ function recalcularTotais() {
 
   const porcent           = props.imposto / 100
   const mensal_forn       = Number(formCotacao.mensal_fornecedor)   || 0
+  const adesao_forn       = Number(formCotacao.adesao_fornecedor)   || 0
   const mensal_imp        = Number(formCotacao.mensal_imp)          || 0
   const custo_inst_imp    = Number(formCotacao.custo_instalacao_imp)|| 0
-  const adesao_forn       = Number(formCotacao.adesao_fornecedor)   || 0
-
+  const custo_ativacao    = Number(formCotacao.custo_ativacao)      || 0
+  
   const imposto_mensal    = mensal_imp * porcent
   const imposto_adesao    = custo_inst_imp * porcent
   const custo_operacional = mensal_forn + props.gearNoc
@@ -596,12 +593,12 @@ function recalcularTotais() {
   const lucro_liquido     = mensal_imp - custo_fixo - custo_operacional - imposto_mensal
   const lucro_adesao      = custo_inst_imp - adesao_forn - imposto_adesao
 
+  formCotacao.lucro_liquido     = parseFloat(lucro_liquido.toFixed(2))
   formCotacao.imposto_mensal    = parseFloat(imposto_mensal.toFixed(2))
   formCotacao.imposto_adesao    = parseFloat(imposto_adesao.toFixed(2))
+  formCotacao.lucro_adesao      = parseFloat(lucro_adesao.toFixed(2))
   formCotacao.custo_operacional = parseFloat(custo_operacional.toFixed(2))
   formCotacao.custo_fixo        = parseFloat(custo_fixo.toFixed(2))
-  formCotacao.lucro_liquido     = parseFloat(lucro_liquido.toFixed(2))
-  formCotacao.lucro_adesao      = parseFloat(lucro_adesao.toFixed(2))
 }
 
 // recalcula automaticamente quando os campos de precificação mudam

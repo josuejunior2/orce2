@@ -173,6 +173,9 @@ class OrcamentoController extends Controller
             ];
         })->toArray();
 
+        $gear_noc = (int) $orcamento->gear_noc ?? (int) auth()->user()->Empresa->gear_noc;
+        $custo_fixo_percent = $orcamento->custo_fixo_percent ?? auth()->user()->Empresa->custo_fixo_percent;
+
         return Inertia::render('OrcamentoShow', [
             'orcamento' => $orcamento,
             'sitesOrcamentoArray' => $sitesOrcamento,
@@ -189,6 +192,8 @@ class OrcamentoController extends Controller
                 ]),
             'podePrecificar' => auth()->user()->can('precificar orcamento'),
             'cidades' => $cidades,
+            'gearNoc' => $gear_noc,
+            'custoFixoPercent' => $custo_fixo_percent,
         ]);
     }
 

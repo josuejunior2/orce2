@@ -162,6 +162,10 @@
     :tecnologia-opcoes="tecnologiaOpcoes"
     :status-opcoes="statusOpcoes"
     :pode-precificar="podePrecificar"
+    :servicos="servicos"
+    :gear-noc="gearNoc"
+    :custo-fixo-percent="custoFixoPercent"
+    :imposto="orcamento.imposto"
   />
 </template>
 
@@ -183,6 +187,8 @@ const props = defineProps({
   statusOpcoes: Array,
   podePrecificar: Boolean,
   cidades: Array,
+  gearNoc: Number,
+  custoFixoPercent: Number,
 });
 
 const sitesOrcamento = ref(
