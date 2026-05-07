@@ -5,7 +5,7 @@
       <v-card-text class="pt-4">
         <FormCotacao
           ref="formCotacao"
-          v-model="form"
+          v-if="formMontado"
           :fornecedoresDisponiveis="fornecedoresDisponiveis"
           :tecnologia-opcoes="tecnologiaOpcoes"
           :status-opcoes="statusOpcoes"
@@ -21,10 +21,9 @@
         <v-btn text="Fechar" variant="plain" @click="fechar" />
         <v-spacer />
         <v-btn
-          v-if="form"
           text="Salvar"
           color="primary"
-          :loading="form.processing"
+          :loading="formCotacao?.formCotacao?.processing"
           @click="submitFormCotacao"
         />
       </v-card-actions>
@@ -33,92 +32,31 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useForm } from '@inertiajs/vue3'
+import { ref, nextTick } from 'vue'
 import FormCotacao from '../Components/FormCotacao.vue'
 import axios from 'axios'
 
-// -------------------------------------------------------
-// Props
-// -------------------------------------------------------
 const props = defineProps({
-  tecnologiaOpcoes: {
-    type: Array,
-    required: true,
-    // [{ value: 1, label: 'Fibra Óptica' }, ...]
-    // Monte isso no controller e passe via Inertia::share ou direto na page
-  },
-  statusOpcoes: {
-    type: Array,
-    required: true,
-    // [{ value: 1, label: 'Em análise' }, ...]
-  },
-  podePrecificar: {
-    type: Boolean,
-    default: false,
-    // equivalente ao @can('precificar orcamento') do blade
-  },
-  servicos : {
-    type: Array,
-    required: true,
-  },
-  gearNoc: {
-    type: Number,
-    required: true,
-  },
-  custoFixoPercent: {
-    type: Number,
-    required: true,
-  },
-  imposto: {
-    type: Number,
-    required: true,
-  },
+  tecnologiaOpcoes: { type: Array, required: true },
+  statusOpcoes:     { type: Array, required: true },
+  podePrecificar:   { type: Boolean, default: false },
+  servicos:         { type: Array, required: true },
+  gearNoc:          { type: Number, required: true },
+  custoFixoPercent: { type: Number, required: true },
+  imposto:          { type: Number, required: true },
 })
 
-// -------------------------------------------------------
-// Estado interno
-// -------------------------------------------------------
-const dialogFormCotacao = ref(false)
-const isEditingCotacao = ref(false)
-const formCotacao = ref(null) // ref do v-form para validação
+const dialogFormCotacao  = ref(false)
+const isEditingCotacao   = ref(false)
+const formCotacao        = ref(null) // ref do componente <FormCotacao>
 const fornecedoresDisponiveis = ref([])
-
-const form = ref(null)
-
-function novoForm(siteOrcamentoId) {
-  return useForm({
-    site_orcamento_id: siteOrcamentoId,
-    fornecedor_id: null,
-    status: null,
-    tecnologia: null,
-    vel_down: 0,
-    vel_up: 0,
-    barra: 0,
-    adesao_fornecedor: 0,
-    mensal_fornecedor: 0,
-    custo_ativacao: 8500,
-    prazo_instalacao_fornecedor: '',
-    // precificação
-    mensal_imp: 0,
-    custo_instalacao_imp: 0,
-    prazo_instalacao: '',
-    // calculados (readonly)
-    imposto_mensal: 0,
-    imposto_adesao: 0,
-    custo_operacional: 0,
-    custo_fixo: 0,
-    lucro_adesao: 0,
-    lucro_liquido: 0,
-  })
-}
+const formMontado = ref(false)
 
 // -------------------------------------------------------
 // Expõe para o pai chamar via template ref
 // -------------------------------------------------------
 async function abrirCadastro(siteOrcamentoId, cidadeId) {
   isEditingCotacao.value = false
-  form.value = novoForm(siteOrcamentoId)
   try {
     const { data } = await axios.get(route('fornecedor.getFornecedoresDisponiveis'), {
       params: { cidade_id: cidadeId }
@@ -126,37 +64,46 @@ async function abrirCadastro(siteOrcamentoId, cidadeId) {
     fornecedoresDisponiveis.value = data.fornecedores
   } catch (e) {
     console.error('Erro ao buscar fornecedores:', e)
-  } finally {
-    dialogFormCotacao.value = true
   }
+  dialogFormCotacao.value = true
+  // popula o filho depois que o diálogo (e o componente) já estão montados
+  await nextTick()
+  formMontado.value = true
+  formCotacao.value.populate({ site_orcamento_id: siteOrcamentoId })
 }
 
 function abrirEdicao(cotacao) {
   isEditingCotacao.value = true
-  form.value = useForm({ ...cotacao })
   dialogFormCotacao.value = true
-}
-
-function fechar() {
-  dialogFormCotacao.value = false
-  form.value = null
+  nextTick(() => formCotacao.value.populate(cotacao))
 }
 
 async function submitFormCotacao() {
-  const { valid } = await formCotacao.value.validate()
+  const valid = await formCotacao.value.validateForm()
   if (!valid) return
 
+  const dados = formCotacao.value.getData()
+  const inertiaForm = formCotacao.value.formCotacao
+
+  inertiaForm.fornecedor_id = dados.fornecedor_id
+  inertiaForm.servicos      = dados.servicos_adicionais
+
   if (isEditingCotacao.value) {
-    form.value.put(route('cotacao.update', form.value.id), {
+    inertiaForm.put(route('cotacao.update', inertiaForm.id), {
       preserveScroll: true,
       onSuccess: fechar,
     })
   } else {
-    form.value.post(route('cotacao.store'), {
+    inertiaForm.post(route('cotacao.store'), {
       preserveScroll: true,
       onSuccess: fechar,
     })
   }
+}
+
+function fechar() {
+  dialogFormCotacao.value = false
+  formCotacao.value?.reset()
 }
 
 defineExpose({ abrirCadastro, abrirEdicao })

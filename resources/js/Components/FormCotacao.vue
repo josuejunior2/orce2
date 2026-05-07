@@ -5,12 +5,12 @@
       <!-- Fornecedor -->
       <v-col cols="12" md="3" class="py-0 my-0">
         <v-autocomplete
-          v-model="formCotacao.fornecedor_id"
+          v-model="fornecedorSelecionado"
           :items="fornecedores"
           item-title="nome"
           item-value="id"
           label="Fornecedor"
-          :return-object="false"
+          :return-object="true"
           variant="outlined"
           density="comfortable"
           :rules="[v => !!v || 'Fornecedor é obrigatório']"
@@ -22,13 +22,13 @@
       </v-col>
 
       <!-- Status -->
-      <v-col cols="12" md="3" class="py-0 my-0">
+      <v-col cols="12" md="1" class="py-0 my-0">
         <v-select
           v-model="formCotacao.status"
           :items="statusOpcoes"
           item-title="label"
           item-value="value"
-          label="Status da Cotação"
+          label="Status"
           variant="outlined"
           density="comfortable"
           :rules="[v => !!v || 'Status é obrigatório']"
@@ -38,7 +38,7 @@
       </v-col>
 
       <!-- Prazo instalação fornecedor -->
-      <v-col cols="12" md="3" class="py-0 my-0">
+      <v-col cols="12" md="2" class="py-0 my-0">
         <v-text-field
           v-model="formCotacao.prazo_instalacao_fornecedor"
           label="Prazo de Instalação Fornecedor"
@@ -52,9 +52,6 @@
 
       <!-- Tecnologia -->
       <v-col cols="12" md="3" class="py-0 my-0">
-        <p class="text-caption text-medium-emphasis mb-1">
-          Tecnologia <span class="text-error">*</span>
-        </p>
         <v-radio-group
           v-model="formCotacao.tecnologia"
           inline
@@ -73,8 +70,7 @@
       </v-col>
 
       <!-- Velocidades -->
-      <v-col cols="12" md="4" class="py-0 my-0 mt-2">
-        <p class="text-caption text-medium-emphasis mb-1">Velocidade</p>
+      <v-col cols="12" md="3" class="py-0 my-0 mt-2">
         <div class="d-flex">
           <v-number-input
             v-model="formCotacao.vel_down"
@@ -473,7 +469,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, nextTick } from 'vue'
 import { useForm } from '@inertiajs/vue3'
 import axios from 'axios'
 
@@ -527,6 +523,7 @@ const formCotacao = useForm({
 })
 
 const fornecedores = ref([...props.fornecedoresDisponiveis])
+const fornecedorSelecionado = ref(props.cotacao?.fornecedor_id ?? null)
 const loadingFornecedores = ref(false)
 
 async function buscarFornecedores(val) {
@@ -615,23 +612,32 @@ watch(
 // -------------------------------------------------------
 // Interface pública (igual ao FormSiteOrcamento)
 // -------------------------------------------------------
-async function validate() {
+async function validateForm() {
   const { valid } = await form.value.validate()
-  return { valid }
+  return valid // retorna boolean direto, igual ao FormSiteOrcamento
 }
 
 function getData() {
   return {
     ...formCotacao.data(),
     servicos_adicionais: servicosAdicionais.value,
+    fornecedor_id: fornecedorSelecionado.value?.id ?? null,
   }
 }
 
 function reset() {
-  formCotacao.reset()
-  servicosAdicionais.value = []
   form.value?.reset()
+  fornecedorSelecionado.value = null
+  servicosAdicionais.value = []
+  formCotacao.reset() // reset do useForm do Inertia
+}
+function populate(dados) {
+  Object.keys(dados).forEach(key => {
+    if (key in formCotacao) {
+      formCotacao[key] = dados[key]
+    }
+  })
 }
 
-defineExpose({ validate, getData, reset, formCotacao })
+defineExpose({ validateForm, getData, reset, formCotacao, populate })
 </script>
