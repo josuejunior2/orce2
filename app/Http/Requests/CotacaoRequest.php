@@ -30,7 +30,7 @@ class CotacaoRequest extends FormRequest
             'site_orcamento_id' => 'required|exists:site_orcamento,id',
             'vel_down' => 'nullable|numeric',
             'vel_up' => 'nullable|numeric',
-            'tecnologia' => 'required|string|max:255',
+            'tecnologia' => 'required',
             'adesao_fornecedor' => 'required|numeric',
             'mensal_fornecedor' => 'required|numeric',
             'mensal_imp' => 'nullable|numeric',

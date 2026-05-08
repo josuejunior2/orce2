@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\OrcamentoController;
+use Inertia\Inertia;
 
 class CotacaoController extends Controller
 {
@@ -83,10 +84,7 @@ class CotacaoController extends Controller
             
             session()->flash('success', 'Cotação cadastrada com sucesso!');
         });
-        return response()->json([
-            'success' => true,
-            'redirect_url' => route('orcamento.show', ['orcamento' => $cotacao->SiteOrcamento->Orcamento]),
-        ]);
+        return Inertia::location(route('orcamento.show', $cotacao->SiteOrcamento->Orcamento));
     }
 
 

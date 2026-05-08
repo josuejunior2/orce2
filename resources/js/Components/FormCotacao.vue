@@ -55,7 +55,6 @@
         <v-radio-group
           v-model="formCotacao.tecnologia"
           inline
-          hide-details
           :rules="[v => !!v || 'Tecnologia é obrigatória']"
           :error-messages="formCotacao.errors.tecnologia"
         >

@@ -69,6 +69,7 @@ async function abrirCadastro(siteOrcamentoId, cidadeId) {
   // popula o filho depois que o diálogo (e o componente) já estão montados
   await nextTick()
   formMontado.value = true
+  await nextTick()
   formCotacao.value.populate({ site_orcamento_id: siteOrcamentoId })
 }
 
@@ -97,6 +98,9 @@ async function submitFormCotacao() {
     inertiaForm.post(route('cotacao.store'), {
       preserveScroll: true,
       onSuccess: fechar,
+      onError: (errors) => {
+        console.error('Erro ao salvar cotação:', errors)
+      }
     })
   }
 }
