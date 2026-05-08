@@ -44,7 +44,44 @@
             Lista de Sites
           </v-card-title>
           <v-row class="d-flex justify-md-end">
-            <v-col col="12" md="3" class="d-flex justify-md-end">
+            <v-col col="12" md="1">
+              <v-menu :close-on-content-click="false">
+                <template v-slot:activator="{ props }">
+                  <v-btn
+                    v-bind="props"
+                    prepend-icon="mdi-eye-outline"
+                    rounded="lg"
+                    text="Colunas"
+                    variant="outlined"
+                  />
+                </template>
+                <v-list density="compact">
+                  <v-list-item>
+                    <v-checkbox
+                      :model-value="colunasVisiveis.length === colunasDisponiveis.length"
+                      :indeterminate="colunasVisiveis.length > 0 && colunasVisiveis.length < colunasDisponiveis.length"
+                      label="Todos"
+                      hide-details
+                      density="compact"
+                      @update:model-value="val => colunasVisiveis = val ? colunasDisponiveis.map(c => c.key) : []"
+                    />
+                  </v-list-item>
+                  <v-list-item
+                    v-for="col in colunasDisponiveis"
+                    :key="col.key"
+                  >
+                    <v-checkbox
+                      v-model="colunasVisiveis"
+                      :label="col.title"
+                      :value="col.key"
+                      hide-details
+                      density="compact"
+                    />
+                  </v-list-item>
+                </v-list>
+              </v-menu>
+            </v-col>
+            <v-col col="12" md="1" class="d-flex justify-md-end">
               <v-btn
                 prepend-icon="mdi-plus"
                 rounded="lg"
@@ -203,12 +240,14 @@ function cotacaoSelecionada(site) {
 }
 
 // Colunas da tabela pai (sites)
-const headers = ref([
+const headersFixos = [
   { title: 'Nome',   key: 'nome'               },
   { title: 'Cidade', key: 'cidade'              },
   { title: 'Estado', key: 'estado'              },
   { title: 'Down',   key: 'vel_solicitada_down' },
   { title: 'Up',     key: 'vel_solicitada_up'   },
+]
+const colunasDisponiveis = [
   { title: 'Fornecedor',     key: 'fornecedor'   },
   { title: 'Custo Ativação',     key: 'custo_ativacao'   },
   { title: 'Velocidade',     key: 'velocidade'   },
@@ -225,8 +264,14 @@ const headers = ref([
   { title: 'Lucro da Adesão',     key: 'lucro_adesao'   },
   { title: 'Lucro Líquido',     key: 'lucro_liquido'   },
   { title: 'Custo Fixo',     key: 'custo_fixo'   },
-])
+]
 
+const colunasVisiveis = ref(colunasDisponiveis.map(c => c.key))
+
+const headers = computed(() => [
+  ...headersFixos,
+  ...colunasDisponiveis.filter(c => colunasVisiveis.value.includes(c.key)),
+])
 // Colunas da tabela filha (pontas/cotações)
 const headersCotacoes = ref([
   { title: '',   key: 'selecionar'               },
