@@ -79,6 +79,7 @@ Route::middleware(['auth:admin'])->group(function () {
     Route::get('fornecedor/getFornecedoresDisponiveis', [App\Http\Controllers\FornecedorController::class, 'getFornecedoresDisponiveisParaCidade'])->name('fornecedor.getFornecedoresDisponiveis');
     Route::resource('fornecedor', App\Http\Controllers\FornecedorController::class)->except(['store', 'create']);
 
+    Route::post('orcamento/atualizaValoresTotais/{orcamento}/{cotacao?}/{cotacaoAbrir?}', [App\Http\Controllers\OrcamentoController::class, 'atualizaValoresTotais'])->name('orcamento.atualiza.valores.totais');
     Route::get('orcamento/getOrcamentos', [App\Http\Controllers\OrcamentoController::class, 'getOrcamentos'])->name('orcamento.getOrcamentos');
     Route::post('orcamento/status/{orcamento}', [App\Http\Controllers\OrcamentoController::class, 'altera_status'])->name('orcamento.altera.status');
     Route::get('orcamento/siteImport/{orcamento}', [App\Http\Controllers\OrcamentoController::class, 'siteImport'])->name('orcamento.site.import');

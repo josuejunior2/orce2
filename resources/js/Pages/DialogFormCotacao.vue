@@ -14,6 +14,8 @@
           :gear-noc="gearNoc"
           :custo-fixo-percent="custoFixoPercent"
           :imposto="imposto"
+          :lucro-mensal-total="lucroMensalTotal"
+          :adesao-total="adesaoTotal"
         />
       </v-card-text>
 
@@ -44,6 +46,8 @@ const props = defineProps({
   gearNoc:          { type: Number, required: true },
   custoFixoPercent: { type: Number, required: true },
   imposto:          { type: Number, required: true },
+  lucroMensalTotal: { type: Number, required: false },
+  adesaoTotal:      { type: Number, required: false },
 })
 
 const dialogFormCotacao  = ref(false)

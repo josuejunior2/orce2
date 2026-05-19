@@ -293,14 +293,22 @@ class OrcamentoController extends Controller
         return Excel::download(new OrcamentoExport($orcamento), "orcamento-" . Str::slug($orcamento->titulo) . ".xlsx");
     }
 
-    public function atualizaValoresTotais(Orcamento $orcamento): void
+    public function atualizaValoresTotais(Orcamento $orcamento, ?Cotacao $cotacao = null, ?Cotacao $cotacaoAbrir = null)
     {
-        DB::transaction(function() use($orcamento){
+        DB::transaction(function() use($orcamento, $cotacao, $cotacaoAbrir, &$lucro_mensal_total, &$adesao_total){
             $lucro_mensal_total = 0;
             $adesao_total = 0;
+
+            if(!empty($cotacaoAbrir)) {
+                $cotacaoAbrir->update(['status' => Cotacao::em_aberto]);
+            }
+            if(!empty($cotacao)) {
+                $cotacao->update(['status' => Cotacao::fechado]);
+            }
+
             foreach($orcamento->sitesOrcamento as $site){
                 if($site->cotacoes->isNotEmpty()){
-                    foreach($site->cotacoes()->where('status', 'Fechado')->get() as $cotacao){
+                    foreach($site->cotacoes()->where('status', Cotacao::fechado)->get() as $cotacao){
                         $lucro_mensal_total += $cotacao->lucro_liquido;
                         $adesao_total += $cotacao->custo_instalacao_imp;
                     }
@@ -311,6 +319,11 @@ class OrcamentoController extends Controller
                 'adesao_total' => $adesao_total,
             ]);
         });
+
+        return response()->json([
+            'lucro_mensal_total' => $lucro_mensal_total,
+            'adesao_total' => $adesao_total,
+        ]);
     }
     
     public function getOrcamentos(Request $request)

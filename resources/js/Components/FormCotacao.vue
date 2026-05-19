@@ -460,7 +460,38 @@
             readonly
           />
         </v-col>
+        
+        <v-col cols="12" class="py-0 my-0 mt-3">
+          <v-divider>
+            <span class="text-caption text-medium-emphasis px-2">Cálculo total do orçamento</span>
+          </v-divider>
+        </v-col>
 
+        <v-col cols="12" md="2" class="py-0 my-0">
+          <v-number-input
+            v-model="lucroMensalTotalRef"
+            label="Lucro Mensal Total"
+            prefix="R$"
+            variant="outlined"
+            density="comfortable"
+            hide-details
+            control-variant="hidden"
+            readonly
+          />
+        </v-col>
+
+        <v-col cols="12" md="2" class="py-0 my-0">
+          <v-number-input
+            v-model="adesaoTotalRef"
+            label="Adesão Total"
+            prefix="R$"
+            variant="outlined"
+            density="comfortable"
+            hide-details
+            control-variant="hidden"
+            readonly
+          />
+        </v-col>
       </template>
 
     </v-row>
@@ -488,7 +519,12 @@ const props = defineProps({
   fornecedoresDisponiveis: { type: Array, default: () => [] },
   gearNoc:          { type: Number, required: true,  },
   custoFixoPercent: { type: Number, required: true,  },
+  lucroMensalTotal: { type: Number, required: false, },
+  adesaoTotal:      { type: Number, required: false, },
 })
+
+const lucroMensalTotalRef = ref(0)
+const adesaoTotalRef = ref(0)
 
 // -------------------------------------------------------
 // Form
@@ -588,6 +624,8 @@ function recalcularTotais() {
   const custo_fixo        = mensal_imp * (props.custoFixoPercent / 100)
   const lucro_liquido     = mensal_imp - custo_fixo - custo_operacional - imposto_mensal
   const lucro_adesao      = custo_inst_imp - adesao_forn - imposto_adesao
+  lucroMensalTotalRef.value = Number(props.lucroMensalTotal) + lucro_liquido
+  adesaoTotalRef.value = Number(props.adesaoTotal) + custo_inst_imp
 
   formCotacao.lucro_liquido     = parseFloat(lucro_liquido.toFixed(2))
   formCotacao.imposto_mensal    = parseFloat(imposto_mensal.toFixed(2))
@@ -628,7 +666,7 @@ function reset() {
   form.value?.reset()
   fornecedorSelecionado.value = null
   servicosAdicionais.value = []
-  formCotacao.reset() // reset do useForm do Inertia
+  formCotacao.reset()
 }
 function populate(dados) {
   Object.keys(dados).forEach(key => {

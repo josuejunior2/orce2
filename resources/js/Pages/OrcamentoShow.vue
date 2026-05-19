@@ -34,6 +34,10 @@
             </v-col>
           </v-row>
         </v-card-text>
+        <v-card-footer class="bg-surface-light d-flex justify-end">
+          {{ lucroMensalTotal }} de lucro mensal total
+          {{ adesaoTotal }} de adesão total
+        </v-card-footer>
       </v-card>
     </v-col>
 
@@ -126,7 +130,7 @@
                     </template>
                     <template v-slot:item.selecionar="{ item: cotacao }">
                       <v-radio-group v-model="item.cotacao_selecionada_id" hide-details>
-                        <v-checkbox :value="cotacao.id" />
+                        <v-checkbox :value="cotacao.id" @click="trocaCotacao(cotacao.id, item.cotacao_selecionada_id ? item.cotacao_selecionada_id : null)" />
                       </v-radio-group>
                     </template>
                   </v-data-table>
@@ -203,6 +207,8 @@
     :gear-noc="gearNoc"
     :custo-fixo-percent="custoFixoPercent"
     :imposto="orcamento.imposto"
+    :lucro-mensal-total="orcamento.lucro_mensal_total"
+    :adesao-total="orcamento.adesao_total"
   />
 </template>
 
@@ -227,6 +233,8 @@ const props = defineProps({
   gearNoc: Number,
   custoFixoPercent: Number,
 });
+const lucroMensalTotal = ref(Number(props.orcamento.lucro_mensal_total));
+const adesaoTotal = ref(Number(props.orcamento.adesao_total));
 
 const sitesOrcamento = ref(
   props.sitesOrcamentoArray.map(site => ({
@@ -238,6 +246,18 @@ const sitesOrcamento = ref(
 function cotacaoSelecionada(site) {
   return site.cotacoes?.find(c => c.id === site.cotacao_selecionada_id)
 }
+
+function trocaCotacao(cotacaoId, cotacaoAbrir) {
+  axios.post(route('orcamento.atualiza.valores.totais', [props.orcamento.id, cotacaoId, cotacaoAbrir]))
+    .then(response => {
+      lucroMensalTotal.value = response.data.lucro_mensal_total
+      adesaoTotal.value = response.data.adesao_total
+    })
+    .catch(error => {
+      console.error('Erro ao atualizar valores totais:', error)
+    })
+}
+
 
 // Colunas da tabela pai (sites)
 const headersFixos = [
