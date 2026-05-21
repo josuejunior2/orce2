@@ -8,16 +8,16 @@
   </v-snackbar>
   
   <v-row no-gutters>
-    <v-col cols="12" class="tabler-datagrid">
+    <v-col cols="12">
       <v-card class="ma-3 mt-4 mb-1" elevation="0" rounded="lg" border>
         <!-- Cabeçalho -->
-        <v-card-item class="border-b tabler-datagrid pt-6 pb-6 pl-5 pr-8">
+        <v-card-item class="border-b  pt-6 pb-6 pl-5 pr-8">
           <v-card-title style="font-weight: 400; font-size: 16px;">{{ orcamento.titulo }}</v-card-title>
         </v-card-item>
 
         <!-- Corpo com data-grid -->
         <v-card-text>
-          <v-row dense class="tabler-datagrid mt-2">
+          <v-row dense class="mt-2">
             <v-col cols="12" md="4" class="p-2">
                 <div class="text-caption text-grey-darken-1 font-weight-bold">RAZÃO SOCIAL DO CLIENTE</div>
                 <div>
@@ -34,10 +34,16 @@
             </v-col>
           </v-row>
         </v-card-text>
-        <v-card-footer class="bg-surface-light d-flex justify-end">
-          {{ lucroMensalTotal }} de lucro mensal total
-          {{ adesaoTotal }} de adesão total
-        </v-card-footer>
+        <div v-if="props.podePrecificar" class="bg-surface-light d-flex justify-center gap-6 px-4 py-3">
+          <div class="text-center">
+            <div class="text-caption text-grey-darken-1">Lucro mensal total</div>
+            <div class="text-h5">{{ formatCurrency(lucroMensalTotal) }}</div>
+          </div>
+          <div class="text-center">
+            <div class="text-caption text-grey-darken-1">Adesão total</div>
+            <div class="text-h5">{{ formatCurrency(adesaoTotal) }}</div>
+          </div>
+        </div>
       </v-card>
     </v-col>
 
@@ -235,6 +241,16 @@ const props = defineProps({
 });
 const lucroMensalTotal = ref(Number(props.orcamento.lucro_mensal_total));
 const adesaoTotal = ref(Number(props.orcamento.adesao_total));
+
+const currencyFormatter = new Intl.NumberFormat('pt-BR', {
+  style: 'currency',
+  currency: 'BRL',
+  minimumFractionDigits: 2,
+});
+
+function formatCurrency(value) {
+  return currencyFormatter.format(Number(value ?? 0));
+}
 
 const sitesOrcamento = ref(
   props.sitesOrcamentoArray.map(site => ({
