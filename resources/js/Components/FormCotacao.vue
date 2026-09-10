@@ -523,8 +523,8 @@ const props = defineProps({
   adesaoTotal:      { type: Number, required: false, },
 })
 
-const lucroMensalTotalRef = ref(0)
-const adesaoTotalRef = ref(0)
+const lucroMensalTotalRef = ref(props.lucroMensalTotal)
+const adesaoTotalRef = ref(props.adesaoTotal)
 
 // -------------------------------------------------------
 // Form
@@ -555,6 +555,8 @@ const formCotacao = useForm({
   custo_fixo:                  props.cotacao?.custo_fixo                  ?? 0,
   lucro_adesao:                props.cotacao?.lucro_adesao                ?? 0,
   lucro_liquido:               props.cotacao?.lucro_liquido               ?? 0,
+  lucro_liquido_subtrair:      0,
+  custo_instalacao_imp_subtrair: 0,
 })
 
 const fornecedores = ref([...props.fornecedoresDisponiveis])
@@ -624,8 +626,8 @@ function recalcularTotais() {
   const custo_fixo        = mensal_imp * (props.custoFixoPercent / 100)
   const lucro_liquido     = mensal_imp - custo_fixo - custo_operacional - imposto_mensal
   const lucro_adesao      = custo_inst_imp - adesao_forn - imposto_adesao
-  lucroMensalTotalRef.value = Number(props.lucroMensalTotal) + lucro_liquido
-  adesaoTotalRef.value = Number(props.adesaoTotal) + custo_inst_imp
+  lucroMensalTotalRef.value = Number(props.lucroMensalTotal) + lucro_liquido - Number(formCotacao.lucro_liquido_subtrair)
+  adesaoTotalRef.value = Number(props.adesaoTotal) + custo_inst_imp - Number(formCotacao.custo_instalacao_imp_subtrair)
 
   formCotacao.lucro_liquido     = parseFloat(lucro_liquido.toFixed(2))
   formCotacao.imposto_mensal    = parseFloat(imposto_mensal.toFixed(2))

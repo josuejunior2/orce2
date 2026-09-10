@@ -128,7 +128,7 @@
                           size="small"
                           color="primary"
                           prepend-icon="mdi-plus"
-                          @click="$refs.dialogCotacao.abrirCadastro(item.id, item.cidade_id)"
+                          @click="$refs.dialogCotacao.abrirCadastro(item.id, item.cidade_id, item.cotacoes.find(c => c.id === item.cotacao_selecionada_id)?.lucro_liquido, item.cotacoes.find(c => c.id === item.cotacao_selecionada_id)?.custo_instalacao_imp)"
                         >
                           Nova
                         </v-btn>

@@ -59,7 +59,7 @@ const formMontado = ref(false)
 // -------------------------------------------------------
 // Expõe para o pai chamar via template ref
 // -------------------------------------------------------
-async function abrirCadastro(siteOrcamentoId, cidadeId) {
+async function abrirCadastro(siteOrcamentoId, cidadeId, lucroLiquidoCotSelecionada, custoInstalacaoImpCotSelecionada) {
   isEditingCotacao.value = false
   try {
     const { data } = await axios.get(route('fornecedor.getFornecedoresDisponiveis'), {
@@ -74,7 +74,7 @@ async function abrirCadastro(siteOrcamentoId, cidadeId) {
   await nextTick()
   formMontado.value = true
   await nextTick()
-  formCotacao.value.populate({ site_orcamento_id: siteOrcamentoId })
+  formCotacao.value.populate({ site_orcamento_id: siteOrcamentoId, lucro_liquido_subtrair: lucroLiquidoCotSelecionada, custo_instalacao_imp_subtrair: custoInstalacaoImpCotSelecionada })
 }
 
 function abrirEdicao(cotacao) {
