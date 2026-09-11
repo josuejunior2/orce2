@@ -21,7 +21,7 @@ Um Cliente entra em contato para contratar internet em N usinas. É realizado um
 
 ## Visualização de usinas pelo Gmaps
 Iterei sobre cada usina com suas coordenadas no componente de marcação do mapa do Gmaps.
-<img width="400" height="225" alt="mapa" src="https://github.com/user-attachments/assets/0be30b0d-72f7-4479-8334-ca62295b0c55" />
+<img width="1000" height="563" alt="gmaps" src="https://github.com/user-attachments/assets/6bf4c355-0989-4de8-a2ad-c439a986581b" />
 
 ## Cotações
 Usufrui a reatividade do Vue/Vuetify no cálculo dos impostos ao preencher o formulário da cotação.
