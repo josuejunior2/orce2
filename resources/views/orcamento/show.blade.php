@@ -395,8 +395,7 @@
 
 @section('js')
 <script
-      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBiQk-FBvoeK8j7hKpVayMETHx4nuh4fcg&loading=async&libraries=marker&v=beta&solution_channel=GMP_CCS_complexmarkers_v3"
-      defer
+      src="ahaa";
     >
 </script>
 <script>    
